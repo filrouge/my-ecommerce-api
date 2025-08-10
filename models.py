@@ -24,6 +24,5 @@ class User:
             "email": self.email,
             "nom": self.nom,
             "role": self.role,
-            "password_hash": self.password_hash,
             "date_creation": self.date_creation.isoformat()
         }
