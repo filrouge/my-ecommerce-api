@@ -3,10 +3,8 @@ __pycache__
 *.pyc
 .env
 
-check_doc
 checks
-database/*
-database/**
+check_doc
 database/ecommerce.db
 is_running.py
 
