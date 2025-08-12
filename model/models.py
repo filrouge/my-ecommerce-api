@@ -1,22 +1,31 @@
-from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.orm import declarative_base, sessionmaker, scoped_session
+from sqlalchemy import create_engine
+from sqlalchemy import Column, Integer, String, DateTime
 from datetime import datetime
 
+Base = declarative_base()
 
-class User:
-    _id_counter = 1
+DB_URL = "sqlite:///E:/Blent/1 - API/my-ecommerce-api/database/ecommerce.db"
 
-    def __init__(self, email, nom, password, role="client"):
-        self.id = User._id_counter
-        User._id_counter += 1
+engine = create_engine(
+    DB_URL, connect_args={"check_same_thread": False},
+    echo=False
+    )
+SessionLocal = scoped_session(
+    sessionmaker(bind=engine, autoflush=False, autocommit=False)
+    )
 
-        self.email = email
-        self.nom = nom
-        self.password_hash = generate_password_hash(password)
-        self.role = role
-        self.date_creation = datetime.utcnow()
 
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+class User(Base):
+    __tablename__ = "user"
+
+    id = Column(Integer, primary_key=True)  # Contrainte d'unicité ?
+    email = Column(String(120), unique=True, nullable=False)  # Contrainte d'unicité ?
+    # Hashed during registering 
+    password_hash = Column(String(255), nullable=False)
+    nom = Column(String(80), nullable=False)
+    role = Column(String(20), default="client")
+    date_creation = Column(DateTime, nullable=False, default=datetime.utcnow)
 
     def to_dict(self):
         return {

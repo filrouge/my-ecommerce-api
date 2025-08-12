@@ -3,13 +3,14 @@ import jwt
 from functools import wraps
 from datetime import datetime, timedelta
 
+# import os
+from model.models import SessionLocal, User
+
 
 # JWT secret:
 # (TODO: env_var in config/env file)
 JWT_KEY = "secret"
 ALGORITHM = "HS256"
-
-table_users = []
 
 
 # JWT Token Generator
@@ -28,6 +29,7 @@ def generate_token(user):
         return None
 
 
+# Authentication
 def auth_required(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -37,12 +39,24 @@ def auth_required(func):
 
         token = auth_header.split(" ")[1]
         try:
-            current_user = jwt.decode(token, JWT_KEY, algorithms=ALGORITHM)
+            current_user = jwt.decode(token, JWT_KEY, algorithms=[ALGORITHM])
         except jwt.ExpiredSignatureError:
             return jsonify({"error": "Token expired"}), 401
         except jwt.InvalidTokenError:
             return jsonify({"error": "Invalid token"}), 401
 
-        return func(current_user=current_user, *args, **kwargs)
+        user_id = current_user.get("id")
+        if not user_id:
+            return jsonify({"error": "Invalid token payload"}), 401
+
+        session = SessionLocal()
+        try:
+            user = session.get(User, user_id)
+            if not user:
+                return jsonify({"error": "User not found"}), 401
+
+            return func(current_user=user, *args, **kwargs)
+        finally:
+            session.close()
 
     return wrapper
