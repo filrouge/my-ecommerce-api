@@ -4,6 +4,8 @@ __pycache__
 .env
 
 checks
+check_doc
+database/ecommerce.db
 is_running.py
 
 instance
