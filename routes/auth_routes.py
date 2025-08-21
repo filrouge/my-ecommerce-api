@@ -1,10 +1,13 @@
 from flask import request, jsonify, Blueprint
-from model.models import User, SessionLocal
+from model.models import User
 from core.auth import generate_token
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
-from sqlalchemy.exc import SQLAlchemyError  # , IntegrityError
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+
+from model.sessions import get_session
+
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -12,6 +15,9 @@ auth_bp = Blueprint("auth", __name__)
 # Routes :
 @auth_bp.route('/register', methods=['POST'])
 def register():
+    '''
+        TODO: EXPLANATION
+    '''
     body = request.get_json()
     if body is None:
         return jsonify({"error": "Invalid JSON"}), 400
@@ -19,7 +25,8 @@ def register():
     if not all(k in body for k in ("email", "nom", "password")):
         return jsonify({"error": "Missing fields"}), 400
 
-    session = SessionLocal()
+    session = get_session()
+
     try:
         if session.query(User).filter_by(email=body["email"]).first():
             return jsonify({"error": "User already exists"}), 400
@@ -33,36 +40,36 @@ def register():
         )
         session.add(new_user)
         session.commit()
-        session.refresh(new_user)  # POURQUOI
+        session.refresh(new_user)
 
         return jsonify(
             {"message": "User registered", "user": new_user.to_dict()}
             ), 201
 
-    # except IntegrityError:
-    #     session.rollback()
-    #     return jsonify({"error": "Duplicate email"}), 400
+    except IntegrityError:
+        # session.rollback()  #  -> removed with session centralization
+        return jsonify({"error": "Duplicate email"}), 400
     except SQLAlchemyError as e:
-        session.rollback()
+        # session.rollback()  #  -> removed with session centralization
         return jsonify({"error": f"Failed to create user: {str(e)}"}), 500
-
-    finally:
-        session.close()
 
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
+    '''
+        TODO: EXPLANATION
+    '''
     body = request.get_json()
     if body is None:
         return jsonify({"error": "Invalid JSON"}), 400
 
     email = body.get("email")
     password = body.get("password")
-
     if not email or not password:
         return jsonify({"error": "Credentials required"}), 400
 
-    session = SessionLocal()
+    session = get_session()
+
     try:
         user = session.query(User).filter_by(email=email).first()
         if not user or not check_password_hash(user.password_hash, password):
@@ -76,5 +83,9 @@ def login():
             {"message": "Connection succeed", "token": token}
             ), 200
 
-    finally:
-        session.close()
+    except IntegrityError:
+        # session.rollback()  #  -> removed with session centralization
+        return jsonify({"error": "Duplicate email"}), 400
+    except SQLAlchemyError as e:
+        # session.rollback()  #  -> removed with session centralization
+        return jsonify({"error": f"Failed to create user: {str(e)}"}), 500
