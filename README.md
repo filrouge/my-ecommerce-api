@@ -8,9 +8,9 @@
 API REST développée avec Flask, SQLAlchemy et JWT.
 
 
-## Structure du projet ()
+## Structure du code
 
-create_db.py → création tables
+TODO: Phrase d'introduction/explication (archi, soc...)
 
 <pre> ```
 plaintext
@@ -86,10 +86,16 @@ L'implémentation du code nécessite les conditions suivantes
     - Python >= 3.12
     - conda / virtualenv + pip
 
-L'utilisation de l'outil SQLite (DbBrowser) est optionnelle mais permet de vérifier le schéma de la Base, la création des tables et les données enregistrées, modifiées ou supprimées.
+L'utilisation de l'outil SQLite (DbBrowser) est optionnelle.
+Elle permet néanmoins de vérifier :
+    - le schéma de la Base,
+    - la création des tables, et 
+    - les données enregistrées, modifiées ou supprimées.
 
 
 ## Installation (Windows)
+
+TODO: Phrase d'introduction/explication (archi, soc...)
 
 1. Cloner le repertoire de ce projet
 
@@ -118,7 +124,7 @@ pip install -r requirements.txt
 
 ## Configuration
 
-Modifiez `config.py` avec vos propres valeurs :
+Une fois le repo cloné et l'environnement crée, modifiez le fichier `config.py` avec vos propres valeurs :
 
 ```
 DATABASE_URL=sqlite:///path-to-database.db
@@ -137,6 +143,7 @@ python app.py
 
 ## API Endpoints
 
+TODO: Phrase d'introduction/explication (archi, soc...)
 
 ### Authentification
 
@@ -172,4 +179,8 @@ python app.py
 
 
 ## Essai
+<!-- TODO -->
+
+
+## Tests
 <!-- TODO -->
