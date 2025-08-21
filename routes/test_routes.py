@@ -11,6 +11,9 @@ test_bp = Blueprint("api", __name__)
 @test_bp.route("/admin-space/users", methods=["GET"])
 @auth_required
 def list_users(current_user):
+    '''
+        TODO: EXPLANATION
+    '''
     if current_user.role != "admin":
         return jsonify({"error": "Unauthorized"}), 403
 
@@ -24,6 +27,9 @@ def list_users(current_user):
 
 @test_bp.route("/public-space/users", methods=["GET"])
 def public_list_users():
+    '''
+        TODO: EXPLANATION
+    '''
     session = get_session()
     try:
         users = session.query(User).all()

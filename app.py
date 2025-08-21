@@ -3,11 +3,8 @@ from routes.main_routes import main_bp
 from routes.auth_routes import auth_bp
 from routes.test_routes import test_bp
 
-from model.models import Base
-from model.database import engine
+from model.database import Base, engine
 from model.sessions import init_session
-
-# from model.sessions import init_session_hooks
 
 
 def create_app():

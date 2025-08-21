@@ -8,12 +8,16 @@ from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
 from model.sessions import get_session
 
+
 auth_bp = Blueprint("auth", __name__)
 
 
 # Routes :
 @auth_bp.route('/register', methods=['POST'])
 def register():
+    '''
+        TODO: EXPLANATION
+    '''
     body = request.get_json()
     if body is None:
         return jsonify({"error": "Invalid JSON"}), 400
@@ -52,6 +56,9 @@ def register():
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
+    '''
+        TODO: EXPLANATION
+    '''
     body = request.get_json()
     if body is None:
         return jsonify({"error": "Invalid JSON"}), 400

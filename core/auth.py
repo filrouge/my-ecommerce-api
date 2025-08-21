@@ -13,7 +13,7 @@ JWT_KEY = Config.JWT_KEY
 ALGORITHM = "HS256"
 
 
-# JWT Token Generator
+# Générateur de token JWT
 def generate_token(user):
     payload = {
         "id": user.id,
@@ -29,7 +29,7 @@ def generate_token(user):
         return None
 
 
-# Authentication
+# Authentification
 def auth_required(func):
     @wraps(func)
     def wrapper(*args, **kwargs):

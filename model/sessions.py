@@ -1,6 +1,6 @@
 '''
     Point d'entrée pour la création de session SQLAlchemy
-    avec gestion centralisée 'flask.g' des sessions
+    avec gestion centralisée 'flask.g'
 '''
 
 from flask import g
@@ -10,8 +10,8 @@ from model.database import SessionLocal
 # Getting the unique request session
 def get_session():
     """
-        Return SQLAlchemy session stored
-        and integrated into g.
+        Renvoie une session SQLAlchemy
+        stockée/intégrée dans g.
     """
     if "session" not in g:
         g.session = SessionLocal()
@@ -21,8 +21,8 @@ def get_session():
 # Close the unique request session
 def close_session():
     """
-        Close the g session automatically
-        after the end of each request.
+        Cloture automatiquement la session 'g'
+        après chaque (fin de) requête.
     """
     session = g.pop("session", None)
     if session:
@@ -31,8 +31,8 @@ def close_session():
 
 def init_session(app):
     """
-    Initialise les hooks Flask pour la session par
-    requête avec rollback automatique si exception :
+    Initialise les hooks Flask pour la session
+    avec rollback automatique si exception :
         - avant chaque requête : création de la session
         - après chaque requête : fermeture de la session
     """
