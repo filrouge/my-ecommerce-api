@@ -3,13 +3,13 @@ import jwt
 from functools import wraps
 from datetime import datetime, timedelta
 
-# import os
-from model.models import SessionLocal, User
+from model.models import User
+from model.database import SessionLocal
+from config import Config
 
 
-# JWT secret:
-# (TODO: env_var in config/env file)
-JWT_KEY = "secret"
+# JWT secret
+JWT_KEY = Config.JWT_KEY
 ALGORITHM = "HS256"
 
 

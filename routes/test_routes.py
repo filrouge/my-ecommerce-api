@@ -2,7 +2,7 @@ from flask import jsonify, Blueprint
 from core.auth import auth_required
 
 from model.models import User
-from core.auth import SessionLocal
+from model.sessions import get_session
 
 test_bp = Blueprint("api", __name__)
 
@@ -14,26 +14,22 @@ def list_users(current_user):
     if current_user.role != "admin":
         return jsonify({"error": "Unauthorized"}), 403
 
-    session = SessionLocal()
+    session = get_session()
     try:
         users = session.query(User).all()
         return jsonify([u.to_dict() for u in users])
     except Exception as e:
         return jsonify({"error": f"Serialization Error : {str(e)}"}), 500
-    finally:
-        session.close()
 
 
 @test_bp.route("/public-space/users", methods=["GET"])
 def public_list_users():
-    session = SessionLocal()
+    session = get_session()
     try:
         users = session.query(User).all()
         return jsonify([u.to_dict() for u in users])
     except Exception as e:
         return jsonify({"error": f"Serialization Error : {str(e)}"}), 500
-    finally:
-        session.close()
 
 
 # @test_bp.route("/admin-route")
