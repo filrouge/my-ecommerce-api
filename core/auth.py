@@ -1,10 +1,11 @@
 from flask import request, jsonify
 import jwt
 from functools import wraps
-from datetime import datetime, timedelta
+from datetime import datetime, UTC, timedelta
 
 from model.models import User
-from model.database import SessionLocal
+# from model.database import SessionLocal
+from model.sessions import get_session
 from config import Config
 
 
@@ -19,7 +20,7 @@ def generate_token(user):
         "id": user.id,
         "email": user.email,
         "role": user.role,
-        "exp": datetime.utcnow() + timedelta(hours=1)
+        "exp": datetime.now(UTC) + timedelta(hours=1)
     }
     try:
         token = jwt.encode(payload, JWT_KEY, algorithm=ALGORITHM)
@@ -49,12 +50,11 @@ def auth_required(func):
         if not user_id:
             return jsonify({"error": "Invalid token payload"}), 401
 
-        session = SessionLocal()
+        session = get_session()
         try:
             user = session.get(User, user_id)
             if not user:
                 return jsonify({"error": "User not found"}), 401
-
             return func(current_user=user, *args, **kwargs)
         finally:
             session.close()

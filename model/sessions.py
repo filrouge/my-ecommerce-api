@@ -33,8 +33,8 @@ def init_session(app):
     """
     Initialise les hooks Flask pour la session
     avec rollback automatique si exception :
-        - avant chaque requête : création de la session
-        - après chaque requête : fermeture de la session
+        - création de la session avant chaque requête
+        - fermeture de la session après chaque requête
     """
 
     # Création de la session

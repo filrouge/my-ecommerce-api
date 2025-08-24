@@ -3,7 +3,7 @@ from model.models import User
 from core.auth import generate_token
 
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, UTC
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
 from model.sessions import get_session
@@ -16,7 +16,7 @@ auth_bp = Blueprint("auth", __name__)
 @auth_bp.route('/register', methods=['POST'])
 def register():
     '''
-        TODO: EXPLANATION
+        TODO: EXPLICATIONS
     '''
     body = request.get_json()
     if body is None:
@@ -36,7 +36,7 @@ def register():
             nom=body["nom"],
             password_hash=generate_password_hash(body["password"]),
             role=body.get("role", "client"),
-            date_creation=datetime.utcnow()
+            date_creation=datetime.now(UTC)
         )
         session.add(new_user)
         session.commit()
@@ -47,17 +47,15 @@ def register():
             ), 201
 
     except IntegrityError:
-        # session.rollback()  #  -> removed with session centralization
         return jsonify({"error": "Duplicate email"}), 400
     except SQLAlchemyError as e:
-        # session.rollback()  #  -> removed with session centralization
         return jsonify({"error": f"Failed to create user: {str(e)}"}), 500
 
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
     '''
-        TODO: EXPLANATION
+        TODO: EXPLICATIONS
     '''
     body = request.get_json()
     if body is None:
@@ -84,8 +82,6 @@ def login():
             ), 200
 
     except IntegrityError:
-        # session.rollback()  #  -> removed with session centralization
         return jsonify({"error": "Duplicate email"}), 400
     except SQLAlchemyError as e:
-        # session.rollback()  #  -> removed with session centralization
         return jsonify({"error": f"Failed to create user: {str(e)}"}), 500
