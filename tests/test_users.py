@@ -1,12 +1,6 @@
-import sys
-import os
 import jwt
 from datetime import datetime
 from werkzeug.security import check_password_hash
-
-# TEMPORAIRE: Ajout du path absolu à config/Config.py et model/
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
 from model.models import User
 from config import Config
 

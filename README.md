@@ -6,6 +6,7 @@
 
 <!-- TODO -->
 API REST construite avec les librairies **Flask**, **SQLAlchemy** et **JWT**, et qui gère les fonctionnalités suivantes :
+
     - Authentification des utilisateurs :
         - Inscription (register)
         - Connexion (login + JWT)
@@ -24,7 +25,6 @@ API REST construite avec les librairies **Flask**, **SQLAlchemy** et **JWT**, et
 TODO: Phrase d'introduction/explication (archi, soc...)
 
 ```
-plaintext
 my-ecommerce-api/
 │
 ├── app.py                      # Point d’entrée API
@@ -78,29 +78,31 @@ my-ecommerce-api/
     - Logique database/session centralisée
     - Configuration (`config.py`)
     - Tests ad-hoc
+    - Fichiers `pytest` (auth)	
 
 
 ### 🔜 Reste à faire :
     - Décorateur `@admin_required` (voire autre selon rôle)
     - Modèles **Produit**, **Commande** et **LignesCommande**
     - Logique métier (business-rules/)
+    - Externalisation des fonctions/querys
     - Scripts `seed_data.py` (alimentation des tables)
     - Gestion erreurs/exceptions (à généraliser/uniformiser)
-    - Fichiers `pytest` (auth + produits + commandes)	
-    - Variables d’environnement (credentials)
-    - Alléger le code en externalisant les fonctions/querys
+    - Fichiers `pytest` (produits + commandes)
     - Passage à Logger pour le monitoring (MEP)
 
 
 
 ## Prérequis
 
-L'implémentation du code nécessite les conditions suivantes
+L'implémentation du code nécessite les conditions suivantes :
+
     - Python >= 3.12
     - conda / virtualenv + pip
 
 L'utilisation de l'outil SQLite (DB Browser) est optionnelle.
 Elle permet néanmoins de vérifier :
+
     - le schéma de la Base,
     - la création des tables, et 
     - les données enregistrées, modifiées ou supprimées.
@@ -164,14 +166,16 @@ En local, l'API est disponible sur l'url : http://127.0.0.1:5000
 
 ## Tests
 
-Pour les tests Pytest, executez les commandes suivantes directement à la racine du projet: 
+Pour les tests Pytest, executez les commandes suivantes directement à la racine du projet :
+
     - `pytest -v` pour cibler tous les tests
     - `pytest -v tests/test_users.py` pour cibler un seul fichier de tests
     - `pytest -v tests/test_users.py::TestLogin` pour cibler un seul module de tests
     - `pytest -v tests/test_users.py::TestAdminAccess::test_access_denied` pour cibler une seule fonctionnalité de tests
 
 
-Dans le cadre des fonctionnalités `utilisateurs` de l'API, les tests unitaires permettent de vérifier les exigences suivantes (avec gestion des erreurs):
+Dans le cadre des fonctionnalités `utilisateurs` de l'API, les tests unitaires permettent de vérifier les exigences suivantes (avec gestion des erreurs) :
+
     ~ Inscription (`/api/auth/register`)
         - email unique
         - mot de passe haché
@@ -193,34 +197,34 @@ TODO: Phrase d'introduction/explication (archi, soc...)
 
 ### Authentification
 
-| Méthode | Endpoint                        | Description                             |
-|---------|---------------------------------|-----------------------------------------|
-| POST    | `/api/auth/register`            | Inscription (email, password)           |
-| POST    | `/api/auth/login`               | Connexion (avec retour de token JWT)    |
+| Méthode     | Endpoint                        | Description                             |
+|-------------|---------------------------------|-----------------------------------------|
+| **POST**    | `/api/auth/register`            | Inscription (email, password)           |
+| **POST**    | `/api/auth/login`               | Connexion (avec retour de token JWT)    |
 
 
 
 ### Produits
 
-| Méthode | Endpoint                        | Accès        | Description              |
-|---------|---------------------------------|--------------|--------------------------|
-| GET     | `/api/produits`                 | Public       | Liste des produits       |
-| GET     | `/api/produits/{id}`            | Public       | Détail produit           |
-| POST    | `/api/produits`                 | Admin        | Création produit         |
-| PUT     | `/api/produits/{id}`            | Admin        | Mise à jour produit      |
-| DELETE  | `/api/produits/{id}`            | Admin        | Suppression produit      |
+| Méthode     | Endpoint                        | Accès        | Description              |
+|-------------|---------------------------------|--------------|--------------------------|
+| **GET**     | `/api/produits`                 | Public       | Liste des produits       |
+| **GET**     | `/api/produits/{id}`            | Public       | Détail produit           |
+| **POST**    | `/api/produits`                 | Admin        | Création produit         |
+| **PUT**     | `/api/produits/{id}`            | Admin        | Mise à jour produit      |
+| **DELETE**  | `/api/produits/{id}`            | Admin        | Suppression produit      |
 
 
 
 ### Commandes
 
-| Méthode | Endpoint                       | Accès         | Description              |
-|---------|--------------------------------|-------------  |--------------------------|
-| GET     | `/api/commandes`               | Client/Admin  | Liste des commandes      |
-| GET     | `/api/commandes/{id}`          | Client/Admin  | Détail d'une commande    |
-| POST    | `/api/commandes`               | Client        | Création d'une commande  |
-| PATCH   | `/api/commandes/{id}`          | Admin         | Mise à jour du statut    |
-| GET     | `/api/commandes/{id}/lignes`   | Client/Admin  | Lignes de la commande    |
+| Méthode     | Endpoint                       | Accès         | Description              |
+|-------------|--------------------------------|-------------  |--------------------------|
+| **GET**     | `/api/commandes`               | Client/Admin  | Liste des commandes      |
+| **GET**     | `/api/commandes/{id}`          | Client/Admin  | Détail d'une commande    |
+| **POST**    | `/api/commandes`               | Client        | Création d'une commande  |
+| **PATCH**   | `/api/commandes/{id}`          | Admin         | Mise à jour du statut    |
+| **GET**     | `/api/commandes/{id}/lignes`   | Client/Admin  | Lignes de la commande    |
 
 
 
