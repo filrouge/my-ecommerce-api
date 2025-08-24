@@ -1,6 +1,6 @@
 from model.database import Base
 from sqlalchemy import Column, Integer, String, DateTime
-from datetime import datetime
+from datetime import datetime, UTC
 # from sqlalchemy import UniqueConstraint
 
 
@@ -13,7 +13,7 @@ class User(Base):
     password_hash = Column(String(255), nullable=False)
     nom = Column(String(80), nullable=False)
     role = Column(String(20), default="client")
-    date_creation = Column(DateTime, nullable=False, default=datetime.utcnow)
+    date_creation = Column(DateTime, nullable=False, default=datetime.now(UTC))
 
     # Contrainte d'unicité pour l'e-mail:
     # __table_args__ = (

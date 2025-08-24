@@ -7,12 +7,12 @@ from model.sessions import get_session
 test_bp = Blueprint("api", __name__)
 
 
-# Following routes are for tests and check purposes
+# Routes pour test et checks manuels
 @test_bp.route("/admin-space/users", methods=["GET"])
 @auth_required
 def list_users(current_user):
     '''
-        TODO: EXPLANATION
+        TODO: EXPLICATIONS
     '''
     if current_user.role != "admin":
         return jsonify({"error": "Unauthorized"}), 403
@@ -28,7 +28,7 @@ def list_users(current_user):
 @test_bp.route("/public-space/users", methods=["GET"])
 def public_list_users():
     '''
-        TODO: EXPLANATION
+        TODO: EXPLICATIONS
     '''
     session = get_session()
     try:
@@ -38,10 +38,10 @@ def public_list_users():
         return jsonify({"error": f"Serialization Error : {str(e)}"}), 500
 
 
-# @test_bp.route("/admin-route")
-# @auth_required
-# def admin_route(current_user):
-#     if current_user.role != "admin":
-#         return jsonify({"error": "Access forbidden"}), 403
-#     else:
-#         return jsonify({"message": f"Welcome {current_user.email} !"})
+@test_bp.route("/admin-route")
+@auth_required
+def admin_route(current_user):
+    if current_user.role != "admin":
+        return jsonify({"error": "Access forbidden"}), 403
+    else:
+        return jsonify({"message": f"Welcome {current_user.email} !"})
