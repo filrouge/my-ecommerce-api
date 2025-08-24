@@ -1,13 +1,7 @@
-import sys
-import os
 import pytest
 from flask import g
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
-# TEMPORAIRE: Ajout du path absolu pour accéder à app.py et model/
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
 from app import create_app
 from model.database import Base
 
@@ -21,7 +15,7 @@ def setup_db():
     app = create_app()
     app.config["TESTING"] = True
 
-    # Engine (forcée en mémoire) et session de test isolée
+    # Engine (forcé en mémoire) et session de test isolée
     engine = create_engine("sqlite:///:memory:", echo=False)
     SessionLocal = sessionmaker(bind=engine)
 
