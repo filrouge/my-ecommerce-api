@@ -99,7 +99,7 @@ L'implémentation du code nécessite les conditions suivantes
     - Python >= 3.12
     - conda / virtualenv + pip
 
-L'utilisation de l'outil SQLite (D B Browser) est optionnelle.
+L'utilisation de l'outil SQLite (DB Browser) est optionnelle.
 Elle permet néanmoins de vérifier :
     - le schéma de la Base,
     - la création des tables, et 
@@ -168,7 +168,7 @@ Pour les tests Pytest, executez les commandes suivantes directement à la racine
     - `pytest -v` pour cibler tous les tests
     - `pytest -v tests/test_users.py` pour cibler un seul fichier de tests
     - `pytest -v tests/test_users.py::TestLogin` pour cibler un seul module de tests
-    - `py::TestAdminAccess::test_access_denied` pour cibler une seule fonctionnalité de tests
+    - `pytest -v tests/test_users.py::TestAdminAccess::test_access_denied` pour cibler une seule fonctionnalité de tests
 
 
 Dans le cadre des fonctionnalités `utilisateurs` de l'API, les tests unitaires permettent de vérifier les exigences suivantes (avec gestion des erreurs):
