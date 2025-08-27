@@ -3,6 +3,7 @@ from datetime import datetime
 from werkzeug.security import check_password_hash
 from model.models import User
 from config import Config
+from core.utils import get_user_by_email
 
 
 class TestRegister:
@@ -22,7 +23,8 @@ class TestRegister:
         assert data["user"]["email"] == payload["email"]
         assert data["user"]["role"] == "client"
 
-        user = session.query(User).filter_by(email=payload["email"]).first()
+        # user = session.query(User).filter_by(email=payload["email"]).first()
+        user = get_user_by_email(session, payload["email"])
         assert check_password_hash(user.password_hash, payload["password"])
         assert isinstance(user.date_creation, datetime)
 
@@ -119,7 +121,8 @@ class TestAdminAccess:
         response = client.get("/api/admin-route", headers={
             "Authorization": f"Bearer {token}"
         })
-        user = session.query(User).filter_by(email=payload["email"]).first()
+        # user = session.query(User).filter_by(email=payload["email"]).first()
+        user = get_user_by_email(session, payload["email"])
 
         assert response.status_code == 200
         assert "Welcome" in response.get_json()["message"]
