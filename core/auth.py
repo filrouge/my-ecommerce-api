@@ -1,10 +1,8 @@
 from flask import request, jsonify
 import jwt
 from functools import wraps
-from datetime import datetime, UTC, timedelta
 
 from model.models import User
-# from model.database import SessionLocal
 from model.sessions import get_session
 from config import Config
 
@@ -14,24 +12,14 @@ JWT_KEY = Config.JWT_KEY
 ALGORITHM = "HS256"
 
 
-# Générateur de token JWT
-def generate_token(user):
-    payload = {
-        "id": user.id,
-        "email": user.email,
-        "role": user.role,
-        "exp": datetime.now(UTC) + timedelta(hours=1)
-    }
-    try:
-        token = jwt.encode(payload, JWT_KEY, algorithm=ALGORITHM)
-        return token
-    except Exception as e:
-        print(f"JWT generation failed: {e}")
-        return None
-
-
 # Authentification
 def auth_required(func):
+    '''
+    Décorateur pour authentification via token JWT qui en vérifie
+    la validité dans l'en-tête `Authorization: Bearer <token>`.
+
+    Retourne une fonction décorée appliquant la vérification JWT.
+    '''
     @wraps(func)
     def wrapper(*args, **kwargs):
         auth_header = request.headers.get("Authorization")
@@ -55,6 +43,7 @@ def auth_required(func):
             user = session.get(User, user_id)
             if not user:
                 return jsonify({"error": "User not found"}), 401
+
             return func(current_user=user, *args, **kwargs)
         finally:
             session.close()

@@ -1,13 +1,7 @@
 from flask import request, jsonify, Blueprint
-from model.models import User
-from core.auth import generate_token
-
-from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime, UTC
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
-
 from model.sessions import get_session
-
+from core.utils import required_fields, register_user, login_user
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -16,36 +10,36 @@ auth_bp = Blueprint("auth", __name__)
 @auth_bp.route('/register', methods=['POST'])
 def register():
     '''
-        TODO: EXPLICATIONS
+        Route pour l'inscription d'un utilisateur.
+        Valide la présence des champs (obligatoires) du JSON reçu
+        dans la requête et crée un utilisateur dans la Base de Données.
+
+        Retourne un tuple:
+            - dict: message de succès ou informations d'erreur
+            - int: code HTTP (201, 400 ou 500)
     '''
     body = request.get_json()
-    if body is None:
-        return jsonify({"error": "Invalid JSON"}), 400
 
-    if not all(k in body for k in ("email", "nom", "password")):
-        return jsonify({"error": "Missing fields"}), 400
+    ok, error = required_fields(body, ["email", "nom", "password"])
+    if not ok:
+        return jsonify({"error": error}), 400
 
     session = get_session()
 
     try:
-        if session.query(User).filter_by(email=body["email"]).first():
-            return jsonify({"error": "User already exists"}), 400
-
-        new_user = User(
+        new_user = register_user(
+            session,
             email=body["email"],
             nom=body["nom"],
-            password_hash=generate_password_hash(body["password"]),
-            role=body.get("role", "client"),
-            date_creation=datetime.now(UTC)
+            password=body["password"],
+            role=body.get("role", "client")
         )
-        session.add(new_user)
-        session.commit()
-        session.refresh(new_user)
-
         return jsonify(
             {"message": "User registered", "user": new_user.to_dict()}
             ), 201
 
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
     except IntegrityError:
         return jsonify({"error": "Duplicate email"}), 400
     except SQLAlchemyError as e:
@@ -54,34 +48,35 @@ def register():
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
-    '''
-        TODO: EXPLICATIONS
-    '''
-    body = request.get_json()
-    if body is None:
-        return jsonify({"error": "Invalid JSON"}), 400
+    """
+    Route pour l'authentification d'un utilisateur.
+    Vérifie la présence des credentials du JSON reçu dans la requête,
+    valide l'authentification de l'utilisateur et génère un token JWT.
 
-    email = body.get("email")
-    password = body.get("password")
-    if not email or not password:
-        return jsonify({"error": "Credentials required"}), 400
+    Retourne un tuple:
+        - dict: message + token JWT ou informations d'erreur
+        - int: code HTTP (200, 401 ou 500)
+    """
+    body = request.get_json()
+
+    ok, error = required_fields(body, ["email", "password"])
+    if not ok:
+        return jsonify({"error": error}), 400
 
     session = get_session()
 
     try:
-        user = session.query(User).filter_by(email=email).first()
-        if not user or not check_password_hash(user.password_hash, password):
-            return jsonify({"error": "Invalid credentials"}), 401
-
-        token = generate_token(user)
-        if token is None:
-            return jsonify({"error": "Token generation failed"}), 500
-
+        token, _ = login_user(
+            session,
+            email=body["email"], password=body["password"]
+            )
         return jsonify(
             {"message": "Connection succeed", "token": token}
             ), 200
 
-    except IntegrityError:
-        return jsonify({"error": "Duplicate email"}), 400
+    except ValueError as e:                         # Credentials non valides
+        return jsonify({"error": str(e)}), 401
+    except RuntimeError as e:                       # Token non généré
+        return jsonify({"error": str(e)}), 500
     except SQLAlchemyError as e:
-        return jsonify({"error": f"Failed to create user: {str(e)}"}), 500
+        return jsonify({"error": f"Failed to log in: {str(e)}"}), 500
