@@ -9,10 +9,7 @@ from model.database import SessionLocal
 
 # Getting the unique request session
 def get_session():
-    """
-        Renvoie une session SQLAlchemy
-        stockée/intégrée dans g.
-    """
+    """ Renvoie une session SQLAlchemy stockée dans g. """
     if "session" not in g:
         g.session = SessionLocal()
     return g.session
@@ -20,10 +17,7 @@ def get_session():
 
 # Close the unique request session
 def close_session():
-    """
-        Cloture automatiquement la session 'g'
-        après chaque (fin de) requête.
-    """
+    """ Cloture automatique de la session après chaque requête. """
     session = g.pop("session", None)
     if session:
         session.close()

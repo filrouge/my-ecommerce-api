@@ -2,6 +2,7 @@ from flask import Flask
 from routes.main_routes import main_bp
 from routes.auth_routes import auth_bp
 from routes.to_test_routes import test_bp
+from routes.product_routes import product_bp
 
 from model.database import Base, engine
 from model.sessions import init_session
@@ -14,6 +15,7 @@ def create_app():
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(test_bp, url_prefix="/api")
+    app.register_blueprint(product_bp, url_prefix="/api/produits")
 
     # Creation des tables si inexistantes
     Base.metadata.create_all(bind=engine)

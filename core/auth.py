@@ -49,3 +49,26 @@ def auth_required(func):
             session.close()
 
     return wrapper
+
+
+# Autorisation
+def access_granted(*role_names):
+    """
+    Décorateur autorisant les actions CRUD selon le role :
+        @access_granted("admin")
+        @access_granted("client", "admin")
+    """
+    def decorator(func):
+        @auth_required
+        @wraps(func)
+        def wrapper(current_user=None, *args, **kwargs):
+            # current_user = kwargs.pop("current_user")  # @auth_required
+            if current_user is None:    # Optionnel
+                return jsonify({"error": "Client non reconnu"}), 401
+
+            if role_names and current_user.role not in role_names:
+                return jsonify({"error": "Accès refusé"}), 403
+
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
