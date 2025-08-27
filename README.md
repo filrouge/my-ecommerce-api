@@ -27,39 +27,39 @@ TODO: Phrase d'introduction/explication (archi, soc...)
 ```
 my-ecommerce-api/
 │
-├── app.py                      # Point d’entrée API
+├── app.py                      # Point d’entrée API (+ Blueprints)
 ├── config.py                   # Paramêtres de configuration Flask/SQLAlchemy
 │
 ├── business_rules/             # Logique métier (à venir)
 │
 ├── core/                       # Middleware sécurité
-│   ├── utils.py                    ← (à venir)
-│   └── auth.py                     ← JWT + décorateur `@auth_required` (`@admin_required` à venir)
+│   ├── utils.py                    ← contient les logiques Authentification/Autorisation
+│   └── auth.py                     ← JWT + décorateurs `@auth_required` + `@access_granted`
 │
 ├── database/                   # (à venir)
 │
 ├── model/                      # ORM SQLAlchemy (modèles inclus)
 │   ├── database.py                 ← contient Engine & Base
 │   ├── sessions.py                 ← contient Sessions
-│   └── models.py                   ← contient les modèles SQLAlchemy (User)
+│   └── models.py                   ← contient les modèles SQLAlchemy (User, Product)
 │
 ├── routes/                     # Routes par domaine/scope
-│   ├── auth_routes.py              ← contient `api/auth/register` et `api/auth/login`
+│   ├── auth_routes.py              ← contient les routes `api/auth/register` et `api/auth/login`
 │   ├── main_routes.py              ← contient `/` (home)
 │   │
 │   ├── order_routes.py             ← (à venir: routes commande/ligne de commande)
-│   ├── product_routes.py           ← (à venir: routes dédiées produits)
+│   ├── product_routes.py           ← contient les routes `/api/produits` et `/api/produits/{id}`
 │   │
 │   └── to_test_routes.py           ← contient les routes pour tests manuels (temporaire)
 │
 ├── tests/                      # Tests unitaires et fonctionnels
 │   ├── conftest.py                 ← fichier de configuration/centralisation des fixtures (en développement)
 │   ├── test_users.py               ← fichier pytest pour `User`
+│   ├── test_products.py            ← fichier pytest pour `Product`
 │   │
-│   ├── test_products.py            ← (à venir: tests dédiés produits)
 │   └── test_orders.py              ← (à venir: tests dédiés commande)
 │
-├── options/                    # Dossier de simulation API / BdD
+├── options/                    # Pour simulation API / BdD
 │   └── seed_data.py                ← Scripts pour alimenter les tables (à venir / optionnel)
 │
 ├── .gitignore
@@ -233,5 +233,34 @@ TODO: Phrase d'introduction/explication (archi, soc...)
 
 
 
-## Essai
+### Essai / Exemples
+<!-- TODO -->
+TODO: Ajouter un exemple de Body/Response (type) pour les principales routes
+
+🔹 POST /api/auth/login
+
+**Body**
+{
+  "email": "exemple@exemple.com",
+  "password": "secret"
+}
+
+
+```
+
+```
+
+**Response (200)**
+`{
+  "message": "Connection succeed",
+  "token": "eyJhbGciOiJIUz..."
+, 200}`
+
+```
+
+
+
+```
+
+## TODO: Documentation du code + Reformatage + Anglicisme
 <!-- TODO -->

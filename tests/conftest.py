@@ -4,6 +4,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app import create_app
 from model.database import Base
+from model.models import User
+from core.utils import generate_token
+from werkzeug.security import generate_password_hash
 
 
 @pytest.fixture(scope="session")
@@ -29,12 +32,13 @@ def setup_db():
 @pytest.fixture(scope="function")
 def test_client(setup_db):
     """
-    Retourne un tuple (FlaskClient et session SQLAlchemy) de test, qui
-    gère le app.app_context() et ouvre une transaction isolée par test
-    (avec rollback et fermeture automatique après chaque test) avec
-    remise de g.session à la session courante avant chaque test :
-        - client : client de test pour simuler des requêtes HTTP
-        - session : sert à interroger la base de test
+    Ouvre une transaction par test (avec rollback/fermeture automatique)
+    avec gestion du app.app_context() et remise de la g.session à
+    la session courante avant chaque test.
+
+    Retourne un tuple (FlaskClient, session SQLAlchemy) de test :
+        - client : pour simuler les requêtes HTTP
+        - session : pour interroger la base de test
     """
 
     app, SessionLocal = setup_db
@@ -52,3 +56,37 @@ def test_client(setup_db):
         finally:
             session.close()
             g.pop("session", None)
+
+
+@pytest.fixture(scope="function")
+def admin_token(test_client):
+    """ Crée un utilisateur admin et retourne son JWT. """
+    _, session = test_client
+    session.query(User).filter_by(email="admin@test.com").delete()
+    admin = User(
+        email="admin@test.com",
+        nom="Admin",
+        password_hash=generate_password_hash("password123"),
+        role="admin"
+        )
+
+    session.add(admin)
+    session.commit()
+    return generate_token(admin)
+
+
+@pytest.fixture(scope="function")
+def client_token(test_client):
+    """ Crée un utilisateur client et retourne son JWT. """
+    _, session = test_client
+    session.query(User).filter_by(email="client@test.com").delete()
+    user = User(
+        email="client@test.com",
+        nom="Client",
+        password_hash=generate_password_hash("password123"),
+        role="client"
+        )
+
+    session.add(user)
+    session.commit()
+    return generate_token(user)

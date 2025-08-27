@@ -15,10 +15,10 @@ class TestRegister:
             "nom": "Test",
             "password": "123456"
         }
-        response = client.post("/api/auth/register", json=payload)
-        assert response.status_code == 201
+        resp = client.post("/api/auth/register", json=payload)
+        assert resp.status_code == 201
 
-        data = response.get_json()
+        data = resp.get_json()
         assert data["message"] == "User registered"
         assert data["user"]["email"] == payload["email"]
         assert data["user"]["role"] == "client"
@@ -37,9 +37,9 @@ class TestRegister:
         }
         # Inscription / Ré-inscription avec email identique
         client.post("/api/auth/register", json=payload)
-        response = client.post("/api/auth/register", json=payload)
-        assert response.status_code == 400
-        assert response.get_json()["error"] == "User already exists"
+        resp = client.post("/api/auth/register", json=payload)
+        assert resp.status_code == 400
+        assert resp.get_json()["error"] == "User already exists"
 
         # Vérification au niveau BdD
         users = session.query(User).filter_by(email=payload["email"]).all()
@@ -50,9 +50,9 @@ class TestRegister:
         payload = {
             "email": "just@email.com"
         }
-        response = client.post("/api/auth/register", json=payload)
-        assert response.status_code == 400
-        assert "missing" in response.get_json()["error"].lower()
+        resp = client.post("/api/auth/register", json=payload)
+        assert resp.status_code == 400
+        assert "missing" in resp.get_json()["error"].lower()
 
         users = session.query(User).filter_by(email=payload["email"]).all()
         assert len(users) == 0
@@ -72,12 +72,12 @@ class TestLogin:
         ALGORITHM = "HS256"
 
         client.post("/api/auth/register", json=payload)
-        response = client.post("/api/auth/login", json={
+        resp = client.post("/api/auth/login", json={
             "email": payload["email"],
             "password": payload["password"]
         })
-        assert response.status_code == 200
-        data = response.get_json()
+        assert resp.status_code == 200
+        data = resp.get_json()
         assert "token" in data
 
         token = data["token"]
@@ -94,11 +94,11 @@ class TestLogin:
         }
 
         client.post("/api/auth/register", json=payload)
-        response = client.post("/api/auth/login", json={
+        resp = client.post("/api/auth/login", json={
             "email": payload["email"],
             "password": "pwd_nok"
         })
-        assert response.status_code == 401
+        assert resp.status_code == 401
 
 
 class TestAdminAccess:
@@ -112,20 +112,20 @@ class TestAdminAccess:
         }
 
         client.post("/api/auth/register", json=payload)
-        response = client.post("/api/auth/login", json={
+        resp = client.post("/api/auth/login", json={
             "email": payload["email"],
             "password": payload["password"]
         })
 
-        token = response.get_json()["token"]
-        response = client.get("/api/admin-route", headers={
+        token = resp.get_json()["token"]
+        resp = client.get("/api/admin-route", headers={
             "Authorization": f"Bearer {token}"
         })
         # user = session.query(User).filter_by(email=payload["email"]).first()
         user = get_user_by_email(session, payload["email"])
 
-        assert response.status_code == 200
-        assert "Welcome" in response.get_json()["message"]
+        assert resp.status_code == 200
+        assert "Welcome" in resp.get_json()["message"]
         assert user.role == payload["role"]
 
     def test_access_denied(self, test_client):
@@ -138,13 +138,13 @@ class TestAdminAccess:
         }
 
         client.post("/api/auth/register", json=payload)
-        response = client.post("/api/auth/login", json={
+        resp = client.post("/api/auth/login", json={
             "email": payload["email"],
             "password": payload["password"]
         })
 
-        token = response.get_json()["token"]
-        response = client.get("/api/admin-route", headers={
+        token = resp.get_json()["token"]
+        resp = client.get("/api/admin-route", headers={
             "Authorization": f"Bearer {token}"
         })
-        assert response.status_code == 403
+        assert resp.status_code == 403
