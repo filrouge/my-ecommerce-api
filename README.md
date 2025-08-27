@@ -33,30 +33,34 @@ my-ecommerce-api/
 ├── business_rules/             # Logique métier (à venir)
 │
 ├── core/                       # Middleware sécurité
-│   ├── utils.py                ← (à venir)
-│   └── auth.py                 ← JWT + décorateur `@auth_required` (`@admin_required` à venir)
+│   ├── utils.py                    ← (à venir)
+│   └── auth.py                     ← JWT + décorateur `@auth_required` (`@admin_required` à venir)
 │
 ├── database/                   # (à venir)
 │
-├── model/
-│   ├── database.py             ← contient Engine & Base
-│   ├── sessions.py             ← contient Sessions
-│   └── models.py               ← modèles SQLAlchemy (contient User())
+├── model/                      # ORM SQLAlchemy (modèles inclus)
+│   ├── database.py                 ← contient Engine & Base
+│   ├── sessions.py                 ← contient Sessions
+│   └── models.py                   ← contient les modèles SQLAlchemy (User)
 │
 ├── routes/                     # Routes par domaine/scope
-│   ├── auth_routes.py          ← contient `api/auth/register` et `api/auth/login`
-│   ├── main_routes.py          ← contient `/` (home)
+│   ├── auth_routes.py              ← contient `api/auth/register` et `api/auth/login`
+│   ├── main_routes.py              ← contient `/` (home)
 │   │
-│   ├── order_routes.py         ← (à venir: routes commande/ligne de commande)
-│   ├── product_routes.py       ← (à venir: routes dédiées produits)
+│   ├── order_routes.py             ← (à venir: routes commande/ligne de commande)
+│   ├── product_routes.py           ← (à venir: routes dédiées produits)
 │   │
-│   └── test_routes.py          ← contient les routes pour tests manuels (temporaire)
+│   └── to_test_routes.py           ← contient les routes pour tests manuels (temporaire)
 │
-├── tests/                      # Tests unitaires et intégration
-│   └── test_*.py               ← fichiers pytest à venir
+├── tests/                      # Tests unitaires et fonctionnels
+│   ├── conftest.py                 ← fichier de configuration/centralisation des fixtures (en développement)
+│   ├── test_users.py               ← fichier pytest pour `User`
+│   │
+│   ├── test_products.py            ← (à venir: tests dédiés produits)
+│   └── test_orders.py              ← (à venir: tests dédiés commande)
 │
 ├── options/                    # Dossier de simulation API / BdD
-│   └── seed_data.py            ← Scripts pour alimenter les tables (à venir)
+│   └── seed_data.py                ← Scripts pour alimenter les tables (à venir / optionnel)
 │
 ├── .gitignore
 │
@@ -78,18 +82,18 @@ my-ecommerce-api/
     - Logique database/session centralisée
     - Configuration (`config.py`)
     - Tests ad-hoc
-    - Fichiers `pytest` (auth)	
+    - Fichiers `pytest` (inscription / authentification)
+    - Externalisation des fonctions/querys	
 
 
 ### 🔜 Reste à faire :
-    - Décorateur `@admin_required` (voire autre selon rôle)
-    - Modèles **Produit**, **Commande** et **LignesCommande**
+    - Modèles Product, Order et OrderItem
     - Logique métier (business-rules/)
-    - Externalisation des fonctions/querys
-    - Scripts `seed_data.py` (alimentation des tables)
-    - Gestion erreurs/exceptions (à généraliser/uniformiser)
+    - Décorateur `@admin_required` (voire autre selon rôle)
     - Fichiers `pytest` (produits + commandes)
+    - Gestion erreurs/exceptions (à généraliser/uniformiser)
     - Passage à Logger pour le monitoring (MEP)
+    - Scripts `seed_data.py` (alimentation des tables)
 
 
 
@@ -170,6 +174,7 @@ Pour les tests Pytest, executez les commandes suivantes directement à la racine
 
     - `pytest -v` pour cibler tous les tests
     - `pytest -v tests/test_users.py` pour cibler un seul fichier de tests
+    - `pytest -vv tests/test_users.py` pour afficher le détail des assertions
     - `pytest -v tests/test_users.py::TestLogin` pour cibler un seul module de tests
     - `pytest -v tests/test_users.py::TestAdminAccess::test_access_denied` pour cibler une seule fonctionnalité de tests
 
