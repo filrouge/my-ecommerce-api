@@ -7,6 +7,7 @@ from model.database import Base
 from model.models import User
 from core.auth_utils import generate_token
 from werkzeug.security import generate_password_hash
+# from model.models import Product, Order, OrderItem
 
 
 @pytest.fixture(scope="session")
@@ -89,3 +90,30 @@ def client_token(test_client):
     session.add(user)
     session.commit()
     return generate_token(user)
+
+###############
+# TODO
+# Modifier Tests
+###############
+# @pytest.fixture(scope="function")
+# def visitor_access(test_client)::
+    # """
+    # Crée un visteur avec accès restreint
+    # sans enregistrement ni authentification.
+    # """
+
+# @pytest.fixture(scope="function")
+# def feed_products(test_client):
+    # """
+    # Alimente la table 'product' (4 produits distincs)
+    # et retourne une liste des 4 produits.
+    # """
+
+
+# @pytest.fixture(scope="function")
+# def feed_orders(test_client, client_token, setup_product):
+    # """
+    # Crée 2 commandes distinctes (2 lignes / commande, 2 produits / ligne) en
+    # alimentant les tables 'order' et 'order_item' et retourne un dictionnaire
+    # comprenant les commandes, l'id du client et lignes de commande
+    # """

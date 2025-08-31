@@ -1,5 +1,4 @@
 from flask import request, jsonify, Blueprint
-from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from model.sessions import get_session
 from core.auth_utils import required_fields, register_user, login_user
 
@@ -40,10 +39,6 @@ def register():
 
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
-    except IntegrityError:
-        return jsonify({"error": "Duplicate email"}), 400
-    except SQLAlchemyError as e:
-        return jsonify({"error": f"Failed to create user: {str(e)}"}), 500
 
 
 @auth_bp.route("/login", methods=["POST"])
@@ -78,5 +73,3 @@ def login():
         return jsonify({"error": str(e)}), 401
     except RuntimeError as e:                       # Token non généré
         return jsonify({"error": str(e)}), 500
-    except SQLAlchemyError as e:
-        return jsonify({"error": f"Failed to log in: {str(e)}"}), 500

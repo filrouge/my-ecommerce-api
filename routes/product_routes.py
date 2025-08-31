@@ -1,7 +1,6 @@
 from flask import request, jsonify, Blueprint, g
-# from model.sessions import get_session
 from core.auth_utils import required_fields
-from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+from sqlalchemy.exc import IntegrityError
 from services.product_utils import (
     get_all_products,
     get_product_id,
@@ -35,8 +34,6 @@ def get_products():
 
     except ValueError as e:
         return jsonify({"error": str(e)}), 404
-    except SQLAlchemyError as e:
-        return jsonify({"error": f"Erreur Database: {str(e)}"}), 500
 
 
 @product_bp.route("/search", methods=["GET"])
@@ -75,8 +72,6 @@ def list_products():
 
     except ValueError as e:
         return jsonify({"error": str(e)}), 404
-    except SQLAlchemyError as e:
-        return jsonify({"error": "Erreur Database", "details": str(e)}), 500
 
 
 @product_bp.route("/<int:id>", methods=["GET"])
@@ -89,8 +84,6 @@ def get_product(id):
 
     except ValueError as e:
         return jsonify({"error": str(e)}), 404
-    except SQLAlchemyError as e:
-        return jsonify({"error": f"Erreur Database: {str(e)}"}), 500
 
 
 @product_bp.route('', methods=['POST'])
@@ -103,26 +96,20 @@ def create_product():
         ["nom", "description", "categorie", "prix", "quantite_stock"]
         )
 
-    try:
-        product = add_product(
-            g.session,
-            nom=data["nom"],
-            description=data.get("description", ""),
-            categorie=data.get("categorie", "Autre"),
-            prix=data.get("prix", 0),
-            quantite_stock=data.get("quantite_stock", 0)
-        )
-        return jsonify(
-            {
-                "message": "Produit ajouté",
-                "produit": product.to_dict()
-            }
-        ), 201
-
-    except IntegrityError as e:
-        return jsonify({"error": "Erreur Integrité", "details": str(e)}), 400
-    except SQLAlchemyError as e:
-        return jsonify({"error": "Erreur Database", "details": str(e)}), 500
+    product = add_product(
+        g.session,
+        nom=data["nom"],
+        description=data.get("description", ""),
+        categorie=data.get("categorie", "Autre"),
+        prix=data.get("prix", 0),
+        quantite_stock=data.get("quantite_stock", 0)
+    )
+    return jsonify(
+        {
+            "message": "Produit ajouté",
+            "produit": product.to_dict()
+        }
+    ), 201
 
 
 @product_bp.route("/<int:id>", methods=["PUT"])
@@ -147,8 +134,6 @@ def update_product_id(id):
         return jsonify({"error": str(e)}), 404
     except IntegrityError as e:
         return jsonify({"error": "Erreur Integrité", "details": str(e)}), 400
-    except SQLAlchemyError as e:
-        return jsonify({"error": f"Erreur Database: {str(e)}"}), 500
 
 
 @product_bp.route("/<int:id>", methods=["DELETE"])
@@ -161,5 +146,3 @@ def delete_product(id):
 
     except ValueError as e:
         return jsonify({"error": str(e)}), 404
-    except SQLAlchemyError as e:
-        return jsonify({"error": f"Erreur Database: {str(e)}"}), 500
