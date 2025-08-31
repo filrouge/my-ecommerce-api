@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from app import create_app
 from model.database import Base
 from model.models import User
-from core.utils import generate_token
+from core.auth_utils import generate_token
 from werkzeug.security import generate_password_hash
 
 
@@ -40,7 +40,6 @@ def test_client(setup_db):
         - client : pour simuler les requêtes HTTP
         - session : pour interroger la base de test
     """
-
     app, SessionLocal = setup_db
 
     with app.app_context():

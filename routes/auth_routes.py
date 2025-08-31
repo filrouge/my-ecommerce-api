@@ -1,7 +1,7 @@
 from flask import request, jsonify, Blueprint
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from model.sessions import get_session
-from core.utils import required_fields, register_user, login_user
+from core.auth_utils import required_fields, register_user, login_user
 
 auth_bp = Blueprint("auth", __name__)
 

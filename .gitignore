@@ -2,10 +2,10 @@ venv
 __pycache__
 *.pyc
 .env
+.pytest_cache
 
 checks
 check_doc
 database/ecommerce.db
-is_running.py
 
 instance

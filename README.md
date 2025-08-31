@@ -20,7 +20,8 @@ API REST construite avec les librairies **Flask**, **SQLAlchemy** et **JWT**, et
         - consultation / suivi / modification
 
 
-## Structure du code
+
+## Structure du projet
 
 TODO: Phrase d'introduction/explication (archi, soc...)
 
@@ -29,8 +30,6 @@ my-ecommerce-api/
 │
 ├── app.py                      # Point d’entrée API (+ Blueprints)
 ├── config.py                   # Paramêtres de configuration Flask/SQLAlchemy
-│
-├── business_rules/             # Logique métier (à venir)
 │
 ├── core/                       # Middleware sécurité
 │   ├── utils.py                    ← contient les logiques Authentification/Autorisation
@@ -46,55 +45,29 @@ my-ecommerce-api/
 ├── routes/                     # Routes par domaine/scope
 │   ├── auth_routes.py              ← contient les routes `api/auth/register` et `api/auth/login`
 │   ├── main_routes.py              ← contient `/` (home)
-│   │
-│   ├── order_routes.py             ← (à venir: routes commande/ligne de commande)
+│   ├── order_routes.py             ← contient les routes `/api/commandes`, `/api/commandes/{id}`
 │   ├── product_routes.py           ← contient les routes `/api/produits` et `/api/produits/{id}`
 │   │
 │   └── to_test_routes.py           ← contient les routes pour tests manuels (temporaire)
 │
+├── services/                   # Logique métier
+│   ├── product_utils.py            ← contient les utilitaires pour les routes `produits`
+│   └── order_utils.py              ← contient les utilitaires pour les routes `commandes`
+│
 ├── tests/                      # Tests unitaires et fonctionnels
 │   ├── conftest.py                 ← fichier de configuration/centralisation des fixtures (en développement)
+│   ├── report.html                 ← rapport des résultats de tests pytest (HTML) (optionnel)
 │   ├── test_users.py               ← fichier pytest pour `User`
 │   ├── test_products.py            ← fichier pytest pour `Product`
-│   │
-│   └── test_orders.py              ← (à venir: tests dédiés commande)
+│   └── test_orders.py              ← fichier pytest pour `Order`
 │
-├── options/                    # Pour simulation API / BdD
+├── options/                    # Pour simulation API / BdD (optionnel)
 │   └── seed_data.py                ← Scripts pour alimenter les tables (à venir / optionnel)
 │
 ├── .gitignore
-│
 ├── requirements.txt            # Liste des dépendances python (à venir)
-│
 └── README.md                   # (documentation en développement)
 ```
-
-
-
-## Statut
-
-### ✅ Réalisations :
-    - Routes: `Register` (avec password hashé) et `Login` (avec token JWT)
-    - Validation des champs (email, nom, password) et unicité de l'email
-    - Centralisation des routes en Blueprints
-    - Intégration du décorateur `@auth_required`
-    - Architecture SQLAlchemy ready
-    - Logique database/session centralisée
-    - Configuration (`config.py`)
-    - Tests ad-hoc
-    - Fichiers `pytest` (inscription / authentification)
-    - Externalisation des fonctions/querys	
-
-
-### 🔜 Reste à faire :
-    - Modèles Product, Order et OrderItem
-    - Logique métier (business-rules/)
-    - Décorateur `@admin_required` (voire autre selon rôle)
-    - Fichiers `pytest` (produits + commandes)
-    - Gestion erreurs/exceptions (à généraliser/uniformiser)
-    - Passage à Logger pour le monitoring (MEP)
-    - Scripts `seed_data.py` (alimentation des tables)
-
 
 
 ## Prérequis
@@ -142,6 +115,7 @@ pip install -r requirements.txt
 ```
 
 
+
 ## Configuration
 
 Une fois le projet cloné et l'environnement crée, modifiez le fichier `config.py` avec vos propres valeurs :
@@ -150,7 +124,6 @@ Une fois le projet cloné et l'environnement crée, modifiez le fichier `config.
 DATABASE_URL=sqlite:///path-to-database.db
 JWT_SECRET_KEY=your-jwt-secret
 ```
-
 
 
 ## Lancement
@@ -168,15 +141,23 @@ flask run
 En local, l'API est disponible sur l'url : http://127.0.0.1:5000
 
 
+
 ## Tests
 
 Pour les tests Pytest, executez les commandes suivantes directement à la racine du projet :
+```bash
+pytest --maxfail=1 --disable-warnings -q
+```
 
-    - `pytest -v` pour cibler tous les tests
-    - `pytest -v tests/test_users.py` pour cibler un seul fichier de tests
-    - `pytest -vv tests/test_users.py` pour afficher le détail des assertions
-    - `pytest -v tests/test_users.py::TestLogin` pour cibler un seul module de tests
-    - `pytest -v tests/test_users.py::TestAdminAccess::test_access_denied` pour cibler une seule fonctionnalité de tests
+`pytest -v` pour cibler tous les tests
+`pytest -v tests/test_users.py` pour cibler un seul fichier de tests
+`pytest -vv tests/test_users.py` pour afficher le détail des assertions
+`pytest -v tests/test_users.py::TestLogin` pour cibler un seul module de tests
+`pytest -v tests/test_users.py::TestAdminAccess::test_access_denied` pour cibler une seule fonctionnalité de tests
+
+Pour la génération d'un rapport de tests (avec résultats dans un fichier `report.html`), il faudra installer la librairie `pytest-html` avec `pip install pytest-html` et lancer la commande :
+
+`pytest -vv test_products.py --html=report.html --self-contained-html` 
 
 
 Dans le cadre des fonctionnalités `utilisateurs` de l'API, les tests unitaires permettent de vérifier les exigences suivantes (avec gestion des erreurs) :
@@ -195,6 +176,9 @@ Dans le cadre des fonctionnalités `utilisateurs` de l'API, les tests unitaires 
         - refusé pour autre que `admin`
 
 
+TODO: Compléter la couverture des test pour `produits` et `commandes`
+
+
 
 ## API Endpoints
 
@@ -206,6 +190,23 @@ TODO: Phrase d'introduction/explication (archi, soc...)
 |-------------|---------------------------------|-----------------------------------------|
 | **POST**    | `/api/auth/register`            | Inscription (email, password)           |
 | **POST**    | `/api/auth/login`               | Connexion (avec retour de token JWT)    |
+
+
+🔹 Exemple: **POST** `/api/auth/login`
+
+        *Body*
+
+                `{
+                "email": "exemple@exemple.com",
+                "password": "secret"
+                }`
+
+        *Response (200)*
+
+                `{
+                "message": "Connection succeed",
+                "token": "eyJhbGciOiJIUz..."
+                }`
 
 
 
@@ -220,6 +221,26 @@ TODO: Phrase d'introduction/explication (archi, soc...)
 | **DELETE**  | `/api/produits/{id}`            | Admin        | Suppression produit      |
 
 
+🔹 Exemple: **POST** `/api/produits`    (*headers:* `Authorization: Bearer <token_admin>`)
+
+        *Body*
+                `{
+                "nom": "Produit",
+                "prix": 99.9,
+                "stock": 5
+                }`
+
+        *Response (201)*
+                `{
+                "message": "Produit ajouté",
+                "produit": {
+                    "id": 3,
+                    "nom": "Produit",
+                    "prix": 99.9,
+                    "stock": 5
+                }
+                }`
+
 
 ### Commandes
 
@@ -232,35 +253,57 @@ TODO: Phrase d'introduction/explication (archi, soc...)
 | **GET**     | `/api/commandes/{id}/lignes`   | Client/Admin  | Lignes de la commande    |
 
 
+🔹 Exemple: **POST** `/api/commandes`   (*headers:* `Authorization: Bearer <token_client>`)
 
-### Essai / Exemples
-<!-- TODO -->
-TODO: Ajouter un exemple de Body/Response (type) pour les principales routes
+        *Body*
+                `{
+                "adresse_livraison": "4 rue d'ici, 75000 Paname",
+                "produits": [
+                    {"id": 1, "quantite": 2},
+                    {"id": 2, "quantite": 1}
+                ]
+                }`
 
-🔹 POST /api/auth/login
+        *Response (201)*
+                `{
+                "message": "Commande id:11 créée",
+                "commande": {
+                    "id": 11,
+                    "statut": "En attente",
+                    "adresse_livraison": "4 rue d'ici, 75000 Paname",
+                    "produits": [
+                    {"id": 1, "quantite": 2},
+                    {"id": 2, "quantite": 1}
+                    ]
+                }
+                }`
 
-**Body**
-{
-  "email": "exemple@exemple.com",
-  "password": "secret"
-}
 
+
+
+## Gestion des erreurs/exceptions
+
+### Erreurs applicatives
 
 ```
-
-```
-
-**Response (200)**
-`{
-  "message": "Connection succeed",
-  "token": "eyJhbGciOiJIUz..."
-, 200}`
-
 ```
 
 
+### Erreurs SQLAlchemy
 
 ```
+```
 
-## TODO: Documentation du code + Reformatage + Anglicisme
-<!-- TODO -->
+
+## Statut
+
+🔜 TODO:
+
+    - Gestion et uniformisation des erreurs/exceptions (métier vs. back-end)
+    - Factorisation des tests (fixtures pour produit/ligne/commande)
+    - Documentation du code + Reformatage + Anglicisme
+    - Enrichissement de la documentation API
+
+    - Passage à Logger pour le monitoring (MEP)
+
+    - Exemples + Scripts `seed_data.py` (alimentation des tables)
