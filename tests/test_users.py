@@ -3,7 +3,7 @@ from datetime import datetime
 from werkzeug.security import check_password_hash
 from model.models import User
 from config import Config
-from core.utils import get_user_by_email
+from core.auth_utils import get_user_by_email
 
 
 class TestRegister:

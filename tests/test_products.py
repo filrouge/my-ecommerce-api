@@ -81,6 +81,7 @@ class TestCRUD:
                           )
         session.add(product)
         session.commit()
+        # session.flush()
 
         payload = {"nom": "ProdUpdate", "description": "NewDesc", "prix": 6.0}
         resp = client.put(f"/api/produits/{product.id}",
@@ -100,6 +101,7 @@ class TestCRUD:
                           )
         session.add(product)
         session.commit()
+        # session.flush()
 
         resp = client.delete(f"/api/produits/{product.id}",
                              headers={"Authorization": f"Bearer {admin_token}"}
@@ -115,6 +117,7 @@ class TestCRUD:
                           )
         session.add(product)
         session.commit()
+        # session.flush()
 
         resp = client.delete(f"/api/produits/{product.id}", headers={
             "Authorization": f"Bearer {client_token}"
@@ -123,20 +126,21 @@ class TestCRUD:
         assert resp.status_code == 403
         assert deleted is not None
 
-    def test_delete_nonexistent_product(self, test_client, admin_token):
+    def test_delete_invalid_product(self, test_client, admin_token):
         client, _ = test_client
         resp = client.delete("/api/produits/99999",
                              headers={"Authorization": f"Bearer {admin_token}"}
                              )
         assert resp.status_code == 404
 
-    def test_delete_product_non_admin(self, test_client, client_token):
+    def test_delete_product_by_non_admin(self, test_client, client_token):
         client, session = test_client
         product = Product(nom="ProdNonAdmin", description="Desc",
                           categorie="CatX", prix=10.0, quantite_stock=1
                           )
         session.add(product)
         session.commit()
+        # session.flush()
 
         resp = client.delete(f"/api/produits/{product.id}",
                              headers={"Authorization": f"Bearer {client_token}"}

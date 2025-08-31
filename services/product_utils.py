@@ -10,6 +10,7 @@ def get_product_id(session, produit_id):
     """ Recherche un produit par son id. """
     product = session.query(Product).filter_by(id=produit_id).first()
     if not product:
+        # raise ValueError(f"Produit ID {produit_id} introuvable")
         raise ValueError("Produit introuvable")
     return product
 
@@ -26,6 +27,7 @@ def add_product(session, nom, description, categorie, prix, quantite_stock):
 
     session.add(product)
     session.commit()
+    # session.flush()
     session.refresh(product)
     return product
 
@@ -33,11 +35,19 @@ def add_product(session, nom, description, categorie, prix, quantite_stock):
 def update_product(session, produit_id, **kwargs):
     """ Met à jour un produit avec les champs passés en kwargs. """
     product = get_product_id(session, produit_id)
+
+    if "prix" in kwargs and kwargs["prix"] < 0:
+        raise ValueError("Prix invalide")
+
+    if "quantite_stock" in kwargs and kwargs["quantite_stock"] < 0:
+        raise ValueError("Quantité invalide")
+
     for field in ["nom", "description", "categorie", "prix", "quantite_stock"]:
         if field in kwargs:
             setattr(product, field, kwargs[field])
 
     session.commit()
+    # session.flush()
     session.refresh(product)
     return product
 
@@ -48,6 +58,7 @@ def delete_product_id(session, produit_id):
 
     session.delete(product)
     session.commit()
+    # session.flush()
     return True
 
 

@@ -1,7 +1,6 @@
-from flask import request, jsonify
+from flask import request, jsonify, g
 import jwt
 from functools import wraps
-
 from model.models import User
 from model.sessions import get_session
 from config import Config
@@ -17,7 +16,6 @@ def auth_required(func):
     '''
     Décorateur pour authentification via token JWT qui en vérifie
     la validité dans l'en-tête `Authorization: Bearer <token>`.
-
     Retourne une fonction décorée appliquant la vérification JWT.
     '''
     @wraps(func)
@@ -44,6 +42,9 @@ def auth_required(func):
             if not user:
                 return jsonify({"error": "User not found"}), 401
 
+            # Ajouter g.current_user: absent -> echec sur "commandes" !
+            g.current_user = user
+
             return func(current_user=user, *args, **kwargs)
         finally:
             session.close()
@@ -62,12 +63,12 @@ def access_granted(*role_names):
         @auth_required
         @wraps(func)
         def wrapper(current_user=None, *args, **kwargs):
-            # current_user = kwargs.pop("current_user")  # @auth_required
-            if current_user is None:    # Optionnel
-                return jsonify({"error": "Client non reconnu"}), 401
+            # current_user = kwargs.pop("current_user")
+            if current_user is None:    # Optionnel/Redondant
+                return jsonify({"error": "User not recognized"}), 401
 
             if role_names and current_user.role not in role_names:
-                return jsonify({"error": "Accès refusé"}), 403
+                return jsonify({"error": "Access denied"}), 403
 
             return func(*args, **kwargs)
         return wrapper

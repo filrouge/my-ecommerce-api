@@ -1,6 +1,6 @@
-from flask import request, jsonify, Blueprint
-from model.sessions import get_session
-from core.utils import required_fields
+from flask import request, jsonify, Blueprint, g
+# from model.sessions import get_session
+from core.auth_utils import required_fields
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from services.product_utils import (
     get_all_products,
@@ -17,9 +17,9 @@ product_bp = Blueprint("product_bp", __name__)
 
 @product_bp.route("", methods=["GET"])
 def get_products():
-    session = get_session()
+    """ Liste tous les produits du catalogue. """
     try:
-        products = get_all_products(session)
+        products = get_all_products(g.session)
         result = [
             {
                 "id": p.id,
@@ -41,8 +41,7 @@ def get_products():
 
 @product_bp.route("/search", methods=["GET"])
 def list_products():
-    """ Retourne la liste de produits par nom, catégorie ou disponibilité. """
-    session = get_session()
+    """ Liste les produits selon le nom, la catégorie ou la disponibilité. """
 
     # Récupération des paramètres de la requête
     nom = request.args.get("nom")
@@ -52,13 +51,13 @@ def list_products():
     try:
         if nom or categorie or disponible:
             products = search_product(
-                session,
+                g.session,
                 nom=nom,
                 categorie=categorie,
                 disponible=disponible
                 )
         else:
-            products = get_all_products(session)
+            products = get_all_products(g.session)
 
         result = [
             {
@@ -83,9 +82,9 @@ def list_products():
 @product_bp.route("/<int:id>", methods=["GET"])
 @access_granted('admin', 'client')
 def get_product(id):
-    session = get_session()
+    """ Liste un produit selon son id. """
     try:
-        product = get_product_id(session, id)
+        product = get_product_id(g.session, id)
         return jsonify(product.to_dict()), 200
 
     except ValueError as e:
@@ -97,17 +96,16 @@ def get_product(id):
 @product_bp.route('', methods=['POST'])
 @access_granted('admin')
 def create_product():
+    """ Crée un produit avec ses caractéristiques. """
     data = request.json
     ok, error = required_fields(
         data,
         ["nom", "description", "categorie", "prix", "quantite_stock"]
         )
 
-    session = get_session()
-
     try:
         product = add_product(
-            session,
+            g.session,
             nom=data["nom"],
             description=data.get("description", ""),
             categorie=data.get("categorie", "Autre"),
@@ -130,13 +128,13 @@ def create_product():
 @product_bp.route("/<int:id>", methods=["PUT"])
 @access_granted('admin')
 def update_product_id(id):
-    session = get_session()
+    """ Modifie des caractéristiques d'un produit selon son id. """
     data = request.get_json()
     if not data:
         return jsonify({"error": "JSON non valide"}), 400
 
     try:
-        product = update_product(session, id, **data)
+        product = update_product(g.session, id, **data)
         return jsonify(
             {
                 "message": "Produit mis à jour",
@@ -156,9 +154,9 @@ def update_product_id(id):
 @product_bp.route("/<int:id>", methods=["DELETE"])
 @access_granted('admin')
 def delete_product(id):
-    session = get_session()
+    """ Retire/Détruit du catalogue un produit selon son id. """
     try:
-        delete_product_id(session, id)
+        delete_product_id(g.session, id)
         return jsonify({"message": f"Produit {id} supprimé"}), 200
 
     except ValueError as e:
