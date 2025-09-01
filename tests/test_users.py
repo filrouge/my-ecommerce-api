@@ -6,7 +6,7 @@ from config import Config
 from core.auth_utils import get_user_by_email
 
 
-class TestRegister:
+class TestUserRegister:
 
     def test_new_user(self, test_client):
         client, session = test_client
@@ -39,7 +39,7 @@ class TestRegister:
         client.post("/api/auth/register", json=payload)
         resp = client.post("/api/auth/register", json=payload)
         assert resp.status_code == 400
-        assert resp.get_json()["error"] == "User already exists"
+        assert resp.get_json()["error"] == "User e-mail already exists"
 
         # Vérification au niveau BdD
         users = session.query(User).filter_by(email=payload["email"]).all()
@@ -58,7 +58,7 @@ class TestRegister:
         assert len(users) == 0
 
 
-class TestLogin:
+class TestUserLogin:
 
     def test_success(self, test_client):
         client, _ = test_client
@@ -101,7 +101,7 @@ class TestLogin:
         assert resp.status_code == 401
 
 
-class TestAdminAccess:
+class TestUserAccess:
     def test_access_ok(self, test_client):
         client, session = test_client
         payload = {

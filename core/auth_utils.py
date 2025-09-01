@@ -40,8 +40,8 @@ def generate_token(user):
     try:
         token = jwt.encode(payload, JWT_KEY, algorithm=ALGORITHM)
         return token
-    except Exception as e:
-        print(f"JWT generation failed: {e}")
+
+    except Exception:
         return None
 
 
@@ -53,7 +53,7 @@ def get_user_by_email(session, email):
 def register_user(session, email, nom, password, role):
     '''Enregistre un utilisateur dans la Base de Données.'''
     if get_user_by_email(session, email):
-        raise ValueError("User already exists")
+        raise ValueError("User e-mail already exists")
 
     user = User(
         email=email,

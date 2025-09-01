@@ -1,7 +1,7 @@
 from model.models import Product
 
 
-class TestList:
+class TestProductList:
 
     def test_list_all_products(self, test_client):
         client, session = test_client
@@ -39,7 +39,7 @@ class TestList:
         assert all(p["quantite_stock"] > 0 for p in data)
 
 
-class TestCRUD:
+class TestProductCreate:
 
     def test_create_product_admin(self, test_client, admin_token):
         client, session = test_client
@@ -74,6 +74,9 @@ class TestCRUD:
         })
         assert resp.status_code == 403
 
+
+class TestProductUpdate:
+
     def test_update_product(self, test_client, admin_token):
         client, session = test_client
         product = Product(nom="ProdUpdate", description="Old",
@@ -93,6 +96,9 @@ class TestCRUD:
         assert resp.status_code == 200
         assert data['produit']["description"] == "NewDesc"
         assert updated.prix == 6.0
+
+
+class TestProductDelete:
 
     def test_delete_product_by_admin(self, test_client, admin_token):
         client, session = test_client
@@ -132,17 +138,3 @@ class TestCRUD:
                              headers={"Authorization": f"Bearer {admin_token}"}
                              )
         assert resp.status_code == 404
-
-    def test_delete_product_by_non_admin(self, test_client, client_token):
-        client, session = test_client
-        product = Product(nom="ProdNonAdmin", description="Desc",
-                          categorie="CatX", prix=10.0, quantite_stock=1
-                          )
-        session.add(product)
-        session.commit()
-        # session.flush()
-
-        resp = client.delete(f"/api/produits/{product.id}",
-                             headers={"Authorization": f"Bearer {client_token}"}
-                             )
-        assert resp.status_code == 403

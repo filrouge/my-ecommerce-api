@@ -1,8 +1,5 @@
 from flask import Blueprint, request, jsonify, g
-from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.exc import SQLAlchemyError
 from core.auth import access_granted
-# from model.sessions import get_session
 from services.order_utils import (
     get_all_orders,
     get_order_by_id,
@@ -18,20 +15,16 @@ order_bp = Blueprint("order_bp", __name__)
 @access_granted('admin', 'client')
 def list_orders():
     """ Liste toutes les commandes (admin) ou celles du client. """
-    try:
-        orders = get_all_orders(g.session, user=g.current_user)
-        result = [{
-            "id": order.id,
-            "utilisateur_id": order.utilisateur_id,
-            "date_commande": order.date_commande.isoformat(),
-            "statut": order.statut,
-            "adresse_livraison": order.adresse_livraison
-        } for order in orders]
-        # result = [order.to_dict() for order in orders]
-        return jsonify(result), 200
-
-    except SQLAlchemyError as e:
-        return jsonify({"error": "Erreur Database", "details": str(e)}), 500
+    orders = get_all_orders(g.session, user=g.current_user)
+    result = [{
+        "id": order.id,
+        "utilisateur_id": order.utilisateur_id,
+        "date_commande": order.date_commande.isoformat(),
+        "statut": order.statut,
+        "adresse_livraison": order.adresse_livraison
+    } for order in orders]
+    # result = [order.to_dict() for order in orders]
+    return jsonify(result), 200
 
 
 @order_bp.route("/<int:id>", methods=["GET"])
@@ -53,12 +46,8 @@ def get_order_id(id):
         }
         return jsonify(result), 200
 
-    # except NoResultFound:
-    #     return jsonify({"error": "Commande introuvable"}), 404
     except ValueError as e:
         return jsonify({"error": str(e)}), 404
-    except SQLAlchemyError as e:
-        return jsonify({"error": "Erreur Database", "details": str(e)}), 500
 
 
 @order_bp.route("", methods=["POST"])
@@ -90,8 +79,6 @@ def create_order():
 
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
-    except SQLAlchemyError as e:
-        return jsonify({"error": "Erreur Database", "details": str(e)}), 500
 
 
 @order_bp.route("/<int:id>", methods=["PATCH"])
@@ -113,10 +100,6 @@ def update_status_order(id):
 
     except ValueError as e:
         return jsonify({"error": str(e)}), 404
-    # except NoResultFound:
-    #     return jsonify({"error": "Commande introuvable"}), 404
-    except SQLAlchemyError as e:
-        return jsonify({"error": "Erreur Database", "details": str(e)}), 500
 
 
 @order_bp.route("/<int:id>/lignes", methods=["GET"])
@@ -137,9 +120,5 @@ def list_orderitems(id):
         ]
         return jsonify(result), 200
 
-    # except NoResultFound:
-    #     return jsonify({"error": "Commande introuvable"}), 404
     except ValueError as e:
         return jsonify({"error": str(e)}), 404
-    except SQLAlchemyError as e:
-        return jsonify({"error": "Erreur Database", "details": str(e)}), 500
