@@ -60,14 +60,16 @@ def init_session(app):
 
     @app.errorhandler(SQLAlchemyError)
     def handle_orm_exceptions(error):
-        # Pour DEBUG seulement -- condition à centraliser ?
+        # # Pour DEBUG seulement -- centraliser condition PROD/DEV ?
         # if isinstance(error, IntegrityError):
-        #     return jsonify(
-        #         {"error": f"Contrainte d'intégrité violée -  {error.orig}"}
-        #         ), 409
+        #     return jsonify({
+        #         "error": f"Database - Contrainte d'intégrité violée \
+        #             ({error.orig})"
+        #         }), 409
 
         for exception_type, (code, msg) in ORM_ERROR_MAP.items():
             if isinstance(error, exception_type):
+                # return jsonify({"error": f"Database - {msg}"}), code
                 return jsonify({"error": msg}), code
 
-        return jsonify({"error": "Erreur interne de la database"}), 500
+        return jsonify({"error": "Database - Erreur interne inconnue"}), 500
