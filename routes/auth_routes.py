@@ -22,6 +22,10 @@ def register():
     ok, error = required_fields(body, ["email", "nom", "password"])
     if not ok:
         return jsonify({"error": error}), 400
+    # try:
+    #     required_fields(body, ["email", "nom", "password"])
+    # except ValueError as e:
+    #     return jsonify({"error": str(e)}), 400
 
     session = get_session()
 
@@ -57,6 +61,10 @@ def login():
     ok, error = required_fields(body, ["email", "password"])
     if not ok:
         return jsonify({"error": error}), 400
+    # try:
+    #     required_fields(body, ["email", "nom", "password"])
+    # except ValueError as e:
+    #     return jsonify({"error": str(e)}), 400
 
     session = get_session()
 

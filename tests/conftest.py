@@ -4,10 +4,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app import create_app
 from model.database import Base
-from model.models import User
+from model.models import User, Product, Order, OrderItem
 from core.auth_utils import generate_token
 from werkzeug.security import generate_password_hash
-# from model.models import Product, Order, OrderItem
+from services.product_utils import add_product
+from services.order_utils import create_new_order, get_orderitems_all
 
 
 @pytest.fixture(scope="session")
@@ -91,29 +92,73 @@ def client_token(test_client):
     session.commit()
     return generate_token(user)
 
-###############
-# TODO
-# Modifier Tests
-###############
-# @pytest.fixture(scope="function")
-# def visitor_access(test_client)::
-    # """
-    # Crée un visteur avec accès restreint
-    # sans enregistrement ni authentification.
-    # """
 
-# @pytest.fixture(scope="function")
-# def feed_products(test_client):
-    # """
-    # Alimente la table 'product' (4 produits distincs)
-    # et retourne une liste des 4 produits.
-    # """
+# TODO: Modifier les tests avec ces fixtures !
+##############################################
+@pytest.fixture(scope="function")
+def visitor_only(test_client):
+    """ Crée un utilisateur pour accès sans authentification. """
+    return None
 
 
-# @pytest.fixture(scope="function")
-# def feed_orders(test_client, client_token, setup_product):
-    # """
-    # Crée 2 commandes distinctes (2 lignes / commande, 2 produits / ligne) en
-    # alimentant les tables 'order' et 'order_item' et retourne un dictionnaire
-    # comprenant les commandes, l'id du client et lignes de commande
-    # """
+@pytest.fixture(scope="function")
+def feed_product(test_client):
+    """
+    Crée 4 produits distincts en alimentant la table 'product'.
+    Retourne une liste contenant les 4 produits et leurs données.
+    """
+    _, session = test_client
+    session.query(Product).delete()
+    session.commit()
+
+    p1 = add_product(session, "Produit A", "Desc A", "Cat A", 20.0, 5)
+    p2 = add_product(session, "Produit B", "Desc B", "Cat B", 15.0, 10)
+    p3 = add_product(session, "Produit C", "Desc C", "Cat C", 30.0, 7)
+    p4 = add_product(session, "Produit D", "Desc D", "Cat D", 12.0, 8)
+
+    return [p1, p2, p3, p4]
+
+
+@pytest.fixture(scope="function")
+def feed_order(test_client, client_token, feed_product):
+    """
+    Crée 2 commandes distinctes avec 2 lignes chacune (et 2 produits/ligne).
+    Retourne un dictionnaire avec commandes, lignes de commande et client.
+    """
+    _, session = test_client
+    user = session.query(User).filter_by(email="client@test.com").first()
+    session.query(OrderItem).delete()
+    session.query(Order).delete()
+    session.commit()
+
+    orders_data = []
+    bodys = [
+        {
+            "address": "1 rue des tests",
+            "produits": [
+                {"produit_id": feed_product[0].id, "quantite": 1},
+                {"produit_id": feed_product[1].id, "quantite": 2}
+            ]
+        },
+
+        {
+            "address": "123 rue des tests",
+            "produits": [
+                {"produit_id": feed_product[2].id, "quantite": 3},
+                {"produit_id": feed_product[3].id, "quantite": 4}
+            ]
+        }
+    ]
+
+    for body in bodys:
+        order = create_new_order(session, user.id,
+                                 body["address"],
+                                 body["produits"]
+                                 )
+        items = get_orderitems_all(session, order.id)
+        orders_data.append({"order": order, "items": items})
+
+    return {"orders": orders_data,
+            "user_id": user.id,
+            "user_email": user.email
+            }

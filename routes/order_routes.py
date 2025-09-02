@@ -7,6 +7,7 @@ from services.order_utils import (
     change_status_order,
     get_orderitems_all
 )
+from core.auth_utils import required_fields
 
 order_bp = Blueprint("order_bp", __name__)
 
@@ -40,6 +41,7 @@ def get_order_id(id):
 
         result = {
             "id": order.id,
+            "utilisateur_id": order.utilisateur_id,
             "date_commande": str(order.date_commande),
             "adresse_livraison": order.adresse_livraison,
             "statut": order.statut
@@ -58,13 +60,22 @@ def create_order():
     if current_user is None:
         return jsonify({"error": "Action Interdite"}), 401
 
-    data = request.get_json()
+    body = request.get_json()
+    ok, error = required_fields(body, ["adresse_livraison", "produits"])
+    if not ok:
+        return jsonify({"error": str(error)}), 400
+
+    # try:
+    #     required_fields(body, ["adresse_livraison", "produits"])
+    # except ValueError as e:
+    #     return jsonify({"error": str(e)}), 400
+
     try:
         order = create_new_order(
             g.session,
             user_id=current_user.id,
-            items=data.get("produits", []),
-            address=data.get("adresse_livraison")
+            items=body.get("produits", []),
+            address=body.get("adresse_livraison")
         )
         return jsonify(
             {
@@ -85,8 +96,8 @@ def create_order():
 @access_granted('admin')
 def update_status_order(id):
     """ Modifie le statut d'une commande spécifique (admin). """
-    data = request.get_json()
-    new_status = data.get("statut")
+    body = request.get_json()
+    new_status = body.get("statut")
     try:
         order = change_status_order(g.session, id, new_status)
         result = {

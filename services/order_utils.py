@@ -1,5 +1,4 @@
 from datetime import datetime, UTC
-# from sqlalchemy.orm.exc import NoResultFound
 from model.models import Order, OrderItem
 from services.product_utils import get_product_id
 
@@ -23,7 +22,6 @@ def get_order_by_id(session, order_id):
     order = session.query(Order).filter_by(id=order_id).first()
     if not order:
         raise ValueError("Commande introuvable")
-        # raise NoResultFound
     return order
 
 
@@ -42,7 +40,8 @@ def create_new_order(session, user_id, address, items):
         statut="En attente"
     )
     session.add(order)
-    session.flush()  # génère l'ID de la commande
+    # session.flush()  # génère l'ID de la commande
+    session.commit()
 
     for item in items:
         if "produit_id" not in item:
@@ -75,7 +74,6 @@ def get_orderitems_all(session, order_id):
     items = session.query(OrderItem).filter_by(commande_id=order_id).all()
     if not items:
         raise ValueError(("Ligne de commande introuvable"))
-        # raise NoResultFound
 
     return items
 
