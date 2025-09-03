@@ -39,7 +39,7 @@ class TestUserRegister:
         client.post("/api/auth/register", json=payload)
         resp = client.post("/api/auth/register", json=payload)
         assert resp.status_code == 400
-        assert resp.get_json()["error"] == "User e-mail already exists"
+        assert resp.get_json()["error"] == "Adresse e-mail déjà utilisée"
 
         # Vérification au niveau BdD
         users = session.query(User).filter_by(email=payload["email"]).all()
@@ -52,7 +52,7 @@ class TestUserRegister:
         }
         resp = client.post("/api/auth/register", json=payload)
         assert resp.status_code == 400
-        assert "missing" in resp.get_json()["error"].lower()
+        assert "manquant(s)" in resp.get_json()["error"].lower()
 
         users = session.query(User).filter_by(email=payload["email"]).all()
         assert len(users) == 0
@@ -125,7 +125,7 @@ class TestUserAccess:
         user = get_user_by_email(session, payload["email"])
 
         assert resp.status_code == 200
-        assert "Welcome" in resp.get_json()["message"]
+        assert "Bienvenue" in resp.get_json()["message"]
         assert user.role == payload["role"]
 
     def test_access_denied(self, test_client):

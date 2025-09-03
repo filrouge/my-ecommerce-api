@@ -1,6 +1,9 @@
 from model.models import Order, OrderItem, Product, User
 import jwt
-from core.auth_utils import JWT_KEY, ALGORITHM
+from config import Config
+
+JWT_KEY = Config.JWT_KEY
+ALGORITHM = Config.ALGORITHM
 
 
 class TestOrderCreation:
