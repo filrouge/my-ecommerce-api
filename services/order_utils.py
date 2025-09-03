@@ -35,9 +35,9 @@ def create_new_order(session, user_id, address, items):
 
     order = Order(
         utilisateur_id=user_id,
-        date_commande=datetime.now(UTC).date(),
         adresse_livraison=address,
-        statut="En attente"
+        statut="En attente",
+        date_commande=datetime.now(UTC).date()
     )
     session.add(order)
     # session.flush()  # génère l'ID de la commande
@@ -76,15 +76,6 @@ def get_orderitems_all(session, order_id):
         raise ValueError(("Ligne de commande introuvable"))
 
     return items
-
-
-# def get_orderitem_id(session, order_id, orderitem_id):
-#     """ Récupère une ligne de commande par son ID. """
-#     item = session.query(OrderItem).filter_by(
-#         commande_id=order_id, id=orderitem_id).first()
-#     if not item:
-#         raise ValueError("Ligne de commande introuvable")
-#     return item
 
 
 def change_status_order(session, order_id, new_status):

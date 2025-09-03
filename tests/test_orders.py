@@ -1,6 +1,9 @@
 from model.models import Order, OrderItem, Product, User
 import jwt
-from core.auth_utils import JWT_KEY, ALGORITHM
+from config import Config
+
+JWT_KEY = Config.JWT_KEY
+ALGORITHM = Config.ALGORITHM
 
 
 class TestOrderCreation:
@@ -226,4 +229,4 @@ class TestOrderUpdate:
         assert resp.status_code == 403
         data = resp.get_json()
         print(data)
-        assert "error" in data and "Access denied" in data['error']
+        assert "error" in data and "Accès refusé" in data['error']

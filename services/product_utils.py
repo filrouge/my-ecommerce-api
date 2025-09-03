@@ -10,7 +10,6 @@ def get_product_id(session, produit_id):
     """ Recherche un produit par son id. """
     product = session.query(Product).filter_by(id=produit_id).first()
     if not product:
-        # raise ValueError(f"Produit ID {produit_id} introuvable")
         raise ValueError("Produit introuvable")
     return product
 
@@ -35,6 +34,9 @@ def add_product(session, nom, description, categorie, prix, quantite_stock):
 def update_product(session, produit_id, **kwargs):
     """ Met à jour un produit avec les champs passés en kwargs. """
     product = get_product_id(session, produit_id)
+
+    if not any(kwargs.values()):
+        raise ValueError("Aucune donnée fournie pour la mise à jour")
 
     if "prix" in kwargs and kwargs["prix"] < 0:
         raise ValueError("Prix invalide")

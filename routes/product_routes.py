@@ -1,6 +1,5 @@
 from flask import request, jsonify, Blueprint, g
 from core.auth_utils import required_fields
-from sqlalchemy.exc import IntegrityError
 from services.product_utils import (
     get_all_products,
     get_product_id,
@@ -19,17 +18,7 @@ def get_products():
     """ Liste tous les produits du catalogue. """
     try:
         products = get_all_products(g.session)
-        result = [
-            {
-                "id": p.id,
-                "nom": p.nom,
-                "description": p.description,
-                "categorie": p.categorie,
-                "prix": p.prix,
-                "quantite_stock": p.quantite_stock
-            }
-            for p in products
-        ]
+        result = [product.to_dict() for product in products]
         return jsonify(result), 200
 
     except ValueError as e:
@@ -39,8 +28,6 @@ def get_products():
 @product_bp.route("/search", methods=["GET"])
 def list_products():
     """ Liste les produits selon le nom, la catégorie ou la disponibilité. """
-
-    # Récupération des paramètres de la requête
     nom = request.args.get("nom")
     categorie = request.args.get("categorie")
     disponible = request.args.get("disponible", "false").lower() == "true"
@@ -56,18 +43,7 @@ def list_products():
         else:
             products = get_all_products(g.session)
 
-        result = [
-            {
-                "id": product.id,
-                "nom": product.nom,
-                "description": product.description,
-                "categorie": product.categorie,
-                "prix": product.prix,
-                "quantite_stock": product.quantite_stock
-            }
-            for product in products
-        ]
-
+        result = [product.to_dict() for product in products]
         return jsonify(result), 200
 
     except ValueError as e:
@@ -90,19 +66,19 @@ def get_product(id):
 @access_granted('admin')
 def create_product():
     """ Crée un produit avec ses caractéristiques. """
-    data = request.json
+    body = request.json
     ok, error = required_fields(
-        data,
+        body,
         ["nom", "description", "categorie", "prix", "quantite_stock"]
         )
 
     product = add_product(
         g.session,
-        nom=data["nom"],
-        description=data.get("description", ""),
-        categorie=data.get("categorie", "Autre"),
-        prix=data.get("prix", 0),
-        quantite_stock=data.get("quantite_stock", 0)
+        nom=body["nom"],
+        description=body.get("description", ""),
+        categorie=body.get("categorie", "Autre"),
+        prix=body.get("prix", 0),
+        quantite_stock=body.get("quantite_stock", 0)
     )
     return jsonify(
         {
@@ -116,12 +92,12 @@ def create_product():
 @access_granted('admin')
 def update_product_id(id):
     """ Modifie des caractéristiques d'un produit selon son id. """
-    data = request.get_json()
-    if not data:
+    body = request.get_json()
+    if not body:
         return jsonify({"error": "JSON non valide"}), 400
 
     try:
-        product = update_product(g.session, id, **data)
+        product = update_product(g.session, id, **body)
         return jsonify(
             {
                 "message": "Produit mis à jour",
@@ -132,8 +108,6 @@ def update_product_id(id):
 
     except ValueError as e:
         return jsonify({"error": str(e)}), 404
-    except IntegrityError as e:
-        return jsonify({"error": "Erreur Integrité", "details": str(e)}), 400
 
 
 @product_bp.route("/<int:id>", methods=["DELETE"])

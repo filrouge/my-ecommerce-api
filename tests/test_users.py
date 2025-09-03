@@ -19,7 +19,7 @@ class TestUserRegister:
         assert resp.status_code == 201
 
         data = resp.get_json()
-        assert data["message"] == "User registered"
+        assert data["message"] == "Client inscrit"
         assert data["user"]["email"] == payload["email"]
         assert data["user"]["role"] == "client"
 
@@ -39,7 +39,7 @@ class TestUserRegister:
         client.post("/api/auth/register", json=payload)
         resp = client.post("/api/auth/register", json=payload)
         assert resp.status_code == 400
-        assert resp.get_json()["error"] == "User e-mail already exists"
+        assert resp.get_json()["error"] == "Adresse e-mail déjà utilisée"
 
         # Vérification au niveau BdD
         users = session.query(User).filter_by(email=payload["email"]).all()
@@ -52,7 +52,7 @@ class TestUserRegister:
         }
         resp = client.post("/api/auth/register", json=payload)
         assert resp.status_code == 400
-        assert "missing" in resp.get_json()["error"].lower()
+        assert "manquant(s)" in resp.get_json()["error"].lower()
 
         users = session.query(User).filter_by(email=payload["email"]).all()
         assert len(users) == 0
@@ -118,14 +118,14 @@ class TestUserAccess:
         })
 
         token = resp.get_json()["token"]
-        resp = client.get("/api/admin-route", headers={
+        resp = client.get("/admin-route", headers={
             "Authorization": f"Bearer {token}"
         })
         # user = session.query(User).filter_by(email=payload["email"]).first()
         user = get_user_by_email(session, payload["email"])
 
         assert resp.status_code == 200
-        assert "Welcome" in resp.get_json()["message"]
+        assert "Bienvenue" in resp.get_json()["message"]
         assert user.role == payload["role"]
 
     def test_access_denied(self, test_client):
@@ -144,7 +144,7 @@ class TestUserAccess:
         })
 
         token = resp.get_json()["token"]
-        resp = client.get("/api/admin-route", headers={
+        resp = client.get("/admin-route", headers={
             "Authorization": f"Bearer {token}"
         })
         assert resp.status_code == 403

@@ -12,6 +12,7 @@ from sqlalchemy.exc import (
     DataError,
     StatementError
 )
+from services.exceptions_utils import AppError
 
 # Mapping des exceptions ORM
 ORM_ERROR_MAP = {
@@ -73,3 +74,7 @@ def init_session(app):
                 return jsonify({"error": msg}), code
 
         return jsonify({"error": "Database - Erreur interne inconnue"}), 500
+
+    @app.errorhandler(AppError)
+    def handle_business_exceptions(error):
+        return jsonify({"error": str(error)}), error.status_code
