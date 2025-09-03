@@ -1,4 +1,4 @@
-from flask import request, jsonify, Blueprint
+from flask import request, jsonify, Blueprint, g
 from model.sessions import get_session
 from core.auth_utils import required_fields, register_user, login_user
 
@@ -22,23 +22,17 @@ def register():
     ok, error = required_fields(body, ["email", "nom", "password"])
     if not ok:
         return jsonify({"error": error}), 400
-    # try:
-    #     required_fields(body, ["email", "nom", "password"])
-    # except ValueError as e:
-    #     return jsonify({"error": str(e)}), 400
-
-    session = get_session()
 
     try:
         new_user = register_user(
-            session,
+            g.session,
             email=body["email"],
             nom=body["nom"],
             password=body["password"],
             role=body.get("role", "client")
         )
         return jsonify(
-            {"message": "User registered", "user": new_user.to_dict()}
+            {"message": "Client inscrit", "user": new_user.to_dict()}
             ), 201
 
     except ValueError as e:
@@ -74,7 +68,7 @@ def login():
             email=body["email"], password=body["password"]
             )
         return jsonify(
-            {"message": "Connection succeed", "token": token}
+            {"message": "Connexion réussie", "token": token}
             ), 200
 
     except ValueError as e:                         # Credentials non valides
