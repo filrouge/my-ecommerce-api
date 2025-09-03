@@ -16,11 +16,11 @@ def required_fields(data, required):
     Retourne un tuple (ok, message_erreur).
     '''
     if not data:
-        return False, "Invalid JSON"
+        return False, "JSON invalide"
 
     missing = [field for field in required if field not in data]
     if missing:
-        return False, f"Missing fields: {', '.join(missing)}"
+        return False, f"Champs manquant(s) : {', '.join(missing)}"
 
     return True, None
 
@@ -31,11 +31,11 @@ def required_fields(data, required):
 #     Retourne un tuple (ok, message_erreur).
 #     '''
     # if not data:
-    #     raise ValueError("Invalid JSON")
+    #     raise ValueError("JSON invalide")
 
     # missing = [field for field in required if field not in data]
     # if missing:
-    #     raise ValueError(f"Missing fields: {', '.join(missing)}")
+    #     raise ValueError(f"Champs manquant(s) : {', '.join(missing)}")
 
 
 # Générateur de token JWT
@@ -66,7 +66,7 @@ def get_user_by_email(session, email):
 def register_user(session, email, nom, password, role):
     '''Enregistre un utilisateur dans la Base de Données.'''
     if get_user_by_email(session, email):
-        raise ValueError("User e-mail already exists")
+        raise ValueError("Adresse e-mail déjà utilisée")
 
     user = User(
         email=email,
@@ -86,10 +86,10 @@ def login_user(session, email, password):
     '''Vérifie les credentials utilisateur et génère un token JWT.'''
     user = get_user_by_email(session, email)
     if not user or not check_password_hash(user.password_hash, password):
-        raise ValueError("Invalid credentials")
+        raise ValueError("Identifiants invalides")
 
     token = generate_token(user)
     if not token:
-        raise RuntimeError("Token generation failed")
+        raise RuntimeError("La génération du token a échoué")
 
     return token, user

@@ -19,7 +19,7 @@ class TestUserRegister:
         assert resp.status_code == 201
 
         data = resp.get_json()
-        assert data["message"] == "User registered"
+        assert data["message"] == "Client inscrit"
         assert data["user"]["email"] == payload["email"]
         assert data["user"]["role"] == "client"
 
@@ -118,7 +118,7 @@ class TestUserAccess:
         })
 
         token = resp.get_json()["token"]
-        resp = client.get("/api/admin-route", headers={
+        resp = client.get("/admin-route", headers={
             "Authorization": f"Bearer {token}"
         })
         # user = session.query(User).filter_by(email=payload["email"]).first()
@@ -144,7 +144,7 @@ class TestUserAccess:
         })
 
         token = resp.get_json()["token"]
-        resp = client.get("/api/admin-route", headers={
+        resp = client.get("/admin-route", headers={
             "Authorization": f"Bearer {token}"
         })
         assert resp.status_code == 403

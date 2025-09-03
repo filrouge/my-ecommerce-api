@@ -1,7 +1,6 @@
 from flask import Flask
 from routes.main_routes import main_bp
 from routes.auth_routes import auth_bp
-from routes.to_test_routes import test_bp
 from routes.product_routes import product_bp
 from routes.order_routes import order_bp
 
@@ -15,7 +14,6 @@ def create_app():
     # Enregistrement des routes
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
-    app.register_blueprint(test_bp, url_prefix="/api")
     app.register_blueprint(product_bp, url_prefix="/api/produits")
     app.register_blueprint(order_bp, url_prefix="/api/commandes")
 

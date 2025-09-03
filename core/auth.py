@@ -22,25 +22,25 @@ def auth_required(func):
     def wrapper(*args, **kwargs):
         auth_header = request.headers.get("Authorization")
         if not auth_header or not auth_header.startswith("Bearer "):
-            return jsonify({"error": "Token is missing"}), 401
+            return jsonify({"error": "Token manquant"}), 401
 
         token = auth_header.split(" ")[1]
         try:
             current_user = jwt.decode(token, JWT_KEY, algorithms=[ALGORITHM])
         except jwt.ExpiredSignatureError:
-            return jsonify({"error": "Token expired"}), 401
+            return jsonify({"error": "Token expiré"}), 401
         except jwt.InvalidTokenError:
-            return jsonify({"error": "Invalid token"}), 401
+            return jsonify({"error": "Token invalide"}), 401
 
         user_id = current_user.get("id")
         if not user_id:
-            return jsonify({"error": "Invalid token payload"}), 401
+            return jsonify({"error": "Payload Token invalide"}), 401
 
         session = get_session()
         try:
             user = session.get(User, user_id)
             if not user:
-                return jsonify({"error": "User not found"}), 401
+                return jsonify({"error": "Utilisateur introuvable"}), 401
 
             # Ajouter g.current_user: absent -> echec sur "commandes" !
             g.current_user = user
@@ -65,10 +65,10 @@ def access_granted(*role_names):
         def wrapper(current_user=None, *args, **kwargs):
             # current_user = kwargs.pop("current_user")
             if current_user is None:    # Optionnel/Redondant
-                return jsonify({"error": "User not recognized"}), 401
+                return jsonify({"error": "Utilisateur non reconnu"}), 401
 
             if role_names and current_user.role not in role_names:
-                return jsonify({"error": "Access denied"}), 403
+                return jsonify({"error": "Accès refusé"}), 403
 
             return func(*args, **kwargs)
         return wrapper
