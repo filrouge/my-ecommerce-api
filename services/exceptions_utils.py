@@ -1,16 +1,20 @@
 
-class BadRequestError(Exception):
+class AppError(Exception):
     """Erreur générique côté client (400)."""
     status_code = 400
 
 
-class UnauthorizedError(BadRequestError):
+class BadRequestError(AppError):
+    status_code = 400
+
+
+class UnauthorizedError(AppError):
     status_code = 401
 
 
-class ForbiddenError(BadRequestError):
+class ForbiddenError(AppError):
     status_code = 403
 
 
-class NotFoundError(BadRequestError):
+class NotFoundError(AppError):
     status_code = 404
