@@ -229,4 +229,4 @@ class TestOrderUpdate:
         assert resp.status_code == 403
         data = resp.get_json()
         print(data)
-        assert "error" in data and "Access denied" in data['error']
+        assert "error" in data and "Accès refusé" in data['error']

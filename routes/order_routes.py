@@ -20,9 +20,9 @@ def list_orders():
     result = [{
         "id": order.id,
         "utilisateur_id": order.utilisateur_id,
-        "date_commande": order.date_commande.isoformat(),
+        "adresse_livraison": order.adresse_livraison,
         "statut": order.statut,
-        "adresse_livraison": order.adresse_livraison
+        "date_commande": order.date_commande.isoformat()        
     } for order in orders]
     # result = [order.to_dict() for order in orders]
     return jsonify(result), 200
@@ -42,9 +42,9 @@ def get_order_id(id):
         result = {
             "id": order.id,
             "utilisateur_id": order.utilisateur_id,
-            "date_commande": str(order.date_commande),
             "adresse_livraison": order.adresse_livraison,
-            "statut": order.statut
+            "statut": order.statut,
+            "date_commande": str(order.date_commande)
         }
         return jsonify(result), 200
 
@@ -57,18 +57,13 @@ def get_order_id(id):
 def create_order():
     """ Créer une commande client (+/- produit par ligne de commande) . """
     current_user = g.current_user
-    if current_user is None:
-        return jsonify({"error": "Action Interdite"}), 401
+    # if current_user is None:
+    #     return jsonify({"error": "Action Interdite"}), 401
 
     body = request.get_json()
     ok, error = required_fields(body, ["adresse_livraison", "produits"])
     if not ok:
         return jsonify({"error": str(error)}), 400
-
-    # try:
-    #     required_fields(body, ["adresse_livraison", "produits"])
-    # except ValueError as e:
-    #     return jsonify({"error": str(e)}), 400
 
     try:
         order = create_new_order(
@@ -97,6 +92,8 @@ def create_order():
 def update_status_order(id):
     """ Modifie le statut d'une commande spécifique (admin). """
     body = request.get_json()
+    required_fields(body, ["statut"])
+
     new_status = body.get("statut")
     try:
         order = change_status_order(g.session, id, new_status)
@@ -120,15 +117,8 @@ def list_orderitems(id):
     try:
         order = get_order_by_id(g.session, id)
         items = get_orderitems_all(g.session, order.id)
-        result = [
-            {
-                "id": item.id,
-                "produit_id": item.produit_id,
-                "quantite": item.quantite,
-                "prix_unitaire": item.prix_unitaire
-            }
-            for item in items
-        ]
+        
+        result = [item.to_dict() for item in items]
         return jsonify(result), 200
 
     except ValueError as e:
