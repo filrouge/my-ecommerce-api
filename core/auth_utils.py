@@ -25,19 +25,6 @@ def required_fields(data, required):
     return True, None
 
 
-# def required_fields(data, required):
-#     '''
-#     Vérifie et valide la présence des champs requis.
-#     Retourne un tuple (ok, message_erreur).
-#     '''
-    # if not data:
-    #     raise ValueError("JSON invalide")
-
-    # missing = [field for field in required if field not in data]
-    # if missing:
-    #     raise ValueError(f"Champs manquant(s) : {', '.join(missing)}")
-
-
 # Générateur de token JWT
 def generate_token(user):
     '''
