@@ -2,7 +2,6 @@ from datetime import datetime, UTC
 from model.models import Order, OrderItem
 from services.product_utils import get_product_id
 from core.errors_handlers import NotFoundError, BadRequestError
-from core.request_utils import STATUS
 
 
 def get_order_by_user(session, user_id):
@@ -27,12 +26,6 @@ def get_order_by_id(session, order_id):
 
 def create_new_order(session, user_id, address, items):
     """ Crée une nouvelle commande pour un utilisateur. """
-    if not items:
-        raise BadRequestError("Commande sans liste de produits.")
-
-    if not address:
-        raise BadRequestError("Adresse de livraison requise.")
-
     order = Order(
         utilisateur_id=user_id,
         adresse_livraison=address,
@@ -44,10 +37,8 @@ def create_new_order(session, user_id, address, items):
     session.commit()
 
     for item in items:
-        if "produit_id" not in item:
-            raise BadRequestError("Id produit manquant dans la commande")
-
         product = get_product_id(session, item["produit_id"])
+
         if product.quantite_stock < item["quantite"]:
             raise BadRequestError(
                 f"Stock insuffisant pour le produit {product.nom}"
@@ -79,12 +70,6 @@ def get_orderitems_all(session, order_id):
 
 def change_status_order(session, order_id, new_status):
     """ Modifie le statut d'une commande. """
-    if not new_status:
-        raise BadRequestError("Statut requis")
-
-    if new_status not in STATUS:
-        raise BadRequestError(f"Statut invalide : {new_status}")
-
     order = get_order_by_id(session, order_id)
     order.statut = new_status
 
