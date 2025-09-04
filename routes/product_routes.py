@@ -9,6 +9,7 @@ from services.product_utils import (
     search_product
 )
 from core.auth import access_granted
+from services.exceptions_utils import BadRequestError
 
 product_bp = Blueprint("product_bp", __name__)
 
@@ -16,13 +17,10 @@ product_bp = Blueprint("product_bp", __name__)
 @product_bp.route("", methods=["GET"])
 def get_products():
     """ Liste tous les produits du catalogue. """
-    try:
-        products = get_all_products(g.session)
-        result = [product.to_dict() for product in products]
-        return jsonify(result), 200
+    products = get_all_products(g.session)
 
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 404
+    result = [product.to_dict() for product in products]
+    return jsonify(result), 200
 
 
 @product_bp.route("/search", methods=["GET"])
@@ -32,34 +30,26 @@ def list_products():
     categorie = request.args.get("categorie")
     disponible = request.args.get("disponible", "false").lower() == "true"
 
-    try:
-        if nom or categorie or disponible:
-            products = search_product(
-                g.session,
-                nom=nom,
-                categorie=categorie,
-                disponible=disponible
-                )
-        else:
-            products = get_all_products(g.session)
+    if nom or categorie or disponible:
+        products = search_product(
+            g.session,
+            nom=nom,
+            categorie=categorie,
+            disponible=disponible
+            )
+    else:
+        products = get_all_products(g.session)
 
-        result = [product.to_dict() for product in products]
-        return jsonify(result), 200
-
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 404
+    result = [product.to_dict() for product in products]
+    return jsonify(result), 200
 
 
 @product_bp.route("/<int:id>", methods=["GET"])
 @access_granted('admin', 'client')
 def get_product(id):
     """ Liste un produit selon son id. """
-    try:
-        product = get_product_id(g.session, id)
-        return jsonify(product.to_dict()), 200
-
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 404
+    product = get_product_id(g.session, id)
+    return jsonify(product.to_dict()), 200
 
 
 @product_bp.route('', methods=['POST'])
@@ -67,10 +57,10 @@ def get_product(id):
 def create_product():
     """ Crée un produit avec ses caractéristiques. """
     body = request.json
-    ok, error = required_fields(
+    required_fields(
         body,
         ["nom", "description", "categorie", "prix", "quantite_stock"]
-        )
+    )
 
     product = add_product(
         g.session,
@@ -92,31 +82,35 @@ def create_product():
 @access_granted('admin')
 def update_product_id(id):
     """ Modifie des caractéristiques d'un produit selon son id. """
-    body = request.get_json()
-    if not body:
-        return jsonify({"error": "JSON non valide"}), 400
+    if not (body := request.get_json()) or not isinstance(body, dict):
+        raise BadRequestError("JSON invalide")
 
-    try:
-        product = update_product(g.session, id, **body)
-        return jsonify(
-            {
-                "message": "Produit mis à jour",
-                "produit_id": product.id,
-                "produit": product.to_dict()
-            }
-        ), 200
+    allowed_fields = {
+        "nom", "description", "categorie",
+        "prix", "quantite_stock"
+    }
+    update_data = {k: v for k, v in body.items() if k in allowed_fields}
 
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 404
+    if not update_data or not any(update_data.values()):
+        raise BadRequestError("Aucune donnée valide pour la mise à jour")
+
+    for field in ("prix", "quantite_stock"):
+        if (value := body.get(field)) is not None and value < 0:
+            raise BadRequestError(f"{field.capitalize()} invalide")
+
+    product = update_product(g.session, id, **update_data)
+    return jsonify(
+        {
+            "message": "Produit mis à jour",
+            "produit_id": product.id,
+            "produit": product.to_dict()
+        }
+    ), 200
 
 
 @product_bp.route("/<int:id>", methods=["DELETE"])
 @access_granted('admin')
 def delete_product(id):
     """ Retire/Détruit du catalogue un produit selon son id. """
-    try:
-        delete_product_id(g.session, id)
-        return jsonify({"message": f"Produit {id} supprimé"}), 200
-
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 404
+    delete_product_id(g.session, id)
+    return jsonify({"message": f"Produit {id} supprimé"}), 200

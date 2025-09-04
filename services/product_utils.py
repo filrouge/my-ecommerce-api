@@ -1,4 +1,5 @@
 from model.models import Product
+from services.exceptions_utils import NotFoundError, BadRequestError
 
 
 def get_all_products(session):
@@ -10,7 +11,7 @@ def get_product_id(session, produit_id):
     """ Recherche un produit par son id. """
     product = session.query(Product).filter_by(id=produit_id).first()
     if not product:
-        raise ValueError("Produit introuvable")
+        raise NotFoundError("Produit introuvable")
     return product
 
 
@@ -34,16 +35,6 @@ def add_product(session, nom, description, categorie, prix, quantite_stock):
 def update_product(session, produit_id, **kwargs):
     """ Met à jour un produit avec les champs passés en kwargs. """
     product = get_product_id(session, produit_id)
-
-    if not any(kwargs.values()):
-        raise ValueError("Aucune donnée fournie pour la mise à jour")
-
-    if "prix" in kwargs and kwargs["prix"] < 0:
-        raise ValueError("Prix invalide")
-
-    if "quantite_stock" in kwargs and kwargs["quantite_stock"] < 0:
-        raise ValueError("Quantité invalide")
-
     for field in ["nom", "description", "categorie", "prix", "quantite_stock"]:
         if field in kwargs:
             setattr(product, field, kwargs[field])
