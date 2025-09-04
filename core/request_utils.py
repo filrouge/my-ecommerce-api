@@ -1,9 +1,31 @@
 from core.errors_handlers import BadRequestError
 
-USER_FIELDS = ["email", "password", "nom", "role"]
-PRODUCT_FIELDS = ["nom", "description", "categorie", "prix", "quantite_stock"]
-ORDER_FIELDS = ["utilisateur_id", "adresse_livraison", "statut", "date_commande"]
-ORDERITEMS_FIELDS = ["commande_id", "produit_id", "quantite", "prix_unitaire"]
+REGISTER_FIELDS = {
+    "email": str,
+    "nom": str,
+    "password": str
+}
+PRODUCT_FIELDS = {
+    "nom": str,
+    "description": str,
+    "categorie": str,
+    "prix": (int, float),
+    "quantite_stock": (int)
+}
+ORDER_FIELDS = {
+    "produits": list,
+    "adresse_livraison": str,
+    "statut": str
+}
+ORDER_ITEM_FIELDS = {
+    "produit_id": (int),
+    "quantite": (int),
+}
+NUMERIC_FIELDS = {
+    "prix": (int, float),
+    "quantite_stock": (int),
+    "quantite": (int),
+}
 
 STATUS = ["En attente", "Validée", "Expédiée", "Annulée"]
 
@@ -18,16 +40,11 @@ def get_json_body(request):
     return body
 
 
-def required_fields(body, required_field):
-    '''
-    Vérifie et valide la présence des champs requis.
-    Lève BadRequestError si un seul des champs est manquant.
-    '''
-    # Doublon avec get_json_body()
-    # if not body:
-    #     raise BadRequestError("JSON invalide")
-
-    missing = [field for field in required_field if field not in body]
+def required_fields(body: dict, required_fields: dict) -> bool:
+    """
+    Vérifie que tous les champs obligatoires sont présents.
+    """
+    missing = [field for field in required_fields if field not in body]
     if missing:
         raise BadRequestError(f"Champs manquant(s) : {', '.join(missing)}")
 
