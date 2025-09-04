@@ -1,10 +1,10 @@
-from flask import request, jsonify, g
+from flask import request, g
 import jwt
 from functools import wraps
 from model.models import User
 from model.sessions import get_session
 from config import Config
-from services.exceptions_utils import UnauthorizedError, ForbiddenError
+from core.errors_handlers import UnauthorizedError, ForbiddenError
 
 
 # JWT secret

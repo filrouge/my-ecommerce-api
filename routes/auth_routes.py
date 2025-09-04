@@ -1,7 +1,7 @@
 from flask import request, jsonify, Blueprint, g
 from model.sessions import get_session
-from core.auth_utils import required_fields, register_user, login_user
-from services.exceptions_utils import BadRequestError
+from core.auth_utils import register_user, login_user
+from core.request_utils import (get_json_body, required_fields)
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -18,9 +18,7 @@ def register():
             - dict: message de succès ou informations d'erreur
             - int: code HTTP (201, 400 ou 500)
     '''
-    if not (body := request.get_json()) or not isinstance(body, dict):
-        raise BadRequestError("JSON invalide")
-
+    body = get_json_body(request)
     required_fields(body, ["email", "nom", "password"])
 
     new_user = register_user(
@@ -46,9 +44,7 @@ def login():
         - dict: message + token JWT ou informations d'erreur
         - int: code HTTP (200, 401 ou 500)
     """
-    if not (body := request.get_json()) or not isinstance(body, dict):
-        raise BadRequestError("JSON invalide")
-
+    body = get_json_body(request)
     required_fields(body, ["email", "password"])
 
     session = get_session()

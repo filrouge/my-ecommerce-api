@@ -3,27 +3,10 @@ from datetime import datetime, UTC, timedelta
 from model.models import User
 import jwt
 from config import Config
-from services.exceptions_utils import UnauthorizedError, BadRequestError
+from core.errors_handlers import UnauthorizedError, BadRequestError
 
-
-# JWT secret
 JWT_KEY = Config.JWT_KEY
 ALGORITHM = Config.ALGORITHM
-
-
-def required_fields(data, required_field):
-    '''
-    Vérifie et valide la présence des champs requis.
-    Retourne un message_erreur si données absentes/manquantes.
-    '''
-    if not data:
-        raise BadRequestError("JSON invalide")
-
-    missing = [field for field in required_field if field not in data]
-    if missing:
-        raise BadRequestError(f"Champs manquant(s) : {', '.join(missing)}")
-
-    return True
 
 
 # Générateur de token JWT
