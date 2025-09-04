@@ -7,8 +7,11 @@ from services.order_utils import (
     change_status_order,
     get_orderitems_all
 )
-from core.auth_utils import required_fields
-from services.exceptions_utils import ForbiddenError, BadRequestError
+from core.errors_handlers import ForbiddenError
+from core.request_utils import (
+    get_json_body,
+    required_fields
+    )
 
 order_bp = Blueprint("order_bp", __name__)
 
@@ -57,9 +60,7 @@ def create_order():
     # if current_user is None:
     #     return jsonify({"error": "Action Interdite"}), 401
 
-    if not (body := request.get_json()) or not isinstance(body, dict):
-        raise BadRequestError("JSON invalide")
-
+    body = get_json_body(request)
     required_fields(body, ["adresse_livraison", "produits"])
 
     order = create_new_order(
@@ -84,9 +85,7 @@ def create_order():
 @access_granted('admin')
 def update_status_order(id):
     """ Modifie le statut d'une commande spécifique (admin). """
-    if not (body := request.get_json()) or not isinstance(body, dict):
-        raise BadRequestError("JSON invalide")
-
+    body = get_json_body(request)
     required_fields(body, ["statut"])
 
     new_status = body.get("statut")
@@ -103,8 +102,7 @@ def update_status_order(id):
 
 @order_bp.route("/<int:id>/lignes", methods=["GET"])
 def list_orderitems(id):
-    """ Navigue sur  les caractéristiques d'une ligne de commande spécifique
-    (accès public !!). """
+    """ Liste les lignes d'une commande spécifique (accès public !!). """
     order = get_order_by_id(g.session, id)
     items = get_orderitems_all(g.session, order.id)
 

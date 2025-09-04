@@ -1,13 +1,6 @@
 from model.models import Product
-from services.exceptions_utils import NotFoundError, BadRequestError
-
-PRODUCT_FIELDS = ["nom", "description", "categorie", "prix", "quantite_stock"]
-
-
-def get_json_body(request):
-    if not (body := request.get_json()) or not isinstance(body, dict):
-        raise BadRequestError("JSON invalide")
-    return body
+from core.errors_handlers import NotFoundError, BadRequestError
+from core.request_utils import PRODUCT_FIELDS
 
 
 def get_all_products(session):
@@ -24,7 +17,7 @@ def get_product_id(session, produit_id):
 
 
 def add_product(session, nom, description, categorie, prix, quantite_stock):
-    """ Crée un nouveau produit dans la base. """    
+    """ Crée un nouveau produit dans la base. """
     product = Product(
         nom=nom,
         description=description,
