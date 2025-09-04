@@ -7,10 +7,13 @@ from services.order_utils import (
     change_status_order,
     get_orderitems_all
 )
-from core.errors_handlers import ForbiddenError
+from core.errors_handlers import ForbiddenError, BadRequestError
 from core.request_utils import (
     get_json_body,
-    required_fields
+    required_fields,
+    ORDER_FIELDS,
+    ORDER_ITEM_FIELDS,
+    STATUS
     )
 
 order_bp = Blueprint("order_bp", __name__)
@@ -61,7 +64,21 @@ def create_order():
     #     return jsonify({"error": "Action Interdite"}), 401
 
     body = get_json_body(request)
-    required_fields(body, ["adresse_livraison", "produits"])
+
+    ORDER_INPUT = ORDER_FIELDS.copy()
+    ORDER_INPUT.pop("statut", None)
+    required_fields(body, ORDER_INPUT)
+
+    address = body["adresse_livraison"]
+    if not address.strip():
+        raise BadRequestError("Adresse de livraison vide.")
+
+    items = body["produits"]
+    if not items:
+        raise BadRequestError("Liste de produits vide.")
+
+    for item in items:
+        required_fields(item, ORDER_ITEM_FIELDS)
 
     order = create_new_order(
         g.session,
@@ -86,9 +103,12 @@ def create_order():
 def update_status_order(id):
     """ Modifie le statut d'une commande spécifique (admin). """
     body = get_json_body(request)
-    required_fields(body, ["statut"])
+    required_fields(body,  {"statut": str})
 
     new_status = body.get("statut")
+    if new_status not in STATUS:
+        raise BadRequestError(f"Statut invalide : {new_status}")
+
     order = change_status_order(g.session, id, new_status)
     result = {
         "id": order.id,

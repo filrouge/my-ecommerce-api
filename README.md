@@ -192,8 +192,6 @@ Ce tableau présente le `Body` des requêtes CRUD (via cURL, Postman ...) pour l
 
 <br>
 
-### Utilisation (avec `cURL`) -> *checker si déplacer sur autre document annexe*
-
 Les exemples suivants, formatés pour cURL, fournissent les `body` (des requêtes) attendus et le format JSON des réponses associées :
 
 <br>
@@ -554,7 +552,7 @@ Les erreurs applicatives remontées par l'API reposent sur les exceptions centra
 | Commandes        | Statut manquant pour update          | 400  | BadRequestError    |
 | Commandes        | Statut invalide                      | 400  | BadRequestError    |
 | Commandes        | Accès aux autres commandes           | 403  | ForbiddenError     |
-| Commandes        | Ligne de commande vide ou invalide   | 403  | ForbiddenError     |
+| Commandes        | Ligne de Commande vide ou invalide   | 403  | ForbiddenError     |
 |------------------|--------------------------------------|------|--------------------|
 | Commun           | JSON invalide                        | 400  | BadRequestError    |
 | Commun           | Champs manquant(s)                   | 400  | BadRequestError    |

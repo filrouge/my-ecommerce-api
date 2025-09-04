@@ -11,8 +11,10 @@ from core.auth import access_granted
 from core.request_utils import (
     get_json_body,
     required_fields,
-    PRODUCT_FIELDS
+    PRODUCT_FIELDS,
+    NUMERIC_FIELDS
     )
+from core.errors_handlers import BadRequestError
 
 product_bp = Blueprint("product_bp", __name__)
 
@@ -83,8 +85,17 @@ def create_product():
 def update_product_id(id):
     """ Modifie des caractéristiques d'un produit selon son id. """
     body = get_json_body(request)
+    updated_data = {k: v for k, v in body.items() if k in PRODUCT_FIELDS}
 
-    product = update_product(g.session, id, **body)
+    if not updated_data or not any(updated_data.values()):
+        raise BadRequestError("Aucune donnée valide pour la mise à jour")
+
+    for field in NUMERIC_FIELDS:
+        if (value := updated_data.get(field)) is not None \
+           and (not isinstance(value, (int, float)) or value < 0):
+            raise BadRequestError(f"{field.capitalize()} invalide")
+
+    product = update_product(g.session, id, **updated_data)
     return jsonify(
         {
             "message": "Produit mis à jour",
@@ -97,6 +108,6 @@ def update_product_id(id):
 @product_bp.route("/<int:id>", methods=["DELETE"])
 @access_granted('admin')
 def delete_product(id):
-    """ Retire/Détruit du catalogue un produit selon son id. """
+    """ Supprime du catalogue un produit selon son id. """
     delete_product_id(g.session, id)
     return jsonify({"message": f"Produit {id} supprimé"}), 200
