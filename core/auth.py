@@ -4,6 +4,7 @@ from functools import wraps
 from model.models import User
 from model.sessions import get_session
 from config import Config
+from services.exceptions_utils import UnauthorizedError, ForbiddenError
 
 
 # JWT secret
@@ -22,25 +23,25 @@ def auth_required(func):
     def wrapper(*args, **kwargs):
         auth_header = request.headers.get("Authorization")
         if not auth_header or not auth_header.startswith("Bearer "):
-            return jsonify({"error": "Token manquant"}), 401
+            raise UnauthorizedError("Token manquant")
 
         token = auth_header.split(" ")[1]
         try:
             current_user = jwt.decode(token, JWT_KEY, algorithms=[ALGORITHM])
         except jwt.ExpiredSignatureError:
-            return jsonify({"error": "Token expiré"}), 401
+            raise UnauthorizedError("Token expiré")
         except jwt.InvalidTokenError:
-            return jsonify({"error": "Token invalide"}), 401
+            raise UnauthorizedError("Token invalide")
 
         user_id = current_user.get("id")
         if not user_id:
-            return jsonify({"error": "Payload Token invalide"}), 401
+            raise UnauthorizedError("Payload Token invalide")
 
         session = get_session()
         try:
             user = session.get(User, user_id)
             if not user:
-                return jsonify({"error": "Utilisateur introuvable"}), 401
+                raise UnauthorizedError("Utilisateur introuvable")
 
             # Ajouter g.current_user: absent -> echec sur "commandes" !
             g.current_user = user
@@ -65,10 +66,10 @@ def access_granted(*role_names):
         def wrapper(current_user=None, *args, **kwargs):
             # current_user = kwargs.pop("current_user")
             if current_user is None:    # Optionnel/Redondant
-                return jsonify({"error": "Utilisateur non reconnu"}), 401
+                raise UnauthorizedError("Utilisateur non reconnu")
 
             if role_names and current_user.role not in role_names:
-                return jsonify({"error": "Accès refusé"}), 403
+                raise ForbiddenError("Accès refusé")
 
             return func(*args, **kwargs)
         return wrapper

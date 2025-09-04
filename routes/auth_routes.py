@@ -18,25 +18,18 @@ def register():
             - int: code HTTP (201, 400 ou 500)
     '''
     body = request.get_json()
+    required_fields(body, ["email", "nom", "password"])
 
-    ok, error = required_fields(body, ["email", "nom", "password"])
-    if not ok:
-        return jsonify({"error": error}), 400
-
-    try:
-        new_user = register_user(
-            g.session,
-            email=body["email"],
-            nom=body["nom"],
-            password=body["password"],
-            role=body.get("role", "client")
-        )
-        return jsonify(
-            {"message": "Client inscrit", "user": new_user.to_dict()}
-            ), 201
-
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 400
+    new_user = register_user(
+        g.session,
+        email=body["email"],
+        nom=body["nom"],
+        password=body["password"],
+        role=body.get("role", "client")
+    )
+    return jsonify(
+        {"message": "Client inscrit", "user": new_user.to_dict()}
+        ), 201
 
 
 @auth_bp.route("/login", methods=["POST"])
@@ -51,22 +44,14 @@ def login():
         - int: code HTTP (200, 401 ou 500)
     """
     body = request.get_json()
-
-    ok, error = required_fields(body, ["email", "password"])
-    if not ok:
-        return jsonify({"error": error}), 400
+    required_fields(body, ["email", "password"])
 
     session = get_session()
-    try:
-        token, _ = login_user(
-            session,
-            email=body["email"], password=body["password"]
-            )
-        return jsonify(
-            {"message": "Connexion réussie", "token": token}
-            ), 200
 
-    except ValueError as e:                         # Credentials non valides
-        return jsonify({"error": str(e)}), 401
-    except RuntimeError as e:                       # Token non généré
-        return jsonify({"error": str(e)}), 500
+    token, _ = login_user(
+        session,
+        email=body["email"], password=body["password"]
+        )
+    return jsonify(
+        {"message": "Connexion réussie", "token": token}
+        ), 200
