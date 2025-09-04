@@ -56,7 +56,9 @@ def get_product(id):
 @access_granted('admin')
 def create_product():
     """ Crée un produit avec ses caractéristiques. """
-    body = request.json
+    if not (body := request.get_json()) or not isinstance(body, dict):
+        raise BadRequestError("JSON invalide")
+
     required_fields(
         body,
         ["nom", "description", "categorie", "prix", "quantite_stock"]
@@ -85,20 +87,7 @@ def update_product_id(id):
     if not (body := request.get_json()) or not isinstance(body, dict):
         raise BadRequestError("JSON invalide")
 
-    allowed_fields = {
-        "nom", "description", "categorie",
-        "prix", "quantite_stock"
-    }
-    update_data = {k: v for k, v in body.items() if k in allowed_fields}
-
-    if not update_data or not any(update_data.values()):
-        raise BadRequestError("Aucune donnée valide pour la mise à jour")
-
-    for field in ("prix", "quantite_stock"):
-        if (value := body.get(field)) is not None and value < 0:
-            raise BadRequestError(f"{field.capitalize()} invalide")
-
-    product = update_product(g.session, id, **update_data)
+    product = update_product(g.session, id, **body)
     return jsonify(
         {
             "message": "Produit mis à jour",

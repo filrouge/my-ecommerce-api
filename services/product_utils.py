@@ -1,6 +1,14 @@
 from model.models import Product
 from services.exceptions_utils import NotFoundError, BadRequestError
 
+PRODUCT_FIELDS = ["nom", "description", "categorie", "prix", "quantite_stock"]
+
+
+def get_json_body(request):
+    if not (body := request.get_json()) or not isinstance(body, dict):
+        raise BadRequestError("JSON invalide")
+    return body
+
 
 def get_all_products(session):
     """ Retourne la liste complète des produits. """
@@ -16,7 +24,7 @@ def get_product_id(session, produit_id):
 
 
 def add_product(session, nom, description, categorie, prix, quantite_stock):
-    """ Crée un nouveau produit dans la base. """
+    """ Crée un nouveau produit dans la base. """    
     product = Product(
         nom=nom,
         description=description,
@@ -35,9 +43,17 @@ def add_product(session, nom, description, categorie, prix, quantite_stock):
 def update_product(session, produit_id, **kwargs):
     """ Met à jour un produit avec les champs passés en kwargs. """
     product = get_product_id(session, produit_id)
-    for field in ["nom", "description", "categorie", "prix", "quantite_stock"]:
-        if field in kwargs:
-            setattr(product, field, kwargs[field])
+    updated_data = {k: v for k, v in kwargs.items() if k in PRODUCT_FIELDS}
+
+    if not updated_data or not any(updated_data.values()):
+        raise BadRequestError("Aucune donnée valide pour la mise à jour")
+
+    for field in ("prix", "quantite_stock"):
+        if (value := updated_data.get(field)) is not None and value < 0:
+            raise BadRequestError(f"{field.capitalize()} invalide")
+
+    for field, value in updated_data.items():
+        setattr(product, field, value)
 
     session.commit()
     # session.flush()
