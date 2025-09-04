@@ -8,7 +8,7 @@ from services.order_utils import (
     get_orderitems_all
 )
 from core.auth_utils import required_fields
-from services.exceptions_utils import ForbiddenError
+from services.exceptions_utils import ForbiddenError, BadRequestError
 
 order_bp = Blueprint("order_bp", __name__)
 
@@ -57,7 +57,9 @@ def create_order():
     # if current_user is None:
     #     return jsonify({"error": "Action Interdite"}), 401
 
-    body = request.get_json()
+    if not (body := request.get_json()) or not isinstance(body, dict):
+        raise BadRequestError("JSON invalide")
+
     required_fields(body, ["adresse_livraison", "produits"])
 
     order = create_new_order(
@@ -82,7 +84,9 @@ def create_order():
 @access_granted('admin')
 def update_status_order(id):
     """ Modifie le statut d'une commande spécifique (admin). """
-    body = request.get_json()
+    if not (body := request.get_json()) or not isinstance(body, dict):
+        raise BadRequestError("JSON invalide")
+
     required_fields(body, ["statut"])
 
     new_status = body.get("statut")
