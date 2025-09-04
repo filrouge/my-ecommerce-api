@@ -1,9 +1,8 @@
 from datetime import datetime, UTC
 from model.models import Order, OrderItem
 from services.product_utils import get_product_id
-from services.exceptions_utils import NotFoundError, BadRequestError
-
-STATUS = ["En attente", "Validée", "Expédiée", "Annulée"]
+from core.errors_handlers import NotFoundError, BadRequestError
+from core.request_utils import STATUS
 
 
 def get_order_by_user(session, user_id):
@@ -62,7 +61,6 @@ def create_new_order(session, user_id, address, items):
         )
         session.add(order_item)
 
-        # mise à jour du stock
         product.quantite_stock -= order_item.quantite
 
     session.commit()

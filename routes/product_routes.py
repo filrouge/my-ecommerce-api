@@ -1,5 +1,4 @@
 from flask import request, jsonify, Blueprint, g
-from core.auth_utils import required_fields
 from services.product_utils import (
     get_all_products,
     get_product_id,
@@ -9,7 +8,11 @@ from services.product_utils import (
     search_product
 )
 from core.auth import access_granted
-from services.exceptions_utils import BadRequestError
+from core.request_utils import (
+    get_json_body,
+    required_fields,
+    PRODUCT_FIELDS
+    )
 
 product_bp = Blueprint("product_bp", __name__)
 
@@ -56,13 +59,8 @@ def get_product(id):
 @access_granted('admin')
 def create_product():
     """ Crée un produit avec ses caractéristiques. """
-    if not (body := request.get_json()) or not isinstance(body, dict):
-        raise BadRequestError("JSON invalide")
-
-    required_fields(
-        body,
-        ["nom", "description", "categorie", "prix", "quantite_stock"]
-    )
+    body = get_json_body(request)
+    required_fields(body, PRODUCT_FIELDS)
 
     product = add_product(
         g.session,
@@ -84,8 +82,7 @@ def create_product():
 @access_granted('admin')
 def update_product_id(id):
     """ Modifie des caractéristiques d'un produit selon son id. """
-    if not (body := request.get_json()) or not isinstance(body, dict):
-        raise BadRequestError("JSON invalide")
+    body = get_json_body(request)
 
     product = update_product(g.session, id, **body)
     return jsonify(
