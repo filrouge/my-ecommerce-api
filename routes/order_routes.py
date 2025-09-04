@@ -8,6 +8,7 @@ from services.order_utils import (
     get_orderitems_all
 )
 from core.auth_utils import required_fields
+from services.exceptions_utils import ForbiddenError
 
 order_bp = Blueprint("order_bp", __name__)
 
@@ -22,7 +23,7 @@ def list_orders():
         "utilisateur_id": order.utilisateur_id,
         "adresse_livraison": order.adresse_livraison,
         "statut": order.statut,
-        "date_commande": order.date_commande.isoformat()        
+        "date_commande": order.date_commande.isoformat()
     } for order in orders]
     # result = [order.to_dict() for order in orders]
     return jsonify(result), 200
@@ -33,23 +34,19 @@ def list_orders():
 def get_order_id(id):
     """ Navigue sur une commande spécifique (admin, propriétaire). """
     current_user = g.current_user
-    try:
-        order = get_order_by_id(g.session, id)
-        if (current_user.role != "admin"
-                and order.utilisateur_id != current_user.id):
-            return jsonify({"error": "Accès refusé"}), 403
+    order = get_order_by_id(g.session, id)
+    if (current_user.role != "admin"
+            and order.utilisateur_id != current_user.id):
+        raise ForbiddenError("Accès refusé")
 
-        result = {
-            "id": order.id,
-            "utilisateur_id": order.utilisateur_id,
-            "adresse_livraison": order.adresse_livraison,
-            "statut": order.statut,
-            "date_commande": str(order.date_commande)
-        }
-        return jsonify(result), 200
-
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 404
+    result = {
+        "id": order.id,
+        "utilisateur_id": order.utilisateur_id,
+        "adresse_livraison": order.adresse_livraison,
+        "statut": order.statut,
+        "date_commande": str(order.date_commande)
+    }
+    return jsonify(result), 200
 
 
 @order_bp.route("", methods=["POST"])
@@ -61,30 +58,24 @@ def create_order():
     #     return jsonify({"error": "Action Interdite"}), 401
 
     body = request.get_json()
-    ok, error = required_fields(body, ["adresse_livraison", "produits"])
-    if not ok:
-        return jsonify({"error": str(error)}), 400
+    required_fields(body, ["adresse_livraison", "produits"])
 
-    try:
-        order = create_new_order(
-            g.session,
-            user_id=current_user.id,
-            items=body.get("produits", []),
-            address=body.get("adresse_livraison")
-        )
-        return jsonify(
-            {
-                "message": f"Commande id:{order.id} créée",
-                "commande": order.to_dict()
-                # "commande": {
-                #     **order.to_dict(),
-                #     "items": [item.to_dict() for item in order.items]
-                #     }
-            }
-        ), 201
-
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 400
+    order = create_new_order(
+        g.session,
+        user_id=current_user.id,
+        items=body.get("produits", []),
+        address=body.get("adresse_livraison")
+    )
+    return jsonify(
+        {
+            "message": f"Commande id:{order.id} créée",
+            "commande": order.to_dict()
+            # "commande": {
+            #     **order.to_dict(),
+            #     "items": [item.to_dict() for item in order.items]
+            #     }
+        }
+    ), 201
 
 
 @order_bp.route("/<int:id>", methods=["PATCH"])
@@ -95,31 +86,23 @@ def update_status_order(id):
     required_fields(body, ["statut"])
 
     new_status = body.get("statut")
-    try:
-        order = change_status_order(g.session, id, new_status)
-        result = {
-            "id": order.id,
-            "statut": order.statut
-        }
-        return jsonify({
-            "message": "Statut mis à jour",
-            "commande": result
-            }), 200
-
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 404
+    order = change_status_order(g.session, id, new_status)
+    result = {
+        "id": order.id,
+        "statut": order.statut
+    }
+    return jsonify({
+        "message": "Statut mis à jour",
+        "commande": result
+        }), 200
 
 
 @order_bp.route("/<int:id>/lignes", methods=["GET"])
 def list_orderitems(id):
     """ Navigue sur  les caractéristiques d'une ligne de commande spécifique
     (accès public !!). """
-    try:
-        order = get_order_by_id(g.session, id)
-        items = get_orderitems_all(g.session, order.id)
-        
-        result = [item.to_dict() for item in items]
-        return jsonify(result), 200
+    order = get_order_by_id(g.session, id)
+    items = get_orderitems_all(g.session, order.id)
 
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 404
+    result = [item.to_dict() for item in items]
+    return jsonify(result), 200

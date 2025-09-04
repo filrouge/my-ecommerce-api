@@ -1,6 +1,7 @@
 from datetime import datetime, UTC
 from model.models import Order, OrderItem
 from services.product_utils import get_product_id
+from services.exceptions_utils import NotFoundError, BadRequestError
 
 STATUS = ["En attente", "Validée", "Expédiée", "Annulée"]
 
@@ -21,17 +22,17 @@ def get_order_by_id(session, order_id):
     """ Récupère une commande par son ID. """
     order = session.query(Order).filter_by(id=order_id).first()
     if not order:
-        raise ValueError("Commande introuvable")
+        raise NotFoundError("Commande introuvable")
     return order
 
 
 def create_new_order(session, user_id, address, items):
     """ Crée une nouvelle commande pour un utilisateur. """
     if not items:
-        raise ValueError("La commande ne contient aucune liste de produits.")
+        raise BadRequestError("Commande sans liste de produits.")
 
     if not address:
-        raise ValueError("Adresse de livraison requise.")
+        raise BadRequestError("Adresse de livraison requise.")
 
     order = Order(
         utilisateur_id=user_id,
@@ -45,11 +46,11 @@ def create_new_order(session, user_id, address, items):
 
     for item in items:
         if "produit_id" not in item:
-            raise ValueError("Id produit manquant dans la commande")
+            raise BadRequestError("Id produit manquant dans la commande")
 
         product = get_product_id(session, item["produit_id"])
         if product.quantite_stock < item["quantite"]:
-            raise ValueError(
+            raise BadRequestError(
                 f"Stock insuffisant pour le produit {product.nom}"
                 )
 
@@ -73,7 +74,7 @@ def get_orderitems_all(session, order_id):
     """ Retourne toutes les lignes d'une commande. """
     items = session.query(OrderItem).filter_by(commande_id=order_id).all()
     if not items:
-        raise ValueError(("Ligne de commande introuvable"))
+        raise NotFoundError(("Ligne de commande introuvable"))
 
     return items
 
@@ -81,10 +82,10 @@ def get_orderitems_all(session, order_id):
 def change_status_order(session, order_id, new_status):
     """ Modifie le statut d'une commande. """
     if not new_status:
-        raise ValueError("Statut requis")
+        raise BadRequestError("Statut requis")
 
     if new_status not in STATUS:
-        raise ValueError(f"Statut invalide : {new_status}")
+        raise BadRequestError(f"Statut invalide : {new_status}")
 
     order = get_order_by_id(session, order_id)
     order.statut = new_status
