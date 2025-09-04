@@ -19,6 +19,7 @@
   - Création et consultation (selon permissions `admin`, `client`)
   - Modification du statut (`admin`)
 
+<br>
 
 Elle repose sur une architecture modulaire avec séparation des responsabilités (modèle de type MVC) `Routes` → `Services` → `Modèles` → `DataBase`, où :
 
@@ -26,7 +27,7 @@ Elle repose sur une architecture modulaire avec séparation des responsabilités
 - **Services** : description de la logique métier et des interactions avec la base
 - **Modèles** : définition des tables et relations (SQLAlchemy)
 
-
+<br>
 
 ## Structure du projet
 
@@ -65,14 +66,11 @@ my-ecommerce-api/
 │
 ├── tests/                      # Tests unitaires et fonctionnels
 │   ├── __init__.py                 ← 
-│   ├── conftest.py                 ← fichier de configuration/centralisation des fixtures (en développement)
+│   ├── conftest.py                 ← fichier de configuration/centralisation des fixtures
 │   ├── report.html                 ← rapport des résultats de tests pytest (HTML) (optionnel)
 │   ├── test_users.py               ← fichier pytest pour `User`
 │   ├── test_products.py            ← fichier pytest pour `Product`
 │   └── test_orders.py              ← fichier pytest pour `Order`
-│
-├── options/                    # Pour simulation API / BdD (optionnel)
-│   └── seed_data.py                ← Scripts pour alimenter les tables (à venir / optionnel)
 │
 ├── .gitignore
 ├── requirements.txt            # Liste des dépendances python (à venir)
@@ -87,11 +85,14 @@ L'implémentation du code nécessite :
     - Python >= 3.12
     - conda / virtualenv + pip
 
+<br>
+
 L'utilisation de l'outil SQLite (DB Browser) est optionnelle; elle permet néanmoins de vérifier :
 - le schéma de la Base,
 - la création des tables,
 - les données enregistrées, modifiées ou supprimées.
 
+<br>
 
 ### Installation (Conda, Linux/Windows)
 
@@ -125,7 +126,7 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-
+<br>
 
 ### Configuration
 
@@ -140,12 +141,13 @@ JWT_SECRET_KEY=your-jwt-secret
 
 ### Lancement
 
-Exécutez `python app.py` ou `flask run --debug`
+Exécutez `python app.py` ou `flask run --debug`.
+
 L'API est accessible sur : http://127.0.0.1:5000, avec le mode DEBUG pour développement.
 
 <!-- ![alt text](image.png) -->
 
-
+<br>
 
 ## API Endpoints
 
@@ -168,57 +170,61 @@ L'API est accessible sur : http://127.0.0.1:5000, avec le mode DEBUG pour dével
 | **PATCH**   | `/api/commandes/{id}`        | Admin        | Mise à jour du statut de la commande        |
 | **GET**     | `/api/commandes/{id}/lignes` | Client/Admin | Liste les lignes d'une commande spécifique  |
 
-
+<br>
 
 ### Format des JSON d'entrée
 
-Ce tableau présente le `Body` des requêtes CRUD (cURL, Postman ...) pour les fonctionnalités correspondantes.
+Ce tableau présente le `Body` des requêtes CRUD (via cURL, Postman ...) pour les fonctionnalités correspondantes.
 
 | Fonctionnalité                       | Body |
 |--------------------------------------|---------|
-| Inscription                          | ```json {"email": "client@test.com", "password":"secret"} ``` |
-| Connexion                            | ```json {"email": "admin@test.com", "password":"password"} ``` |
-| Création de produit                  | ```json {"nom": "Produit Test", "prix":99.9, "quantite_stock":5} ``` |
-| Mise à jour d'un produit             | ```json {"nom": "Produit Modifié", "prix":79.9, "quantite_stock":10} ``` |
-| Création de commande                 | ```json { "adresse_livraison": "4 rue d'ici, 75000 Paname", "produits": [{"id": 1, "quantite": 2},{"id": 2, "quantite": 1}] } ``` |
-| Mise à jour de statut d’une commande | ```json {"statut": "Expédiée"} ``` |
+| Inscription                          | ``` {"email": "client@test.com", "nom":"clienttestcom", "password":"secret"} ``` |
+| Connexion                            | ``` {"email": "admin@test.com", "password":"password"} ``` |
+| Création de produit                  | ``` {"nom": "Produit Test", "prix":99.9, "quantite_stock":5} ``` |
+| Mise à jour d'un produit             | ``` {"nom": "Produit Modifié", "prix":79.9, "quantite_stock":10} ``` |
+| Création de commande                 | ``` { "adresse_livraison": "4 rue d'ici, 75000 Paname", "produits": [{"id": 1, "quantite": 2},{"id": 2, "quantite": 1}] } ``` |
+| Mise à jour statut d’une commande    | ``` {"statut": "Expédiée"} ``` |
 
-
+<br>
 
 ### Utilisation (avec `cURL`) -> *checker si déplacer sur autre document annexe*
 
-Les exemples suivants, formatés pour cURL, fournissent les `body` (des requêtes) attendus et le format des réponses JSON :
+Les exemples suivants, formatés pour cURL, fournissent les `body` (des requêtes) attendus et le format JSON des réponses associées :
 
+<br>
 
 #### Authentification
 
 
 ##### 1. Inscription (**POST** `/api/auth/register`)
 
-**Requête :**
+<small>**Requête :**</small>
 
 ```bash
 curl -X POST http://127.0.0.1:5000/api/auth/register \
 -H "Content-Type: application/json" \
--d '{"email":"client@test.com","password":"secret"}'
+-d '{"email":"client@test.com","nom":"clienttestcom","password":"secret"}'
 ```
 
-**Réponse (201 Created)**
+<small>**Réponse (201 Created)**</small>
 
-```json
+```javascript
 {
   "message": "Utilisateur créé",
   "user": {
     "id": 1,
     "email": "client@test.com",
+    "nom":"clienttestcom",
     "role": "client"
   }
 }
 ```
 
+<br>
+
 ##### 2. Connexion (login + token JWT) (**POST** `/api/auth/login`)
 
-**Requête :**
+<small>**Requête :**</small>
 
 ```bash
 curl -X POST http://127.0.0.1:5000/api/auth/login \
@@ -226,7 +232,7 @@ curl -X POST http://127.0.0.1:5000/api/auth/login \
 -d '{"email":"admin@test.com","password":"password"}'
 ```
 
-**Réponse (200 OK)**
+<small>**Réponse (200 OK)**</small>
 
 ```json
 {
@@ -235,13 +241,14 @@ curl -X POST http://127.0.0.1:5000/api/auth/login \
 }
 ```
 
+<br>
 
 #### Produits
 
 
-##### 1. Création de produit (**POST** `/api/produits`)
-#####                        (*headers:* `Authorization: Bearer <token>`)
-**Requête :**
+##### 1. Création de produit (**POST** `/api/produits` - *headers:* `Authorization: Bearer <token>`)
+
+<small>**Requête :**</small>
 
 ```bash
 curl -X POST http://127.0.0.1:5000/api/produits \
@@ -250,7 +257,7 @@ curl -X POST http://127.0.0.1:5000/api/produits \
 -d '{"nom":"Produit","description":"Desc","categorie":"Cat","prix":99.9,"quantite_stock":5}'
 ```
 
-**Réponse (201 Created)**
+<small>**Réponse (201 Created)**</small>
 
 ```json
 {
@@ -268,13 +275,13 @@ curl -X POST http://127.0.0.1:5000/api/produits \
 
 ##### 2. Liste les produits (**GET** `/api/produits`)
 
-**Requête :**
+<small>**Requête :**</small>
 
 ```bash
 curl -X GET http://127.0.0.1:5000/api/produits
 ```
 
-**Réponse (200 OK)**
+<small>**Réponse (200 OK)**</small>
 
 ```json
 [
@@ -299,13 +306,13 @@ curl -X GET http://127.0.0.1:5000/api/produits
 
 ##### 3. Détails d'un produit (**GET** `/api/produits/{id}`)
 
-**Requête :**
+<small>**Requête :**</small>
 
 ```bash
 curl -X GET http://127.0.0.1:5000/api/produits/1
 ```
 
-**Réponse (200 OK)**
+<small>**Réponse (200 OK)**</small>
 
 ```json
 {
@@ -318,10 +325,9 @@ curl -X GET http://127.0.0.1:5000/api/produits/1
 }
 ```
 
-##### 4. Mise à jour d'un produit (**PUT** `/api/produits/{id}`)
-#####                             (*headers:* `Authorization: Bearer <token>`)
+##### 4. Mise à jour d'un produit (**PUT** `/api/produits/{id}` - *headers:* `Authorization: Bearer <token>`)
 
-**Requête :**
+<small>**Requête :**</small>
 
 ```bash
 curl -X PUT http://127.0.0.1:5000/api/produits/3 \
@@ -330,7 +336,7 @@ curl -X PUT http://127.0.0.1:5000/api/produits/3 \
 -d '{"nom":"Produit modifié","prix":79.9,"quantite_stock":10}'
 ```
 
-**Réponse (200 OK)**
+<small>**Réponse (200 OK)**</small>
 
 ```json
 {
@@ -347,17 +353,16 @@ curl -X PUT http://127.0.0.1:5000/api/produits/3 \
 }
 ```
 
-##### 5. Suppression d'un produit (**DELETE** `/api/produits/{id}`)
-#####                             (*headers:* `Authorization: Bearer <token>`)
+##### 5. Suppression d'un produit (**DELETE** `/api/produits/{id}` - *headers:* `Authorization: Bearer <token>`)
 
-**Requête :**
+<small>**Requête :**</small>
 
 ```bash
 curl -X DELETE http://127.0.0.1:5000/api/produits/3 \
 -H "Authorization: Bearer <token_admin>"
 ```
 
-**Réponse (200 OK)**
+<small>**Réponse (200 OK)**</small>
 
 ```json
 {
@@ -365,23 +370,22 @@ curl -X DELETE http://127.0.0.1:5000/api/produits/3 \
 }
 ```
 
+<br>
 
 #### Commandes
 
+##### 1. Création de commande (**POST** `/api/commandes` - *headers:* `Authorization: Bearer <token>`)
 
-##### 1. Création de commande (**POST** `/api/commandes`)
-#####                         (*headers:* `Authorization: Bearer <token>`)
-
-**Requête :**
+<small>**Requête :**</small>
 
 ```bash
 curl -X POST http://127.0.0.1:5000/api/commandes \
 -H "Content-Type: application/json" \
 -H "Authorization: Bearer <token_client>" \
--d '{"adresse_livraison": "4 rue d'ici, 75000 Paname","produits": [{"id": 1, "quantite": 2},{"id": 2, "quantite": 1}]}'
+-d '{"adresse_livraison": "4 rue d'ici, 75000 Paname","produits": [{"produit_id": 1, "quantite": 2},{"produit_id": 2, "quantite": 1}]}'
 ```
 
-**Réponse (201 Created)**
+<small>**Réponse (201 Created)**</small>
 
 ```json
 {
@@ -396,17 +400,16 @@ curl -X POST http://127.0.0.1:5000/api/commandes \
 }
 ```
 
-##### 2. Lister les commandes (**GET** `/api/commandes`)
-#####                         (*headers:* `Authorization: Bearer <token>`)
+##### 2. Lister les commandes (**GET** `/api/commandes` - *headers:* `Authorization: Bearer <token>`)
 
-**Requête :**
+<small>**Requête :**</small>
 
 ```bash
 curl -X GET http://127.0.0.1:5000/api/commandes \
 -H "Authorization: Bearer <token_admin>"  # <token_client> pour ses propres commandes
 ```
 
-**Réponse (200 OK)**
+<small>**Réponse (200 OK)**</small>
 
 ```json
 [
@@ -427,17 +430,16 @@ curl -X GET http://127.0.0.1:5000/api/commandes \
 ]
 ```
 
-##### 3. Détails d’une commande (**GET** `/api/commandes/{id}`)
-#####                         (*headers:* `Authorization: Bearer <token>`)
+##### 3. Détails d’une commande (**GET** `/api/commandes/{id}` - *headers:* `Authorization: Bearer <token>`)
 
-**Requête :**
+<small>**Requête :**</small>
 
 ```bash
 curl -X GET http://127.0.0.1:5000/api/commandes/11 \
 -H "Authorization: Bearer <token_client>"
 ```
 
-**Réponse (200 OK)**
+<small>**Réponse (200 OK)**</small>
 
 ```json
 {
@@ -449,10 +451,9 @@ curl -X GET http://127.0.0.1:5000/api/commandes/11 \
 }
 ```
 
-##### 4. Mise à jour de statut d’une commande (**PATCH** `/api/commandes/{id}`)
-#####                                         (*headers:* `Authorization: Bearer <token>`)
+##### 4. Mise à jour de statut d’une commande (**PATCH** `/api/commandes/{id}` - *headers:* `Authorization: Bearer <token>`)
 
-**Requête :**
+<small>**Requête :**</small>
 
 ```bash
 curl -X PATCH http://127.0.0.1:5000/api/commandes/11 \
@@ -461,7 +462,7 @@ curl -X PATCH http://127.0.0.1:5000/api/commandes/11 \
 -d '{"statut": "Expédiée"}'
 ```
 
-**Réponse (200 OK)**
+<small>**Réponse (200 OK)**</small>
 
 ```json
 {
@@ -476,28 +477,29 @@ curl -X PATCH http://127.0.0.1:5000/api/commandes/11 \
 }
 ```
 
-##### 5. Détails des lignes d’une commande (**GET** `/api/commandes/{id}/lignes`)
-#####                                      (*headers:* `Authorization: Bearer <token>`)
+##### 5. Détails des lignes d’une commande (**GET** `/api/commandes/{id}/lignes` - *headers:* `Authorization: Bearer <token>`)
 
-**Requête :**
+<small>**Requête :**</small>
 
 ```bash
 curl -X GET http://127.0.0.1:5000/api/commandes/11/lignes \
 -H "Authorization: Bearer <token_client>"
 ```
 
-**Réponse (200 OK)**
+<small>**Réponse (200 OK)**</small>
 
 ```json
 [
   {
     "id": 1,
+    "commande_id": 1,
     "produit_id": 1,
     "quantite": 2,
     "prix_unitaire": 79.9
   },
   {
     "id": 2,
+    "commande_id": 1,
     "produit_id": 2,
     "quantite": 1,
     "prix_unitaire": 25.0
@@ -505,100 +507,59 @@ curl -X GET http://127.0.0.1:5000/api/commandes/11/lignes \
 ]
 ```
 
-
+<br>
 
 ## Gestion des erreurs/exceptions
 
 Les erreurs applicatives (métier) et SQLAlchemy (back-end) sont gérées de manière disctincte.
-Elles sont renvoyées sous forme de messages, via `jsonify({"error": ...})`, explicitant la cause et le code associé. 
 
+Elles sont renvoyées sous forme de messages, via `jsonify({"error": ...})`, explicitant la cause et le code associé. 
 
 
 ### Erreurs applicatives
 
-Les erreurs applicatives utilisent les code HTTP suivants:
+Les erreurs applicatives remontées par l'API reposent sur les exceptions centralisées (avec codes HTTP correspondants) du fichier `exceptions_utils.py` :
 
-- **400 Bad Request** : données d'entrée manquantes/invalides (validation payload/body)
-- **401 Unauthorized** : authentification manquante ou JWT invalide/absent.
-- **403 Forbidden** : accès non autorisé (restriction POST/PUT/DELETE ou PATCH)
-- **404 Not Found** : ressource absente ou inexistante
+- **BadRequestError** (`400 Bad Request`) : données d'entrée manquantes/invalides (validation payload/body)
+- **UnauthorizedError** (`401 Unauthorized`) : authentification manquante ou JWT invalide/absent.
+- **ForbiddenError** (`403 Forbidden`) : accès non autorisé (restriction POST/PUT/DELETE ou PATCH)
+- **NotFoundError** (`404 Not Found`) : ressource absente ou inexistante
 
-La liste des erreurs remontées par l'API sont présentées comme suit:
+<br>
 
-<!--
-Authentification :
-    Email manquant ou non valable               →       `400`           {"error": "Email requis ou invalide"}
-    Email ou mot de passe incorrect             →       `403`           {"error": "Email ou mot de passe invalide"}
-    Token is missing                            →       `401`
-    Token expired                               →       `401`
-    Invalid token                               →       `401`
-    Invalid token payload                       →       `401`
-    Token non valide                            →       `403`
-    User not found                              →       `401`
+| Domaine          | Erreur                               | Code | Message            |
+|------------------|--------------------------------------|------|--------------------|
+| Authentification | Email manquant ou invalide           | 400  | BadRequestError    |
+| Authentification | Email ou mot de passe incorrect      | 403  | ForbiddenError     |
+| Authentification | Token manquant                       | 401  | UnauthorizedError  |
+| Authentification | Token expiré                         | 401  | UnauthorizedError  |
+| Authentification | Token invalide                       | 401  | UnauthorizedError  |
+| Authentification | Client introuvable                   | 404  | NotFoundError      |
+| Authentification | Adresse e-mail déjà utilisée         | 400  | BadRequestError    |
+| Authentification | Identifiants invalides               | 403  | ForbiddenError     |
+| Autorisation     | Action non autorisée                 | 403  | ForbiddenError     |
+| Autorisation     | Accès refusé                         | 403  | ForbiddenError     |
+| Produits         | Produit introuvable                  | 404  | NotFoundError      |
+| Produits         | Nom, prix ou quantite manquant       | 400  | BadRequestError    |
+| Produits         | Prix invalide                        | 400  | BadRequestError    |
+| Produits         | Quantité invalide                    | 400  | BadRequestError    |
+| Commandes        | Commande introuvable                 | 404  | NotFoundError      |
+| Commandes        | Ligne de Commande introuvable        | 404  | NotFoundError      |
+| Commandes        | Produit ou adresse manquant          | 400  | BadRequestError    |
+| Commandes        | Statut manquant pour update          | 400  | BadRequestError    |
+| Commandes        | Statut invalide                      | 400  | BadRequestError    |
+| Commandes        | Accès aux autres commandes           | 403  | ForbiddenError     |
+| Commandes        | Ligne de commande vide ou invalide   | 403  | ForbiddenError     |
+|------------------|--------------------------------------|------|--------------------|
+| Commun           | JSON invalide                        | 400  | BadRequestError    |
+| Commun           | Champs manquant(s)                   | 400  | BadRequestError    |
 
-    User not recognized (Client non reconnu)    →       `401`           @access_granted
-    User already exists                         →       ` `             register_user
-
-    Invalid credentials                         →       ` `             login_user
-    Token generation failed                     →       ` `             login_user
-    JWT generation failed                       →       ` `             generate_token
-
-
-Autorisation :
-    Action non autorisée                        →       `403`
-    Token non valide                            →       `403`
-    Access denied (Accès refusé)                →       `403`
-
-
-Produits :
-    Produit introuvable                         →       `404`
-    Nom/prix manquant                           →       `400`
-    Prix non valide (<0)                        →       `400`
-
-
-Commandes :
-    Commande introuvable                        →       `404`           {"error": "Commande non trouvée"}
-    Ligne de Commande introuvable               →       `404`
-    Produit ou adresse manquant                 →       `400`
-    Statut manquant pour update                 →       `400`
-    Statut non valide                           →       `400`
-    Tentative d'accès aux autres commandes      →       `403`
-
-    Ligne de commande vide ou non valide        →       `403`           {"error": "Liste d'items invalide"} |
-
-Autres
-    Invalid JSON                                →       ` `             required_fields
-    Missing fields                              →       ` `             required_fields
--->
-
-*| Route | Méthode | Accès | Code HTTP | Erreur | Cause |*
-*|-------|--------|-------|-------------------|-------------|*
-*| `/api/produits` | POST | Admin | 400 | xxxxxx | {"error": "xxxxxx"} |*
-*| `/api/produits` | POST | Non Admin | 403 | xxxxxx |   |*
-*| `/api/produits/<id>` | GET | Public | 404 | xxxxxx | {"error": "Pxxxxxx"}*
-*| `/api/produits/<id>` | PUT | Admin | 400 | xxxxxx | {"error": "xxxxxx"}*
-*| `/api/produits/<id>` | PUT | Admin | 404 | xxxxxx | {"error": "xxxxxx"}*
-*| `/api/produits/<id>` | PUT | Non Admin | 403 | xxxxxx |   |*
-*| `/api/produits/<id>` | DELETE | Admin | 404 | xxxxxx | {"error": "xxxxxx"} |*
-*| `/api/produits/<id>` | DELETE | Non Admin | 403 | xxxxxx |   |*
-
-*| `/api/commandes` | GET | Admin / Client | 404 | xxxxxx | Retourne liste vide [] |*
-*| `/api/commandes` | POST | Client | 400 | xxxxxx |   |*
-*| `/api/commandes/<id>` | GET | Admin | 404 | xxxxxx | {"error": "xxxxxx"} |*
-*| `/api/commandes/<id>` | GET | Client | 403 | xxxxxx | {"error": "xxxxxx"} |*
-*| `/api/commandes/<id>` | GET | Client | 404 | xxxxxx | {"error": "xxxxxx"} |*
-*| `/api/commandes/<id>` | PATCH | Admin | 400 | xxxxxx |  , {"error": "xxxxxx"} |*
-*| `/api/commandes/<id>` | PATCH | Admin | 404 | xxxxxx |  , {"error": "xxxxxx"} |*
-*| `/api/commandes/<id>` | PATCH | Non Admin | 403 | xxxxxx |   |*
-*| `/api/commandes/<id>` | POST | Admin | 403 | xxxxxx | {"error": "xxxxxx"} |*
-*| `/api/commandes/<id>/lignes` | GET | Admin | 404 | xxxxxx | {"error": "xxxxxx"} |*
-*| `/api/commandes/<id>/lignes` | GET | Client | 403 | xxxxxx | {"error": "xxxxxx"} |*
-*| `/api/commandes/<id>/lignes` | GET | Client | 404 | xxxxxx | {"error": "xxxxxx"} |*
-
+<br>
 
 ### Erreurs SQLAlchemy
 
 La gestion des erreurs SQLAlchemy est centralisée via un `errorhandler`.
+
 Celui-ci fournit des *messages personnalisés* sous la forme : `{"error": "DataBase - <message>"}, <code>` en s'appuyant sur le tableau suivant :
 
 | Exception                |     Code     |                       Cause                         |
@@ -610,16 +571,16 @@ Celui-ci fournit des *messages personnalisés* sous la forme : `{"error": "DataB
 | **OperationalError**     |     `503`    |     Problème côté DataBase (connexion, timeout…)    |
 
 
+<br>
 
 ## Tests
-
-Les fonctionnalités de l'API sont vérifier par des tests unitaires qui s'appuient sur la librairie `pytest`.
-Leur configuration et leur gestion sont également centralisées via le fichier `conftest.py`, un fichier de tests est dédié à chaque domaine de routes (à savoir `test_users.py`, `test_users.py` et `test_users.py`).
 
 
 ### Run
 
-Executez les commandes suivantes (avec l'option `--maxfail=1 --disable-warnings` si besoin) pour lancer les tests `pytest` :
+Les fonctionnalités de l'API sont vérifiées par des tests unitaires qui s'appuient sur la librairie `pytest`. Ils s'appuient sur des fichiers dédiés à chaque domaine de routes (i.e. `test_users.py`, `test_products.py` et `test_orders.py`).
+
+Executez les commandes suivantes pour lancer les tests voulus depuis la racine du projet (avec l'option `--maxfail=1 --disable-warnings` si besoin) :
 
 - `pytest -v` pour cibler tous les tests
 - `pytest -v tests/test_users.py` pour cibler un seul fichier de tests
@@ -627,56 +588,57 @@ Executez les commandes suivantes (avec l'option `--maxfail=1 --disable-warnings`
 - `pytest -v tests/test_users.py::TestLogin` pour cibler un seul module de tests
 - `pytest -v tests/test_users.py::TestAdminAccess::test_access_denied` pour cibler un test spécifique
 
+<br>
 
-*Optionel:* Pour générer un rapport de tests `<mon-rapport-pytest>.html`, installez la librairie `pytest-html` (avec `pip install pytest-html`) et executez la commande suivante :
+*Optionel:* Pour générer un rapport de tests `<mon-rapport-pytest>.html`, executez les commandes suivantes :
 
+`pip install pytest-html`
 `pytest -vv test_products.py --html=<mon-rapport-pytest>.html --self-contained-html`
 
+<br>
 
 ### Couverture
-TODO: vérifier que les test_*.py couvre bien les aspects critiques et importants
+*TODO: vérifier que les test_*.py couvre bien les aspects critiques et importants*
 
-Les tests unitaires ont pour objectif de couvrir (et vérifier) les exigences fonctionnelles suivantes :
+Les tests unitaires couvrent, entre-autres, les points suivants:
 
 - Inscription (`/api/auth/register`)
-    - email unique
-    - mot de passe haché
-    - rôle (défaut = client)
+  - Email unique
+  - Mot de passe haché
+  - Rôle (défaut = client)
 
 - Connexion (`/api/auth/login`)
-    - validée avec token JWT renvoyé
-    *- refusée si mauvais mot de passe   (-> test manquant/implicite)*
+  - Validée avec token JWT renvoyé
+  - Refusée si mauvais mot de passe
 
 - Accès restreint (`/api/admin-only-route`)
-    - autorisé pour `admin`
-    - refusé pour autre que `admin`
+  - Autorisé pour `admin`
+  - Autorisé pour `client`
+  - Refusé pour autre que `admin`
+  - Refusé pour autre que `client` propriétaire
+
+- Produits (`/api/produits`)
+  - Liste de tous les produits
+  - Recherche par nom, catégorie ou disponibilité
+  - Création de produit (`admin` only)
+  - Mise à jour de produit (`admin` only)
+  - Suppression de produit (`admin` only)
+
+- Commandes (`/api/commandes`)
+  - Création de commande (`client` only)
+  - Consultation des commandes (`client` propriétaire)
+  - Consultation de tous les commandes (`admin` only)
+  - Consultation des lignes d'une commande  # (`public` !!!)
+  - Modification de statut d’une commande (`admin` only)
 
 
-*- Produit (`/api/produits`)
-    - Liste de tous les produits
-    - Recherche par nom, catégorie ou disponibilité
-    - Création de produit (`admin` only)
-    - Mise à jour de produit (`admin` only)
-    *- Suppression de produit (`admin` only) (-> non demandé)*
-    *- Suppression de produit inexistant     (-> non demandé)*
-
-- Commande (`/api/commandes`)
-    - Création de commande (`client` only)
-    - Récupération des commandes (`client` propriétaire)
-    - Récupération de tous les commandes (`admin` only)
-    - Consultation des lignes d'une commande existante (`client` propriétaire, `public` !!!)
-    - Consultation des lignes d'une commande inexistante
-    - Modification de statut d’une commande (`admin` only)*
-
-
+<br>
 
 ###### Statut
 
 TODO:
-
-    - Refactoring des tests (utilisation des fixtures)
-    - Documentation du code + Reformatage + Anglicisme
-
-    - Ad-ons:
-        - Passage à Logger pour le monitoring (MEP)
-        - Scripts `seed_data.py` (alimentation des tables)
+- Refactoring des tests via fixtures (*feed_product*, *feed_order*)
+- Documentation interne du code
+- Ad-ons:
+    - Passage à Logger pour le monitoring (MEP)
+    - Scripts `seed_data.py` (alimentation des tables)
