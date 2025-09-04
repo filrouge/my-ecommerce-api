@@ -1,6 +1,7 @@
 from flask import request, jsonify, Blueprint, g
 from model.sessions import get_session
-from core.auth_utils import required_fields, register_user, login_user
+from core.auth_utils import register_user, login_user
+from core.request_utils import (get_json_body, required_fields)
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -17,26 +18,19 @@ def register():
             - dict: message de succès ou informations d'erreur
             - int: code HTTP (201, 400 ou 500)
     '''
-    body = request.get_json()
+    body = get_json_body(request)
+    required_fields(body, ["email", "nom", "password"])
 
-    ok, error = required_fields(body, ["email", "nom", "password"])
-    if not ok:
-        return jsonify({"error": error}), 400
-
-    try:
-        new_user = register_user(
-            g.session,
-            email=body["email"],
-            nom=body["nom"],
-            password=body["password"],
-            role=body.get("role", "client")
-        )
-        return jsonify(
-            {"message": "Client inscrit", "user": new_user.to_dict()}
-            ), 201
-
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 400
+    new_user = register_user(
+        g.session,
+        email=body["email"],
+        nom=body["nom"],
+        password=body["password"],
+        role=body.get("role", "client")
+    )
+    return jsonify(
+        {"message": "Client inscrit", "user": new_user.to_dict()}
+        ), 201
 
 
 @auth_bp.route("/login", methods=["POST"])
@@ -50,23 +44,15 @@ def login():
         - dict: message + token JWT ou informations d'erreur
         - int: code HTTP (200, 401 ou 500)
     """
-    body = request.get_json()
-
-    ok, error = required_fields(body, ["email", "password"])
-    if not ok:
-        return jsonify({"error": error}), 400
+    body = get_json_body(request)
+    required_fields(body, ["email", "password"])
 
     session = get_session()
-    try:
-        token, _ = login_user(
-            session,
-            email=body["email"], password=body["password"]
-            )
-        return jsonify(
-            {"message": "Connexion réussie", "token": token}
-            ), 200
 
-    except ValueError as e:                         # Credentials non valides
-        return jsonify({"error": str(e)}), 401
-    except RuntimeError as e:                       # Token non généré
-        return jsonify({"error": str(e)}), 500
+    token, _ = login_user(
+        session,
+        email=body["email"], password=body["password"]
+        )
+    return jsonify(
+        {"message": "Connexion réussie", "token": token}
+        ), 200

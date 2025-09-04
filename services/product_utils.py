@@ -1,4 +1,6 @@
 from model.models import Product
+from core.errors_handlers import NotFoundError, BadRequestError
+from core.request_utils import PRODUCT_FIELDS
 
 
 def get_all_products(session):
@@ -10,7 +12,7 @@ def get_product_id(session, produit_id):
     """ Recherche un produit par son id. """
     product = session.query(Product).filter_by(id=produit_id).first()
     if not product:
-        raise ValueError("Produit introuvable")
+        raise NotFoundError("Produit introuvable")
     return product
 
 
@@ -34,19 +36,17 @@ def add_product(session, nom, description, categorie, prix, quantite_stock):
 def update_product(session, produit_id, **kwargs):
     """ Met à jour un produit avec les champs passés en kwargs. """
     product = get_product_id(session, produit_id)
+    updated_data = {k: v for k, v in kwargs.items() if k in PRODUCT_FIELDS}
 
-    if not any(kwargs.values()):
-        raise ValueError("Aucune donnée fournie pour la mise à jour")
+    if not updated_data or not any(updated_data.values()):
+        raise BadRequestError("Aucune donnée valide pour la mise à jour")
 
-    if "prix" in kwargs and kwargs["prix"] < 0:
-        raise ValueError("Prix invalide")
+    for field in ("prix", "quantite_stock"):
+        if (value := updated_data.get(field)) is not None and value < 0:
+            raise BadRequestError(f"{field.capitalize()} invalide")
 
-    if "quantite_stock" in kwargs and kwargs["quantite_stock"] < 0:
-        raise ValueError("Quantité invalide")
-
-    for field in ["nom", "description", "categorie", "prix", "quantite_stock"]:
-        if field in kwargs:
-            setattr(product, field, kwargs[field])
+    for field, value in updated_data.items():
+        setattr(product, field, value)
 
     session.commit()
     # session.flush()

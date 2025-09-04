@@ -3,26 +3,10 @@ from datetime import datetime, UTC, timedelta
 from model.models import User
 import jwt
 from config import Config
+from core.errors_handlers import UnauthorizedError, BadRequestError
 
-
-# JWT secret
 JWT_KEY = Config.JWT_KEY
-ALGORITHM = "HS256"
-
-
-def required_fields(data, required):
-    '''
-    Vérifie et valide la présence des champs requis.
-    Retourne un tuple (ok, message_erreur).
-    '''
-    if not data:
-        return False, "JSON invalide"
-
-    missing = [field for field in required if field not in data]
-    if missing:
-        return False, f"Champs manquant(s) : {', '.join(missing)}"
-
-    return True, None
+ALGORITHM = Config.ALGORITHM
 
 
 # Générateur de token JWT
@@ -37,12 +21,11 @@ def generate_token(user):
         "role": user.role,
         "exp": datetime.now(UTC) + timedelta(hours=1)
     }
-    try:
-        token = jwt.encode(payload, JWT_KEY, algorithm=ALGORITHM)
-        return token
+    token = jwt.encode(payload, JWT_KEY, algorithm=ALGORITHM)
+    if not token:
+        raise RuntimeError("La génération du token a échoué")  # 500
 
-    except Exception:
-        return None
+    return token
 
 
 def get_user_by_email(session, email):
@@ -53,7 +36,7 @@ def get_user_by_email(session, email):
 def register_user(session, email, nom, password, role):
     '''Enregistre un utilisateur dans la Base de Données.'''
     if get_user_by_email(session, email):
-        raise ValueError("Adresse e-mail déjà utilisée")
+        raise BadRequestError("Adresse e-mail déjà utilisée")  # 409
 
     user = User(
         email=email,
@@ -73,10 +56,7 @@ def login_user(session, email, password):
     '''Vérifie les credentials utilisateur et génère un token JWT.'''
     user = get_user_by_email(session, email)
     if not user or not check_password_hash(user.password_hash, password):
-        raise ValueError("Identifiants invalides")
+        raise UnauthorizedError("Identifiants invalides")   # 401
 
     token = generate_token(user)
-    if not token:
-        raise RuntimeError("La génération du token a échoué")
-
     return token, user

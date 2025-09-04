@@ -1,10 +1,16 @@
 from model.database import Base
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import (
+    Column,
+    Integer,
+    Float,
+    String,
+    Date,
+    DateTime,
+    ForeignKey
+)
 from datetime import datetime, UTC
-# from sqlalchemy import UniqueConstraint
-
-from sqlalchemy import Float, ForeignKey, Date
 from sqlalchemy.orm import relationship
+# from sqlalchemy import UniqueConstraint
 
 
 class User(Base):

@@ -97,6 +97,25 @@ class TestProductUpdate:
         assert data['produit']["description"] == "NewDesc"
         assert updated.prix == 6.0
 
+    def test_wrong_update_product(self, test_client, admin_token):
+        client, session = test_client
+        product = Product(nom="ProdUpdate", description="Old",
+                          categorie="CatOld", prix=5.0, quantite_stock=2
+                          )
+        session.add(product)
+        session.commit()
+        # session.flush()
+
+        payload = {"nom": "ProdUpdate", "description": "NewDesc", "prix": -6.0}
+        # payload = {"nom": "ProdUpdate", "description": "NewDesc", "prix": "-6.0"}
+        resp = client.put(f"/api/produits/{product.id}",
+                          json=payload,
+                          headers={"Authorization": f"Bearer {admin_token}"}
+                          )
+        data = resp.get_json()
+        assert resp.status_code == 400
+        assert "Prix invalide" in data["error"]
+
 
 class TestProductDelete:
 
