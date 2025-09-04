@@ -12,11 +12,13 @@
   - Autorisation avec permissions selon le rôle (`@access_granted`)
 
 <br>
+
 - **Gestion des produits :**
   - Navigation, affichage et recherche (`public`)
   - Création, modification et suppression (`admin`)
 
 <br>
+
 - **Gestion des commandes :**
   - Création et consultation (selon permissions `admin`, `client`)
   - Modification du statut (`admin`)
@@ -24,7 +26,6 @@
 <br>
 
 L'architecture modulaire assure une séparation des responsabilités (type MVC) `routes` → `services` → `model` → `DataBase`, où :
-
 - **routes** : exposition de l’API et application des contrôles d’accès
 - **services** : description de la logique métier et des interactions avec la base
 - **model** : définition des tables et relations (SQLAlchemy)
@@ -612,11 +613,13 @@ Les tests unitaires couvrent, entre-autres, les points suivants:
   - Rôle (défaut = client)
 
 <br>
+
 - Connexion (`/api/auth/login`)
   - Validée avec token JWT renvoyé
   - Refusée si mauvais mot de passe
 
 <br>
+
 - Accès restreint (`/api/admin-only-route`)
   - Autorisé pour `admin`
   - Autorisé pour `client`
@@ -624,6 +627,7 @@ Les tests unitaires couvrent, entre-autres, les points suivants:
   - Refusé pour autre que `client` propriétaire
 
 <br>
+
 - Produits (`/api/produits`)
   - Liste de tous les produits
   - Recherche par nom, catégorie ou disponibilité
@@ -632,6 +636,7 @@ Les tests unitaires couvrent, entre-autres, les points suivants:
   - Suppression de produit (`admin` only)
 
 <br>
+
 - Commandes (`/api/commandes`)
   - Création de commande (`client` only)
   - Consultation des commandes (`client` propriétaire)
