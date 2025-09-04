@@ -11,21 +11,23 @@
   - Authentification sécurisée avec génération de token JWT (`/api/auth/login`)
   - Autorisation avec permissions selon le rôle (`@access_granted`)
 
+<br>
 - **Gestion des produits :**
   - Navigation, affichage et recherche (`public`)
   - Création, modification et suppression (`admin`)
 
+<br>
 - **Gestion des commandes :**
   - Création et consultation (selon permissions `admin`, `client`)
   - Modification du statut (`admin`)
 
 <br>
 
-Elle repose sur une architecture modulaire avec séparation des responsabilités (modèle de type MVC) `Routes` → `Services` → `Modèles` → `DataBase`, où :
+L'architecture modulaire assure une séparation des responsabilités (type MVC) `routes` → `services` → `model` → `DataBase`, où :
 
-- **Routes** : exposition de l’API et application des contrôles d’accès
-- **Services** : description de la logique métier et des interactions avec la base
-- **Modèles** : définition des tables et relations (SQLAlchemy)
+- **routes** : exposition de l’API et application des contrôles d’accès
+- **services** : description de la logique métier et des interactions avec la base
+- **model** : définition des tables et relations (SQLAlchemy)
 
 <br>
 
@@ -40,14 +42,16 @@ my-ecommerce-api/
 ├── core/                       # Middleware sécurité ( + auth JWT)
 │   ├── __init__.py                 ← 
 │   ├── auth_utils.py               ← contient les logiques Authentification/Autorisation
-│   └── auth.py                     ← JWT + décorateurs (`@auth_required`, `@access_granted`)
+│   ├── auth.py                     ← JWT + décorateurs (`@auth_required`, `@access_granted`)
+│   ├── errors_handlers.py          ← contient handler des erreurs SQLAlchemy + Applicatives
+│   └── errors_utils.py             ← contient les utilitaires de validation (JSON, champs -> numérique)
 │
 ├── database/                   # (à venir)
 │
 ├── model/                      # ORM SQLAlchemy (mdolèles, gestion des sessions)
 │   ├── __init__.py                 ← 
 │   ├── database.py                 ← contient Engine & Base
-│   ├── sessions.py                 ← contient Sessions + Handler des erreurs SQLAlchemy
+│   ├── sessions.py                 ← contient Sessions
 │   └── models.py                   ← contient les modèles SQLAlchemy (User, Product)
 │
 ├── routes/                     # Routes par domaine/scope
@@ -567,8 +571,8 @@ Celui-ci fournit des *messages personnalisés* sous la forme : `{"error": "DataB
 | **DataError**            |     `400`    |     Type/Format de données invalide                 |
 | **IntegrityError**       |     `409`    |     Violation de contraintes (unique, null, fk …)   |
 | **StatementError**       |     `500`    |     Erreur dans l’exécution SQL                     |
-| **autres**               |     `500`    |     Erreur interne inconnue                         |
 | **OperationalError**     |     `503`    |     Problème côté DataBase (connexion, timeout…)    |
+| **autres**               |     `500`    |     Erreur interne à la BdD inconnue                |
 
 
 <br>
@@ -607,16 +611,19 @@ Les tests unitaires couvrent, entre-autres, les points suivants:
   - Mot de passe haché
   - Rôle (défaut = client)
 
+<br>
 - Connexion (`/api/auth/login`)
   - Validée avec token JWT renvoyé
   - Refusée si mauvais mot de passe
 
+<br>
 - Accès restreint (`/api/admin-only-route`)
   - Autorisé pour `admin`
   - Autorisé pour `client`
   - Refusé pour autre que `admin`
   - Refusé pour autre que `client` propriétaire
 
+<br>
 - Produits (`/api/produits`)
   - Liste de tous les produits
   - Recherche par nom, catégorie ou disponibilité
@@ -624,6 +631,7 @@ Les tests unitaires couvrent, entre-autres, les points suivants:
   - Mise à jour de produit (`admin` only)
   - Suppression de produit (`admin` only)
 
+<br>
 - Commandes (`/api/commandes`)
   - Création de commande (`client` only)
   - Consultation des commandes (`client` propriétaire)
@@ -637,8 +645,8 @@ Les tests unitaires couvrent, entre-autres, les points suivants:
 ###### Statut
 
 TODO:
-- Refactoring des tests via fixtures (*feed_product*, *feed_order*)
 - Documentation interne du code
+- Refactoring des tests via fixtures (*feed_product*, *feed_order*)
 - Ad-ons:
     - Passage à Logger pour le monitoring (MEP)
     - Scripts `seed_data.py` (alimentation des tables)
