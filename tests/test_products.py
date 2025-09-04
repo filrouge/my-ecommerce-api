@@ -106,8 +106,8 @@ class TestProductUpdate:
         session.commit()
         # session.flush()
 
-        payload = {"nom": "ProdUpdate", "description": "NewDesc", "prix": -6.0}
-        # payload = {"nom": "ProdUpdate", "description": "NewDesc", "prix": "-6.0"}
+        # payload = {"nom": "ProdUpdate", "description": "NewDesc", "prix": -6.0}
+        payload = {"nom": "ProdUpdate", "description": "NewDesc", "prix": "-6.0"}
         resp = client.put(f"/api/produits/{product.id}",
                           json=payload,
                           headers={"Authorization": f"Bearer {admin_token}"}
