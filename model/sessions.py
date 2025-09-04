@@ -3,24 +3,8 @@
     avec gestion centralisée 'flask.g'
 '''
 
-from flask import g, jsonify
+from flask import g
 from model.database import SessionLocal
-from sqlalchemy.exc import (
-    SQLAlchemyError,
-    IntegrityError,
-    OperationalError,
-    DataError,
-    StatementError
-)
-from services.exceptions_utils import AppError
-
-# Mapping des exceptions ORM
-ORM_ERROR_MAP = {
-    IntegrityError: (409, "Contrainte d'intégrité violée"),
-    OperationalError: (503, "Service database indisponible"),
-    DataError: (400, "Donnée invalide ou contrainte violée"),
-    StatementError: (500, "Erreur dans la requête SQL"),
-}
 
 
 def get_session():
@@ -58,23 +42,3 @@ def init_session(app):
         if exception and session:
             session.rollback()
         close_session()
-
-    @app.errorhandler(SQLAlchemyError)
-    def handle_orm_exceptions(error):
-        # # Pour DEBUG seulement -- centraliser condition PROD/DEV ?
-        # if isinstance(error, IntegrityError):
-        #     return jsonify({
-        #         "error": f"Database - Contrainte d'intégrité violée \
-        #             ({error.orig})"
-        #         }), 409
-
-        for exception_type, (code, msg) in ORM_ERROR_MAP.items():
-            if isinstance(error, exception_type):
-                # return jsonify({"error": f"Database - {msg}"}), code
-                return jsonify({"error": msg}), code
-
-        return jsonify({"error": "Database - Erreur interne inconnue"}), 500
-
-    @app.errorhandler(AppError)
-    def handle_business_exceptions(error):
-        return jsonify({"error": str(error)}), error.status_code

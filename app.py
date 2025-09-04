@@ -6,6 +6,7 @@ from routes.order_routes import order_bp
 
 from model.database import Base, engine
 from model.sessions import init_session
+from core.errors_handlers import register_error_handlers
 
 
 def create_app():
@@ -22,6 +23,9 @@ def create_app():
 
     # Initialisation des sessions
     init_session(app)
+
+    # Intégration des exceptions handlers
+    register_error_handlers(app)
 
     return app
 
