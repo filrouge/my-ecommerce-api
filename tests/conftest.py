@@ -111,10 +111,17 @@ def feed_product(test_client):
     session.query(Product).delete()
     session.commit()
 
-    p1 = add_product(session, "Produit A", "Desc A", "Cat A", 20.0, 5)
-    p2 = add_product(session, "Produit B", "Desc B", "Cat B", 15.0, 10)
-    p3 = add_product(session, "Produit C", "Desc C", "Cat C", 30.0, 7)
-    p4 = add_product(session, "Produit D", "Desc D", "Cat D", 12.0, 8)
+    p1 = add_product(session, nom="Produit A", description="Desc A",
+                     categorie="Cat A", prix=20.0, quantite_stock=5)
+
+    p2 = add_product(session, nom="Produit B", description="Desc B",
+                     categorie="Cat B", prix=15.0, quantite_stock=10)
+
+    p3 = add_product(session, nom="Produit C", description="Desc C",
+                     categorie="Cat C", prix=30.0, quantite_stock=7)
+
+    p4 = add_product(session, nom="Produit D", description="Desc D",
+                     categorie="Cat D", prix=12.0, quantite_stock=8)
 
     return [p1, p2, p3, p4]
 
