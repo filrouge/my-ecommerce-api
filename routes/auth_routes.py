@@ -1,10 +1,11 @@
 from flask import request, jsonify, Blueprint, g
-# from model.sessions import get_session
+from model.sessions import get_session
 from core.auth_utils import register_user, login_user
 from core.request_utils import (
     get_json_body,
     required_fields,
-    REGISTER_FIELDS
+    validate_json_fields,
+    USER_FIELDS
     )
 
 auth_bp = Blueprint("auth", __name__)
@@ -23,6 +24,10 @@ def register():
             - int: code HTTP (201, 400 ou 500)
     '''
     body = get_json_body(request)
+    validate_json_fields(body, USER_FIELDS)
+
+    REGISTER_FIELDS = USER_FIELDS.copy()
+    REGISTER_FIELDS.pop("role", None)
     required_fields(body, REGISTER_FIELDS)
 
     new_user = register_user(
@@ -49,15 +54,17 @@ def login():
         - int: code HTTP (200, 401 ou 500)
     """
     body = get_json_body(request)
+    validate_json_fields(body, USER_FIELDS)
 
-    LOGIN_FIELDS = REGISTER_FIELDS.copy()
-    LOGIN_FIELDS.pop("nom", None)
+    LOGIN_FIELDS = {
+        k: v for k, v in USER_FIELDS.items() if k not in {"nom", "role"}
+        }
     required_fields(body, LOGIN_FIELDS)
 
-    # session = get_session()
+    session = get_session()
 
     token, _ = login_user(
-        g.session,
+        session,
         email=body["email"], password=body["password"]
         )
     return jsonify(

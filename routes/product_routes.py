@@ -10,11 +10,10 @@ from services.product_utils import (
 from core.auth import access_granted
 from core.request_utils import (
     get_json_body,
-    required_fields,
+    # required_fields,
+    validate_json_fields,
     PRODUCT_FIELDS,
-    NUMERIC_FIELDS
     )
-from core.errors_handlers import BadRequestError
 
 product_bp = Blueprint("product_bp", __name__)
 
@@ -62,7 +61,8 @@ def get_product(id):
 def create_product():
     """ Crée un produit avec ses caractéristiques. """
     body = get_json_body(request)
-    required_fields(body, PRODUCT_FIELDS)
+    validate_json_fields(body, PRODUCT_FIELDS)
+    # required_fields(body, PRODUCT_FIELDS)
 
     product = add_product(
         g.session,
@@ -85,17 +85,9 @@ def create_product():
 def update_product_id(id):
     """ Modifie des caractéristiques d'un produit selon son id. """
     body = get_json_body(request)
-    updated_data = {k: v for k, v in body.items() if k in PRODUCT_FIELDS}
+    validate_json_fields(body, PRODUCT_FIELDS)
 
-    if not updated_data or not any(updated_data.values()):
-        raise BadRequestError("Aucune donnée valide pour la mise à jour")
-
-    for field in NUMERIC_FIELDS:
-        if (value := updated_data.get(field)) is not None \
-           and (not isinstance(value, (int, float)) or value < 0):
-            raise BadRequestError(f"{field.capitalize()} invalide")
-
-    product = update_product(g.session, id, **updated_data)
+    product = update_product(g.session, id, **body)
     return jsonify(
         {
             "message": "Produit mis à jour",

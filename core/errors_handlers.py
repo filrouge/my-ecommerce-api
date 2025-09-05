@@ -13,6 +13,7 @@ ORM_ERROR_MAP = {
     OperationalError: (503, "Service database indisponible"),
     DataError: (400, "Donnée invalide ou contrainte violée"),
     StatementError: (500, "Erreur dans la requête SQL"),
+    RuntimeError: (409, "Conflit d'état / ressource")
 }
 
 
