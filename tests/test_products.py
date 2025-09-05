@@ -106,15 +106,15 @@ class TestProductUpdate:
         session.commit()
         # session.flush()
 
-        # payload = {"nom": "ProdUpdate", "description": "NewDesc", "prix": -6.0}
-        payload = {"nom": "ProdUpdate", "description": "NewDesc", "prix": "-6.0"}
+        payload = {"nom": "ProdUpdate", "description": "NewDesc", "prix": -6.0}
+        # payload = {"nom": "ProdUpdate", "description": "NewDesc", "prix": "-6.0"}
         resp = client.put(f"/api/produits/{product.id}",
                           json=payload,
                           headers={"Authorization": f"Bearer {admin_token}"}
                           )
         data = resp.get_json()
         assert resp.status_code == 400
-        assert "Prix invalide" in data["error"]
+        assert "prix invalide" in data["error"]
 
 
 class TestProductDelete:

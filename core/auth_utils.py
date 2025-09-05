@@ -23,7 +23,7 @@ def generate_token(user):
     }
     token = jwt.encode(payload, JWT_KEY, algorithm=ALGORITHM)
     if not token:
-        raise RuntimeError("La génération du token a échoué")  # 500
+        raise RuntimeError("La génération du token a échoué")  # 409
 
     return token
 
@@ -36,7 +36,7 @@ def get_user_by_email(session, email):
 def register_user(session, email, nom, password, role):
     '''Enregistre un utilisateur dans la Base de Données.'''
     if get_user_by_email(session, email):
-        raise BadRequestError("Adresse e-mail déjà utilisée")  # 409
+        raise BadRequestError("Adresse e-mail déjà utilisée")  # 400
 
     user = User(
         email=email,

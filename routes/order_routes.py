@@ -11,6 +11,7 @@ from core.errors_handlers import ForbiddenError, BadRequestError
 from core.request_utils import (
     get_json_body,
     required_fields,
+    validate_json_fields,
     ORDER_FIELDS,
     ORDER_ITEM_FIELDS,
     STATUS
@@ -64,6 +65,7 @@ def create_order():
     #     return jsonify({"error": "Action Interdite"}), 401
 
     body = get_json_body(request)
+    validate_json_fields(body, ORDER_FIELDS)
 
     ORDER_INPUT = ORDER_FIELDS.copy()
     ORDER_INPUT.pop("statut", None)
@@ -78,6 +80,7 @@ def create_order():
         raise BadRequestError("Liste de produits vide.")
 
     for item in items:
+        validate_json_fields(item, ORDER_ITEM_FIELDS)
         required_fields(item, ORDER_ITEM_FIELDS)
 
     order = create_new_order(
@@ -103,7 +106,8 @@ def create_order():
 def update_status_order(id):
     """ Modifie le statut d'une commande spécifique (admin). """
     body = get_json_body(request)
-    required_fields(body,  {"statut": str})
+    validate_json_fields(body, {"statut": str})
+    required_fields(body,  {"statut"})
 
     new_status = body.get("statut")
     if new_status not in STATUS:

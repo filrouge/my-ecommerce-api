@@ -648,8 +648,8 @@ Les tests unitaires couvrent, entre-autres, les points suivants:
 ###### Statut
 
 TODO:
-- Documentation interne du code
-- Refactoring des tests via fixtures (*feed_product*, *feed_order*)
+- Code review (doc, refactoring) → func(body: `dict`, data: `dict`) -> `bool`
+- Tests (refactoring avec fixtures) → *feed_product*, *feed_order*
 - Ad-ons:
     - Passage à Logger pour le monitoring (MEP)
     - Scripts `seed_data.py` (alimentation des tables)
