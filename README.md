@@ -48,7 +48,7 @@ my-ecommerce-api/
 │   ├── auth_utils.py
 │   ├── auth.py
 │   ├── errors_handlers.py
-│   └── errors_utils.py
+│   └── utils.py
 │
 ├── database/                   # (optionnel pour les tests)
 │
@@ -158,8 +158,10 @@ Exécutez `python app.py` ou `flask run --debug`.
 
 ![Server Flask](server-flask.png)
 
+<br>
 
 > 🌐 API accessible sur http://127.0.0.1:5000  
+> 
 > ⚠️ Lancez le serveur en mode DEBUG pour développement uniquement
 
 <br>
@@ -179,6 +181,7 @@ Ce tableau offre une synthèse des *body* attendus pour les fonctionnalités pri
 | Création de commande                 | ``` { "adresse_livraison": "4 rue d'ici, 75000 Paname", "produits": [{"id": 1, "quantite": 2},{"id": 2, "quantite": 1}] } ``` |
 | Mise à jour statut d’une commande    | ``` {"statut": "Expédiée"} ``` |
 
+<br>
 
 > 📂 Consultez la documentation [docs/api_endpoints.md](docs/api_endpoints.md) pour plus d’informations sur les endpoints (routes, formats JSON, exemples cURL...), et la gestion des erreurs (couverture, cas, messages...).
 
@@ -189,13 +192,15 @@ Ce tableau offre une synthèse des *body* attendus pour les fonctionnalités pri
 ## 🧪 Tests
 
 Les tests unitaires s'appuient sur la librairie `pytest` et couvrent les points :  
-✅ *Authentification / Autorisation* : inscription, login, rôles  
-✅ *Produits* : création, consultation, suppression  
-✅ *Commandes* : création, consultation, modification  
-✅ *Erreurs* : validation, restriction, exécution  
+
+    ✅ *Authentification / Autorisation* : inscription, login, rôles  
+    ✅ *Produits* : création, consultation, suppression  
+    ✅ *Commandes* : création, consultation, modification  
+    ✅ *Erreurs* : validation, restriction, exécution  
 
 <!-- TODO : pytest.ini + fixture parametrize pour alléger -->
 
+<br>
 
 > 📂 Consultez [docs/tests.md](docs/tests.md) pour plus d’informations sur les tests (couverture fonctionnalités / erreurs).
 
@@ -204,12 +209,10 @@ Les tests unitaires s'appuient sur la librairie `pytest` et couvrent les points 
 ---
 
 #### 📌 TODO
-> - Code review (refactoring)
 > - Refactoring des tests (fixtures)
 > - Add-ons:
 >     - Logger & Monitoring
 >     - Jeux de données (script `seed_data.py`)
 >     - Tests d’intégration end-to-end
->     - Rapport de couverture (`pytest-cov`)
 >     - Dockérisation
 >     - Intégration CI/CD (`GitHub Actions`)

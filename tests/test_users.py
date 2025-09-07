@@ -79,7 +79,7 @@ class TestUserLogin:
             "role": "admin"
         }
         JWT_KEY = Config.JWT_KEY
-        ALGORITHM = "HS256"
+        ALGORITHM = Config.ALGORITHM
 
         client.post("/api/auth/register", json=payload)
         resp = client.post("/api/auth/login", json={

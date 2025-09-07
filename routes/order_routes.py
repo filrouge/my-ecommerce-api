@@ -8,9 +8,8 @@ from services.order_utils import (
     get_orderitems_all
 )
 from core.errors_handlers import ForbiddenError, BadRequestError
-from core.request_utils import (
+from core.utils import (
     get_json_body,
-    required_fields,
     validate_json_fields,
     ORDER_FIELDS,
     ORDER_ITEM_FIELDS,
@@ -81,30 +80,19 @@ def create_order() -> Tuple[Response, int]:
     #     return jsonify({"error": "Action Interdite"}), 401
 
     body = get_json_body(request)
-    validate_json_fields(body, ORDER_FIELDS)
 
-    ORDER_INPUT = ORDER_FIELDS.copy()
-    ORDER_INPUT.pop("statut", None)
-    required_fields(body, ORDER_INPUT)
-
-    # A INTEGRER DANS FONCTION VALIDATION ####
+    validate_json_fields(body, ORDER_FIELDS, {"statut"})
     address = body["adresse_livraison"]
-    if not address.strip():
-        raise BadRequestError("Adresse de livraison vide.")
-
     items = body["produits"]
-    if not items:
-        raise BadRequestError("Liste de produits vide.")
 
     for item in items:
         validate_json_fields(item, ORDER_ITEM_FIELDS)
-        required_fields(item, ORDER_ITEM_FIELDS)
 
     order = create_new_order(
         g.session,
         user_id=current_user.id,
-        items=body["produits"],
-        address=body["adresse_livraison"]
+        items=items,
+        address=address
     )
     return jsonify(
         {
@@ -128,8 +116,7 @@ def update_status_order(id: int) -> Tuple[Response, int]:
     Lève une erreur BadRequestError si statut invalide
     """
     body = get_json_body(request)
-    validate_json_fields(body, {"statut": str})
-    required_fields(body,  {"statut": str})
+    validate_json_fields(body, ORDER_FIELDS, {"produits", "adresse_livraison"})
 
     new_status = body["statut"]
     if new_status not in STATUS:

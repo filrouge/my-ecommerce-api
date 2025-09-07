@@ -8,9 +8,8 @@ from services.product_utils import (
     search_product
 )
 from core.auth import access_granted
-from core.request_utils import (
+from core.utils import (
     get_json_body,
-    # required_fields,
     validate_json_fields,
     PRODUCT_FIELDS,
     )
@@ -90,15 +89,20 @@ def create_product() -> Tuple[Response, int]:
         pour toute erreur base
     """
     body = get_json_body(request)
-    validate_json_fields(body, PRODUCT_FIELDS)
-    # required_fields(body, PRODUCT_FIELDS)
+
+    # REQUIRED_FIELDS = {
+    #     k: v for k, v in PRODUCT_FIELDS.items()
+    #     if k not in {"description", "quantite_stock"}
+    #     }
+    # required_fields(body, REQUIRED_FIELDS)
+    validate_json_fields(body, PRODUCT_FIELDS, {"description", "quantite_stock"})
 
     product = add_product(
         g.session,
         nom=body["nom"],
         description=body.get("description", ""),
-        categorie=body.get("categorie", "Autre"),
-        prix=body.get("prix", 0),
+        categorie=body.get("categorie", ""),
+        prix=body.get("prix"),
         quantite_stock=body.get("quantite_stock", 0)
     )
     return jsonify(
@@ -121,7 +125,9 @@ def update_product_id(id: int) -> Tuple[Response, int]:
         pour toute erreur base
     """
     body = get_json_body(request)
-    validate_json_fields(body, PRODUCT_FIELDS)
+
+    optional_fields = set(PRODUCT_FIELDS) - set(body.keys())
+    validate_json_fields(body, PRODUCT_FIELDS, optional_fields)
 
     product = update_product(g.session, id, **body)
     return jsonify(

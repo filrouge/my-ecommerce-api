@@ -83,6 +83,27 @@ class TestProductCreate:
         })
         assert resp.status_code == 403
 
+    def test_create_product_missing_field(
+        self, test_client: Tuple[FlaskClient, Session], admin_token: str
+    ) -> None:
+        client, session = test_client
+        payload = {
+            "nom": "NewProduct",
+            # "description": "Desc",
+            "categorie": "CatX",
+            "prix": 15.0,
+            "quantite_stock": 10
+        }
+        resp = client.post("/api/produits", json=payload, headers={
+            "Authorization": f"Bearer {admin_token}"
+        })
+        data = resp.get_json()
+        # print(data["produit"]["nom"])
+        product = session.query(Product).filter_by(nom=payload["nom"]).first()
+        assert resp.status_code == 201
+        assert data["produit"]["description"] == ""
+        assert product is not None
+
 
 class TestProductUpdate:
 

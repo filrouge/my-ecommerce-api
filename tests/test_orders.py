@@ -43,7 +43,6 @@ class TestOrderCreation:
             json=payload,
             headers={"Authorization": f"Bearer {client_token}"}
             )
-        print(resp.get_json())
         assert resp.status_code == 201
         data = resp.get_json()
         db_order = session.get(Order, data["commande"]["id"])
@@ -250,5 +249,4 @@ class TestOrderUpdate:
 
         assert resp.status_code == 403
         data = resp.get_json()
-        print(data)
         assert "error" in data and "Accès refusé" in data['error']
