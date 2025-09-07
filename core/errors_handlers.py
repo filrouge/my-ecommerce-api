@@ -1,4 +1,4 @@
-from flask import jsonify
+from flask import Flask, jsonify
 from sqlalchemy.exc import (
     SQLAlchemyError,
     IntegrityError,
@@ -6,9 +6,10 @@ from sqlalchemy.exc import (
     DataError,
     StatementError
 )
+from typing import Type, Dict, Tuple
 
 # Mapping des exceptions ORM
-ORM_ERROR_MAP = {
+ORM_ERROR_MAP: Dict[Type[Exception], Tuple[int, str]] = {
     IntegrityError: (409, "Contrainte d'intégrité violée"),
     OperationalError: (503, "Service database indisponible"),
     DataError: (400, "Donnée invalide ou contrainte violée"),
@@ -45,17 +46,17 @@ class NotFoundError(ApplicationError):
         super().__init__(message, status_code=404)
 
 
-def register_error_handlers(app):
+def register_error_handlers(app: Flask) -> None:
     # Handler pour les erreurs applicatives
     @app.errorhandler(ApplicationError)
-    def handle_app_exceptions(error):
+    def handle_app_exceptions(error: ApplicationError):
         if isinstance(error, ApplicationError):
             return jsonify({"error": str(error)}), error.status_code
 
         return None
 
     @app.errorhandler(SQLAlchemyError)
-    def handle_orm_exceptions(error):
+    def handle_orm_exceptions(error: SQLAlchemyError):
         # # Pour DEBUG seulement -- centraliser condition PROD/DEV ?
         # if isinstance(error, IntegrityError):
         #     return jsonify({
