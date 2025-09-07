@@ -1,4 +1,4 @@
-from flask import request, jsonify, Blueprint, g
+from flask import request, jsonify, Blueprint, g, Response
 from model.sessions import get_session
 from core.auth_utils import register_user, login_user
 from core.request_utils import (
@@ -7,13 +7,14 @@ from core.request_utils import (
     validate_json_fields,
     USER_FIELDS
     )
+from typing import Tuple
 
 auth_bp = Blueprint("auth", __name__)
 
 
 # Routes :
 @auth_bp.route('/register', methods=['POST'])
-def register():
+def register() -> Tuple[Response, int]:
     '''
         Route pour l'inscription d'un utilisateur.
         Valide la présence des champs (obligatoires) du JSON reçu
@@ -43,7 +44,7 @@ def register():
 
 
 @auth_bp.route("/login", methods=["POST"])
-def login():
+def login() -> Tuple[Response, int]:
     """
     Route pour l'authentification d'un utilisateur.
     Vérifie la présence des credentials du JSON reçu dans la requête,

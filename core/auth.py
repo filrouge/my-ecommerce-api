@@ -5,26 +5,29 @@ from model.models import User
 from model.sessions import get_session
 from config import Config
 from core.errors_handlers import UnauthorizedError, ForbiddenError
+from typing import Callable, Any
 
 
-# JWT secret
 JWT_KEY = Config.JWT_KEY
-ALGORITHM = "HS256"
+ALGORITHM = Config.ALGORITHM
 
 
-# Authentification
-def auth_required(func):
+# Décorateur Authentification (token JWT)
+def auth_required(func: Callable) -> Callable:
     '''
-    Décorateur pour authentification via token JWT qui en vérifie
-    la validité dans l'en-tête `Authorization: Bearer <token>`.
+    Vérifie la présence et la validité du token
+    dans l'en-tête `Authorization: Bearer <token>`.
+
     Retourne une fonction décorée appliquant la vérification JWT.
+    Lève une erreur si token expiré, invalide ou manquant.
     '''
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         auth_header = request.headers.get("Authorization")
         if not auth_header or not auth_header.startswith("Bearer "):
             raise UnauthorizedError("Token manquant")
 
+        # !!! Extraire la fonction de vérification et de decodage token !!!
         token = auth_header.split(" ")[1]
         try:
             current_user = jwt.decode(token, JWT_KEY, algorithms=[ALGORITHM])
@@ -53,19 +56,20 @@ def auth_required(func):
     return wrapper
 
 
-# Autorisation
-def access_granted(*role_names):
+# Décorateur Autorisation (rôle) :
+def access_granted(*role_names: str) -> Callable:
     """
-    Décorateur autorisant les actions CRUD selon le role :
-        @access_granted("admin")
-        @access_granted("client", "admin")
+    Vérifie le(s) rôle(s) pour autoriser des actions CRUD
+    (@access_granted(role) avec role = "client" et/ou "admin")
+    
+    Retourne une fonction décorée appliquant la vérification du rôle.
+    Lève une erreur si (rôle) utilisateur non autorisé
     """
-    def decorator(func):
+    def decorator(func: Callable) -> Callable:
         @auth_required
         @wraps(func)
         def wrapper(current_user=None, *args, **kwargs):
-            # current_user = kwargs.pop("current_user")
-            if current_user is None:    # Optionnel/Redondant
+            if current_user is None:
                 raise UnauthorizedError("Utilisateur non reconnu")
 
             if role_names and current_user.role not in role_names:

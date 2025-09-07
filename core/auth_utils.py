@@ -4,16 +4,19 @@ from model.models import User
 import jwt
 from config import Config
 from core.errors_handlers import UnauthorizedError, BadRequestError
+from sqlalchemy.orm import Session
+from typing import Tuple
 
 JWT_KEY = Config.JWT_KEY
 ALGORITHM = Config.ALGORITHM
 
 
 # Générateur de token JWT
-def generate_token(user):
+def generate_token(user: User) -> str:
     '''
-    Génère un token JWT pour une instance d'utilisateur donné (user).
-    Retourne le token JWT encodé si la génération réussit, sinon `None`.
+    Génère un token JWT pour un utilisateur donné.
+
+    Lève une erreur si la génération du token échoue.
     '''
     payload = {
         "id": user.id,
@@ -23,20 +26,28 @@ def generate_token(user):
     }
     token = jwt.encode(payload, JWT_KEY, algorithm=ALGORITHM)
     if not token:
-        raise RuntimeError("La génération du token a échoué")  # 409
+        raise RuntimeError("La génération du token a échoué")
 
     return token
 
 
-def get_user_by_email(session, email):
-    '''Retourne un utilisateur par son email, ou None si inexistant.'''
+def get_user_by_email(session: Session, email: str) -> User | None:
+    '''
+    Récupère une instance d'utilisateur par son email (None si inexistant).
+    '''
     return session.query(User).filter_by(email=email).first()
 
 
-def register_user(session, email, nom, password, role):
-    '''Enregistre un utilisateur dans la Base de Données.'''
+def register_user(session: Session, email: str,
+                  nom: str, password: str, role: str) -> User:
+    '''
+    Crée un nouvel utilisateur dans la base et
+    retourne l'instance de l'utilisateur créé.
+
+    Lève une erreur si l'email est déjà utilisé.
+    '''
     if get_user_by_email(session, email):
-        raise BadRequestError("Adresse e-mail déjà utilisée")  # 400
+        raise BadRequestError("Adresse e-mail déjà utilisée")
 
     user = User(
         email=email,
@@ -52,11 +63,17 @@ def register_user(session, email, nom, password, role):
     return user
 
 
-def login_user(session, email, password):
-    '''Vérifie les credentials utilisateur et génère un token JWT.'''
+def login_user(session: Session, email: str,
+               password: str) -> Tuple[str, User]:
+    '''
+    Vérifie les identifiants utilisateur et génère un token JWT.
+
+    Retourne le token généré avec l'instance utilisateur associée.
+    Lève une erreur si identifiants invalides.
+    '''
     user = get_user_by_email(session, email)
     if not user or not check_password_hash(user.password_hash, password):
-        raise UnauthorizedError("Identifiants invalides")   # 401
+        raise UnauthorizedError("Identifiants invalides")
 
     token = generate_token(user)
     return token, user

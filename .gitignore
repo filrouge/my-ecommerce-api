@@ -1,8 +1,13 @@
 venv
+
 __pycache__
-*.pyc
-.env
 .pytest_cache
+*.pyc
+.coverage
+
+.mypy_cache
+
+.env
 
 checks
 check_doc

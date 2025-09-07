@@ -1,9 +1,13 @@
 from model.models import Product
+from typing import Tuple
+from flask.testing import FlaskClient
+from sqlalchemy.orm import Session
 
 
 class TestProductList:
 
-    def test_list_all_products(self, test_client):
+    def test_list_all_products(
+            self, test_client: Tuple[FlaskClient, Session]) -> None:
         client, session = test_client
 
         p1 = Product(nom="Product1", description="Desc1",
@@ -21,7 +25,8 @@ class TestProductList:
         assert len(data) >= 2
         assert any(p["nom"] == "Product1" for p in data)
 
-    def test_search_products(self, test_client):
+    def test_search_products(
+            self, test_client: Tuple[FlaskClient, Session]) -> None:
         client, _ = test_client
 
         resp = client.get("/api/produits/search?nom=Product1")
@@ -41,7 +46,9 @@ class TestProductList:
 
 class TestProductCreate:
 
-    def test_create_product_admin(self, test_client, admin_token):
+    def test_create_product_admin(
+        self, test_client: Tuple[FlaskClient, Session], admin_token: str
+    ) -> None:
         client, session = test_client
         payload = {
             "nom": "NewProduct",
@@ -60,7 +67,9 @@ class TestProductCreate:
         assert data["produit"]["nom"] == payload["nom"]
         assert product is not None
 
-    def test_create_product_non_admin(self, test_client, client_token):
+    def test_create_product_non_admin(
+        self, test_client: Tuple[FlaskClient, Session], client_token: str
+    ) -> None:
         client, _ = test_client
         payload = {
             "nom": "ForbiddenProduct",
@@ -77,7 +86,9 @@ class TestProductCreate:
 
 class TestProductUpdate:
 
-    def test_update_product(self, test_client, admin_token):
+    def test_update_product(
+        self, test_client: Tuple[FlaskClient, Session], admin_token: str
+    ) -> None:
         client, session = test_client
         product = Product(nom="ProdUpdate", description="Old",
                           categorie="CatOld", prix=5.0, quantite_stock=2
@@ -95,9 +106,12 @@ class TestProductUpdate:
         updated = session.get(Product, product.id)
         assert resp.status_code == 200
         assert data['produit']["description"] == "NewDesc"
+        assert updated is not None
         assert updated.prix == 6.0
 
-    def test_wrong_update_product(self, test_client, admin_token):
+    def test_wrong_update_product(
+        self, test_client: Tuple[FlaskClient, Session], admin_token: str
+    ) -> None:
         client, session = test_client
         product = Product(nom="ProdUpdate", description="Old",
                           categorie="CatOld", prix=5.0, quantite_stock=2
@@ -107,7 +121,7 @@ class TestProductUpdate:
         # session.flush()
 
         payload = {"nom": "ProdUpdate", "description": "NewDesc", "prix": -6.0}
-        # payload = {"nom": "ProdUpdate", "description": "NewDesc", "prix": "-6.0"}
+        # payload = {"nom": "ProdUpdate", "description": "NewDesc", "prix": ""}
         resp = client.put(f"/api/produits/{product.id}",
                           json=payload,
                           headers={"Authorization": f"Bearer {admin_token}"}
@@ -119,7 +133,9 @@ class TestProductUpdate:
 
 class TestProductDelete:
 
-    def test_delete_product_by_admin(self, test_client, admin_token):
+    def test_delete_product_by_admin(
+        self, test_client: Tuple[FlaskClient, Session], admin_token: str
+    ) -> None:
         client, session = test_client
         product = Product(nom="ProdDelete", description="Desc",
                           categorie="CatX", prix=10.0, quantite_stock=1
@@ -135,7 +151,9 @@ class TestProductDelete:
         assert resp.status_code == 200
         assert deleted is None
 
-    def test_delete_product_by_client(self, test_client, client_token):
+    def test_delete_product_by_client(
+        self, test_client: Tuple[FlaskClient, Session], client_token: str
+    ) -> None:
         client, session = test_client
         product = Product(nom="ProdDelete", description="Desc",
                           categorie="CatX", prix=10.0, quantite_stock=1
@@ -151,7 +169,9 @@ class TestProductDelete:
         assert resp.status_code == 403
         assert deleted is not None
 
-    def test_delete_invalid_product(self, test_client, admin_token):
+    def test_delete_invalid_product(
+        self, test_client: Tuple[FlaskClient, Session], admin_token: str
+    ) -> None:
         client, _ = test_client
         resp = client.delete("/api/produits/99999",
                              headers={"Authorization": f"Bearer {admin_token}"}

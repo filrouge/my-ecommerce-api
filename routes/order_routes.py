@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, g
+from flask import request, Blueprint, jsonify, g, Response
 from core.auth import access_granted
 from services.order_utils import (
     get_all_orders,
@@ -16,14 +16,18 @@ from core.request_utils import (
     ORDER_ITEM_FIELDS,
     STATUS
     )
+from typing import Tuple
 
 order_bp = Blueprint("order_bp", __name__)
 
 
+# GET /api/commandes
 @order_bp.route("", methods=["GET"])
 @access_granted('admin', 'client')
-def list_orders():
-    """ Liste toutes les commandes (admin) ou celles du client. """
+def list_orders() -> Tuple[Response, int]:
+    """
+    Récupère toutes les commandes (admin) ou celles du client.
+    """
     orders = get_all_orders(g.session, user=g.current_user)
     result = [{
         "id": order.id,
@@ -36,10 +40,15 @@ def list_orders():
     return jsonify(result), 200
 
 
+# GET /api/commandes/<id>
 @order_bp.route("/<int:id>", methods=["GET"])
 @access_granted('admin', 'client')
-def get_order_id(id):
-    """ Navigue sur une commande spécifique (admin, propriétaire). """
+def get_order_id(id: int) -> Tuple[Response, int]:
+    """
+    Récupère les détails d'une commande (admin, client propriétaire).
+
+    Lève une erreur ForbiddenError si utilisateur non autorisé
+    """
     current_user = g.current_user
     order = get_order_by_id(g.session, id)
     if (current_user.role != "admin"
@@ -56,10 +65,17 @@ def get_order_id(id):
     return jsonify(result), 200
 
 
+# POST /api/commandes
 @order_bp.route("", methods=["POST"])
 @access_granted('client')
-def create_order():
-    """ Créer une commande client (+/- produit par ligne de commande) . """
+def create_order() -> Tuple[Response, int]:
+    """
+    Création d'une commande pour un client (client uniquement).
+
+    Lève une erreur BadRequestError :
+        si chanmp adresse_livraison vide
+        si aucun champ produits
+    """
     current_user = g.current_user
     # if current_user is None:
     #     return jsonify({"error": "Action Interdite"}), 401
@@ -71,6 +87,7 @@ def create_order():
     ORDER_INPUT.pop("statut", None)
     required_fields(body, ORDER_INPUT)
 
+    # A INTEGRER DANS FONCTION VALIDATION ####
     address = body["adresse_livraison"]
     if not address.strip():
         raise BadRequestError("Adresse de livraison vide.")
@@ -86,8 +103,8 @@ def create_order():
     order = create_new_order(
         g.session,
         user_id=current_user.id,
-        items=body.get("produits", []),
-        address=body.get("adresse_livraison")
+        items=body["produits"],
+        address=body["adresse_livraison"]
     )
     return jsonify(
         {
@@ -101,15 +118,20 @@ def create_order():
     ), 201
 
 
+# PATCH /api/commandes/<id>
 @order_bp.route("/<int:id>", methods=["PATCH"])
 @access_granted('admin')
-def update_status_order(id):
-    """ Modifie le statut d'une commande spécifique (admin). """
+def update_status_order(id: int) -> Tuple[Response, int]:
+    """
+    Modifie le statut d'une commande (admin uniquement).
+
+    Lève une erreur BadRequestError si statut invalide
+    """
     body = get_json_body(request)
     validate_json_fields(body, {"statut": str})
-    required_fields(body,  {"statut"})
+    required_fields(body,  {"statut": str})
 
-    new_status = body.get("statut")
+    new_status = body["statut"]
     if new_status not in STATUS:
         raise BadRequestError(f"Statut invalide : {new_status}")
 
@@ -124,9 +146,12 @@ def update_status_order(id):
         }), 200
 
 
+# GET /api/commandes/<id>/lignes
 @order_bp.route("/<int:id>/lignes", methods=["GET"])
-def list_orderitems(id):
-    """ Liste les lignes d'une commande spécifique (accès public !!). """
+def list_orderitems(id: int) -> Tuple[Response, int]:
+    """
+    Récupère les lignes d'une commande (accès public !!).
+    """
     order = get_order_by_id(g.session, id)
     items = get_orderitems_all(g.session, order.id)
 
