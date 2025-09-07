@@ -2,6 +2,8 @@
 
 Ce fichier contient la documentation détaillée des endpoints de l’API Flask e-commerce.
 
+<br>
+
 ## 📄 Description
 
 Elle est construite avec les librairies **Flask**, **SQLAlchemy** et **JWT**, et gère les fonctionnalités suivantes :
@@ -12,11 +14,13 @@ Elle est construite avec les librairies **Flask**, **SQLAlchemy** et **JWT**, et
   - Autorisation avec permissions selon le rôle (`@access_granted`)
 
 <br>
+
 - *Gestion des produits :*
   - Navigation, affichage et recherche (`public`)
   - Création, modification et suppression (`admin`)
 
 <br>
+
 - *Gestion des commandes :*
   - Création et consultation (selon permissions `admin`, `client`)
   - Modification du statut (`admin`)
@@ -27,6 +31,8 @@ L'architecture modulaire assure une séparation des responsabilités (type MVC) 
 - *routes* : exposition de l’API et application des contrôles d’accès
 - *services* : description de la logique métier et des interactions avec la base
 - *model* : définition des tables et relations (SQLAlchemy)
+
+<br>
 
 ---
 
@@ -55,31 +61,33 @@ L'architecture modulaire assure une séparation des responsabilités (type MVC) 
 
 ### Formats JSON
 
-Ce tableau présente le `Body` des requêtes CRUD (via cURL, Postman ...) pour les fonctionnalités correspondantes.
+Ce tableau présente le `Body` des requêtes CRUD (via cURL, Postman ...) pour les fonctionnalités correspondantes.  
 
-| *Fonctionnalité*                     | *Body* |
-|--------------------------------------|---------|
-| Inscription                          | ``` {"email": "client@test.com", "nom":"clienttestcom", "password":"secret"} ``` |
-| Connexion                            | ``` {"email": "admin@test.com", "password":"password"} ``` |
-| Création de produit                  | ``` {"nom": "Produit Test", "prix":99.9, "quantite_stock":5} ``` |
-| Mise à jour d'un produit             | ``` {"nom": "Produit Modifié", "prix":79.9, "quantite_stock":10} ``` |
-| Création de commande                 | ``` { "adresse_livraison": "4 rue d'ici, 75000 Paname", "produits": [{"id": 1, "quantite": 2},{"id": 2, "quantite": 1}] } ``` |
-| Mise à jour statut d’une commande    | ``` {"statut": "Expédiée"} ``` |
+| Fonctionnalité                       | Body |
+|--------------------------------------|------|
+| I*nscription*                        | ``` {"email": "client@test.com", "nom":"clienttestcom", "password":"secret"} ``` |
+| *Connexion*                          | ``` {"email": "admin@test.com", "password":"password"} ``` |
+| *Création de produit*                | ``` {"nom": "Produit Test", "prix":99.9, "quantite_stock":5} ``` |
+| *Mise à jour d'un produit*           | ``` {"nom": "Produit Modifié", "prix":79.9, "quantite_stock":10} ``` |
+| *Création de commande*               | ``` { "adresse_livraison": "4 rue d'ici, 75000 Paname", "produits": [{"id": 1, "quantite": 2},{"id": 2, "quantite": 1}] } ``` |
+| *Mise à jour statut d’une commande*  | ``` {"statut": "Expédiée"} ``` |
 
 <br>
 
 Les exemples suivants, formatés pour cURL, fournissent les `body` (des requêtes) attendus et le format JSON des réponses associées.
 
-> La présence de *headers* (`Authorization: Bearer <token>`) est obligatoire dans les *body*  pour avoir les permissions nécessaires permettant d'effectuer les actions CRUD voulues.
+> La présence de *headers* (`Authorization: Bearer <token>`) dans les *body* est obligatoire pour posséder les droits nécessaires à l'exécution des actions CRUD avec permissions.
 
 <br>
 
 #### Exemples cURL
 
+<br>
+
 <details>
 <summary>🔑 Authentification</summary>
 
-**Inscription** (*POST* `/api/auth/register`)
+🆕 **Inscription** (*POST* `/api/auth/register`)
 
 <small>*Requête :*</small>
 
@@ -105,7 +113,7 @@ curl -X POST http://127.0.0.1:5000/api/auth/register \
 
 <br>
 
-**Connexion** (*POST* `/api/auth/login`)
+♦️ **Connexion** (*POST* `/api/auth/login`)
 
 <small>*Requête :*</small>
 
@@ -129,7 +137,7 @@ curl -X POST http://127.0.0.1:5000/api/auth/login \
 
 <details> <summary>📦 Produits</summary>
 
-**Création produit** (*POST* `/api/produits`)
+➕ **Création produit** (*POST* `/api/produits`)
 
 <small>*Requête :*</small>
 
@@ -156,7 +164,7 @@ curl -X POST http://127.0.0.1:5000/api/produits \
 }
 ```
 
-**Liste produits** (*GET* `/api/produits`)
+📄 **Liste produits** (*GET* `/api/produits`)
 
 <small>*Requête :*</small>
 
@@ -187,7 +195,7 @@ curl -X GET http://127.0.0.1:5000/api/produits
 ]
 ```
 
-**Détails produit** (*GET* `/api/produits/{id}`)
+📄 **Détails produit** (*GET* `/api/produits/{id}`)
 
 <small>*Requête :*</small>
 
@@ -208,7 +216,7 @@ curl -X GET http://127.0.0.1:5000/api/produits/1
 }
 ```
 
-**Modification produit** (*PUT* `/api/produits/{id}`)
+✏️ **Modification produit** (*PUT* `/api/produits/{id}`)
 
 <small>*Requête :*</small>
 
@@ -236,7 +244,7 @@ curl -X PUT http://127.0.0.1:5000/api/produits/3 \
 }
 ```
 
-**Suppression produit** (*DELETE* `/api/produits/{id}`)
+❌ **Suppression produit** (*DELETE* `/api/produits/{id}`)
 
 <small>*Requête :*</small>
 
@@ -258,7 +266,7 @@ curl -X DELETE http://127.0.0.1:5000/api/produits/3 \
 
 <details> <summary>🛒 Commandes</summary>
 
-**Création commande** (*POST* `/api/commandes`)
+➕ **Création commande** (*POST* `/api/commandes`)
 
 <small>*Requête :*</small>
 
@@ -284,7 +292,7 @@ curl -X POST http://127.0.0.1:5000/api/commandes \
 }
 ```
 
-**Liste commandes** (*GET* `/api/commandes`)
+📄 **Liste commandes** (*GET* `/api/commandes`)
 
 <small>*Requête :*</small>
 
@@ -314,7 +322,7 @@ curl -X GET http://127.0.0.1:5000/api/commandes \
 ]
 ```
 
-**Détails commande** (*GET* `/api/commandes/{id}`)
+📄 **Détails commande** (*GET* `/api/commandes/{id}`)
 
 <small>*Requête :*</small>
 
@@ -335,7 +343,7 @@ curl -X GET http://127.0.0.1:5000/api/commandes/11 \
 }
 ```
 
-**Mise à jour statut** (*PATCH* `/api/commandes/{id}`)
+✏️ **Mise à jour statut** (*PATCH* `/api/commandes/{id}`)
 
 <small>*Requête :*</small>
 
@@ -361,7 +369,7 @@ curl -X PATCH http://127.0.0.1:5000/api/commandes/11 \
 }
 ```
 
-**Liste lignes de commande** (*GET* `/api/commandes/{id}/lignes`)
+📄 **Liste lignes de commande** (*GET* `/api/commandes/{id}/lignes`)
 
 <small>*Requête :*</small>
 
@@ -392,22 +400,24 @@ curl -X GET http://127.0.0.1:5000/api/commandes/11/lignes \
 ```
 </details>
 
+<br>
+
 ---
 
 ## ⚠️ Gestion des erreurs/exceptions
 
-Les erreurs applicatives (métier) et SQLAlchemy (back-end) sont gérées de manière disctincte.
-
+Les erreurs applicatives (métier) et SQLAlchemy (back-end) sont gérées de manière disctincte.  
 Elles sont renvoyées sous forme de messages, via `jsonify({"error": ...})`, explicitant la cause et le code associé. 
 
+<br>
 
 ### ℹ️ Erreurs applicatives
 
 Les erreurs applicatives remontées par l'API reposent sur les exceptions centralisées (avec codes HTTP correspondants) du fichier `exceptions_utils.py` :
 
-- **BadRequestError** (`400 Bad Request`) : données d'entrée manquantes/invalides (validation payload/body)
-- **UnauthorizedError** (`401 Unauthorized`) : authentification manquante ou JWT invalide/absent.
-- **ForbiddenError** (`403 Forbidden`) : accès non autorisé (restriction POST/PUT/DELETE ou PATCH)
+- **BadRequestError** (`400 Bad Request`) : données d'entrée manquantes/invalides (validation payload/body)  
+- **UnauthorizedError** (`401 Unauthorized`) : authentification manquante ou JWT invalide/absent.  
+- **ForbiddenError** (`403 Forbidden`) : accès non autorisé (restriction POST/PUT/DELETE ou PATCH)  
 - **NotFoundError** (`404 Not Found`) : ressource absente ou inexistante
 
 <br>
@@ -444,7 +454,8 @@ Les erreurs applicatives remontées par l'API reposent sur les exceptions centra
 ### ℹ️ Erreurs SQLAlchemy
 
 La gestion des erreurs SQLAlchemy est centralisée via un `errorhandler`. 
-Celui-ci fournit des *messages personnalisés* sous la forme : `{"error": "DataBase - <message>"}, <code>` en s'appuyant sur le tableau suivant :
+Celui-ci fournit des *messages personnalisés* sous la forme : `{"error": "DataBase - <message>"}, <code>` en s'appuyant sur le tableau suivant :  
+
 
 | Exception                |     Code     |                       Cause                         |
 |--------------------------|--------------|-----------------------------------------------------|

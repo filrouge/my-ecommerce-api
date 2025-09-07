@@ -2,31 +2,36 @@
 # API Flask
 
 ## 📑 Table des matières
-- [📌 Description](#-description)
-- [📂 Structure du projet](#-structure-du-projet)
-    - [⚙️ Prérequis](#️-prérequis)
-    - [🚀 Installation](#-installation)
-    - [🔧 Configuration](#-configuration)
-    - [▶️ Lancement](#️-lancement)
-- [📄 Documentation API](#-documentation-api)
-- [🧪 Tests](#-tests)
-- [📌 TODO](#-todo)
+- 📌 [Description](#-description)  
+
+- 📂 [Structure du projet](#-structure-du-projet)  
+    - ⚙️ [Prérequis](#️-prérequis)
+    - 🚀 [Installation](#-installation)
+    - 🔧 [Configuration](#-configuration)
+    - ▶️ [Lancement](#️-lancement)  
+
+- 📄 [Documentation API](#-documentation-api)  
+
+- 🧪 [Tests](#-tests)  
+
+- 📌 [TODO](#-todo)  
 
 ---
 
 ## 📌 Description
 
-**API REST** construite avec les librairies **Flask**, **SQLAlchemy** et **JWT**.
+**API REST** construite avec les librairies **Flask**, **SQLAlchemy** et **JWT**, et reposant sur une architecture modulaire avec séparation des responsabilités.
 
 Fonctionnalités principales :
+
 - 👤 *Gestion des utilisateurs / permissions*  
 - 📦 *Gestion des produits*  
 - 🛒 *Gestion des commandes*  
-
-> ℹ️ Architecture modulaire avec séparation des responsabilités.
-
+<br>
 
 > 📂 Consultez la documentation [docs/api_endpoints.md](docs/api_endpoints.md) pour plus d’informations sur l'architecture et les fonctionnalités de l'API.
+
+<br>
 
 ---
 
@@ -47,22 +52,22 @@ my-ecommerce-api/
 │
 ├── database/                   # (optionnel pour les tests)
 │
-├── docs/                       # Documentation
+├── docs/                       # Documentations API / Tests
 │   ├── api_endpoints.md
 │   └── tests.md
 │
 ├── model/                      # ORM SQLAlchemy (mdolèles, gestion des sessions)
 │   ├── __init__.py
-│   ├── database.py                 ← contient Engine & Base
-│   ├── sessions.py                 ← contient Sessions
-│   └── models.py                   ← contient les modèles SQLAlchemy (User, Product)
+│   ├── database.py
+│   ├── sessions.py
+│   └── models.py
 │
-├── routes/                     # Routes par domaine/scope (`api/auth`, `/api/produits`, `/api/commandes`)
+├── routes/                     # Routes (`api/auth`, `/api/produits*`, `/api/commandes*`)
 │   ├── __init__.py
 │   ├── auth_routes.py
 │   ├── main_routes.py
 │   ├── order_routes.py
-│   └──product_routes.py
+│   └── product_routes.py
 │
 ├── services/                   # Logique métier
 │   ├── __init__.py
@@ -88,15 +93,16 @@ my-ecommerce-api/
 
 L'implémentation du code nécessite :
 
-    - Python >= 3.12
-    - conda / virtualenv + pip
+- Python >= 3.12  
+- conda / virtualenv + pip  
 
 <br>
 
 > L'utilisation de l'outil SQLite (DB Browser) est optionnelle; elle permet néanmoins de vérifier :
-- le schéma de la Base,
-- la création des tables,
-- les données enregistrées, modifiées ou supprimées.
+> 
+> - le schéma de la Base,  
+> - la création des tables,  
+> - les données enregistrées, modifiées ou supprimées.  
 
 <br>
 
@@ -148,11 +154,15 @@ JWT_SECRET_KEY=your-jwt-secret
 
 ### ▶️ Lancement
 
-Exécutez `python app.py` ou `flask run --debug`.
+Exécutez `python app.py` ou `flask run --debug`.  
+
 ![Server Flask](server-flask.png)
 
-> 🌐 API accessible sur http://127.0.0.1:5000
+
+> 🌐 API accessible sur http://127.0.0.1:5000  
 > ⚠️ Lancez le serveur en mode DEBUG pour développement uniquement
+
+<br>
 
 ---
 
@@ -170,31 +180,36 @@ Ce tableau offre une synthèse des *body* attendus pour les fonctionnalités pri
 | Mise à jour statut d’une commande    | ``` {"statut": "Expédiée"} ``` |
 
 
-> 📂 Consultez la documentation [docs/api_endpoints.md](docs/api_endpoints.md) pour plus d’informations sur les endpoints (routes, formats JSON, exemples cURL ...), et la gestion des erreurs et leur couverture (cas, messages ...).
+> 📂 Consultez la documentation [docs/api_endpoints.md](docs/api_endpoints.md) pour plus d’informations sur les endpoints (routes, formats JSON, exemples cURL...), et la gestion des erreurs (couverture, cas, messages...).
+
+<br>
 
 ---
 
 ## 🧪 Tests
 
-Les tests unitaires s'appuient sur la librairie `pytest` et couvrent les points :
+Les tests unitaires s'appuient sur la librairie `pytest` et couvrent les points :  
+✅ *Authentification / Autorisation* : inscription, login, rôles  
+✅ *Produits* : création, consultation, suppression  
+✅ *Commandes* : création, consultation, modification  
+✅ *Erreurs* : validation, restriction, exécution  
 
-✅ *Authentification / Autorisation* (inscription, login, rôles)
-✅ *Produits* (création, consultation, recherche, suppression)
-✅ *Commandes* (création, consultation, recherche, modification)
-✅ *Erreurs* (validations, restrictions, exécutions)
+<!-- TODO : pytest.ini + fixture parametrize pour alléger -->
 
 
-> 📂 Consultez [docs/tests.md](docs/tests.md) pour plus d’informations sur les tests et leur couverture (fonctionnalités, remontées d'erreurs).
+> 📂 Consultez [docs/tests.md](docs/tests.md) pour plus d’informations sur les tests (couverture fonctionnalités / erreurs).
+
+<br>
 
 ---
 
-## 📌 TODO
-- Code review (refactoring)
-- Refactoring des tests (fixtures)
-- Add-ons:
-    - Logger & Monitoring
-    - Jeux de données (script `seed_data.py`)
-    - Tests d’intégration end-to-end
-    - Rapport de couverture (`pytest-cov`)
-    - Dockérisation
-    - Intégration CI/CD (`GitHub Actions`)
+#### 📌 TODO
+> - Code review (refactoring)
+> - Refactoring des tests (fixtures)
+> - Add-ons:
+>     - Logger & Monitoring
+>     - Jeux de données (script `seed_data.py`)
+>     - Tests d’intégration end-to-end
+>     - Rapport de couverture (`pytest-cov`)
+>     - Dockérisation
+>     - Intégration CI/CD (`GitHub Actions`)
