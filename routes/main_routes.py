@@ -1,21 +1,22 @@
-from flask import Blueprint, jsonify, g
+from flask import Blueprint, jsonify, g, Response
 from core.auth import auth_required
 from model.models import User
 from model.sessions import get_session
+from typing import Tuple
 
 main_bp = Blueprint("main", __name__)
 
 
 # Routes :
 @main_bp.route("/")
-def home():
+def home() -> str:
     return "API e-commerce opérationnelle !"
 
 
 # Routes pour test et checks manuels
 @main_bp.route("/admin-space/users", methods=["GET"])
 @auth_required
-def list_users(current_user):
+def list_users(current_user: User) -> Tuple[Response, int] | Response:
     '''
         TODO: EXPLICATIONS
     '''
@@ -31,7 +32,7 @@ def list_users(current_user):
 
 
 @main_bp.route("/public-space/users", methods=["GET"])
-def public_list_users():
+def public_list_users() -> Tuple[Response, int] | Response:
     '''
         TODO: EXPLICATIONS
     '''
@@ -44,7 +45,7 @@ def public_list_users():
 
 @main_bp.route("/admin-route")
 @auth_required
-def admin_route(current_user):
+def admin_route(current_user: User) -> Tuple[Response, int] | Response:
     if current_user.role != "admin":
         return jsonify({"error": "Accès refusé"}), 403
     else:
