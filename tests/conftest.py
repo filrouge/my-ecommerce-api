@@ -1,7 +1,7 @@
 import pytest
 from flask import g
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 from app import create_app
 from model.database import Base
 from model.models import User, Product, Order, OrderItem
@@ -10,21 +10,28 @@ from werkzeug.security import generate_password_hash
 from services.product_utils import add_product
 from services.order_utils import create_new_order, get_orderitems_all
 
+from flask.testing import FlaskClient
+from typing import Tuple, Generator, List, Dict, Any
+
 
 @pytest.fixture(scope="session")
-def setup_db():
+def setup_db() -> Generator[Tuple, None, None]:
     """
-    Crée l'app Flask et la database SQLite (en mémoire) pour la
-    session de tests et détruit la database en fin de session.
+    Initialise l’application Flask et une base SQLite en mémoire pour
+    la session de tests, puis détruit les tables en fin de session.
+
+    Retourne un tuple :
+        - Flask app (configurée pour les tests)
+        - sessionmaker (lié à la base en mémoire)
     """
     app = create_app()
     app.config["TESTING"] = True
 
-    # Engine (forcé en mémoire) et session de test isolée
     engine = create_engine("sqlite:///:memory:", echo=False)
+
+    # -> autoflush=True, autocommit=True pour souci commit() en PROD
     SessionLocal = sessionmaker(bind=engine)
 
-    # Création des tables et Provision du engine/session
     Base.metadata.create_all(bind=engine)
     yield app, SessionLocal
 
@@ -32,11 +39,11 @@ def setup_db():
 
 
 @pytest.fixture(scope="function")
-def test_client(setup_db):
+def test_client(setup_db) -> Generator[Tuple[FlaskClient, Session],
+                                       None, None]:
     """
-    Ouvre une transaction par test (avec rollback/fermeture automatique)
-    avec gestion du app.app_context() et remise de la g.session à
-    la session courante avant chaque test.
+    Crée un client de test Flask et une session SQLAlchemy pour chaque test
+    (transaction avec rollback/fermeture automatique en fin d’exécution).
 
     Retourne un tuple (FlaskClient, session SQLAlchemy) de test :
         - client : pour simuler les requêtes HTTP
@@ -60,7 +67,7 @@ def test_client(setup_db):
 
 
 @pytest.fixture(scope="function")
-def admin_token(test_client):
+def admin_token(test_client) -> str:
     """ Crée un utilisateur admin et retourne son JWT. """
     _, session = test_client
     session.query(User).filter_by(email="admin@test.com").delete()
@@ -77,7 +84,7 @@ def admin_token(test_client):
 
 
 @pytest.fixture(scope="function")
-def client_token(test_client):
+def client_token(test_client) -> str:
     """ Crée un utilisateur client et retourne son JWT. """
     _, session = test_client
     session.query(User).filter_by(email="client@test.com").delete()
@@ -97,12 +104,14 @@ def client_token(test_client):
 ##############################################
 @pytest.fixture(scope="function")
 def visitor_only(test_client):
-    """ Crée un utilisateur pour accès sans authentification. """
+    """
+    Crée un utilisateur sans authentification ni autorisation.
+    """
     return None
 
 
 @pytest.fixture(scope="function")
-def feed_product(test_client):
+def feed_product(test_client) -> List[Product]:
     """
     Crée 4 produits distincts en alimentant la table 'product'.
     Retourne une liste contenant les 4 produits et leurs données.
@@ -127,7 +136,7 @@ def feed_product(test_client):
 
 
 @pytest.fixture(scope="function")
-def feed_order(test_client, client_token, feed_product):
+def feed_order(test_client, client_token, feed_product) -> Dict[str, Any]:
     """
     Crée 2 commandes distinctes avec 2 lignes chacune (et 2 produits/ligne).
     Retourne un dictionnaire avec commandes, lignes de commande et client.
@@ -158,14 +167,19 @@ def feed_order(test_client, client_token, feed_product):
     ]
 
     for body in bodys:
-        order = create_new_order(session, user.id,
-                                 body["address"],
-                                 body["produits"]
-                                 )
+        address = body.get("address")
+        produits = body.get("produits")
+
+        # Evite "cast" sur body.get() -> typer Optional
+        assert isinstance(address, str)
+        assert isinstance(produits, list)
+
+        order = create_new_order(session, user.id, address, produits)
         items = get_orderitems_all(session, order.id)
         orders_data.append({"order": order, "items": items})
 
-    return {"orders": orders_data,
-            "user_id": user.id,
-            "user_email": user.email
-            }
+    return {
+        "orders": orders_data,
+        "user_id": user.id,
+        "user_email": user.email
+        }

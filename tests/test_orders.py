@@ -1,6 +1,9 @@
 from model.models import Order, OrderItem, Product, User
 import jwt
 from config import Config
+from typing import Tuple
+from flask.testing import FlaskClient
+from sqlalchemy.orm import Session
 
 JWT_KEY = Config.JWT_KEY
 ALGORITHM = Config.ALGORITHM
@@ -8,7 +11,10 @@ ALGORITHM = Config.ALGORITHM
 
 class TestOrderCreation:
 
-    def test_client_create_order(self, test_client, client_token):
+    def test_client_create_order(self,
+                                 test_client: Tuple[FlaskClient, Session],
+                                 client_token: str) -> None:
+        """Un client peut créer une commande avec plusieurs produits."""
         client, session = test_client
 
         # Récupération de l'user_id depuis le token JWT
@@ -18,20 +24,10 @@ class TestOrderCreation:
         user_id = payload_token["id"]
 
         # Ajout de produits
-        p1 = Product(
-            nom="Produit A",
-            description="Desc A",
-            categorie="test",
-            prix=20.0,
-            quantite_stock=5
-        )
-        p2 = Product(
-            nom="Produit B",
-            description="Desc B",
-            categorie="test",
-            prix=15.0,
-            quantite_stock=10
-        )
+        p1 = Product(nom="Produit A", description="Desc A",
+                     categorie="test", prix=20.0, quantite_stock=5)
+        p2 = Product(nom="Produit B", description="Desc B",
+                     categorie="test", prix=15.0, quantite_stock=10)
         session.add_all([p1, p2])
         session.commit()
 
@@ -67,7 +63,10 @@ class TestOrderCreation:
 
 class TestOrderSearch:
 
-    def test_client_own_orders(self, test_client, client_token):
+    def test_client_own_orders(self,
+                               test_client: Tuple[FlaskClient, Session],
+                               client_token: str) -> None:
+        """Le client ne voit que ses propres commandes."""
         client, _ = test_client
         headers = {"Authorization": f"Bearer {client_token}"}
         resp = client.get("/api/commandes", headers=headers)
@@ -75,7 +74,10 @@ class TestOrderSearch:
         commandes = resp.get_json()
         assert isinstance(commandes, list)
 
-    def test_admin_all_orders(self, test_client, admin_token):
+    def test_admin_all_orders(self,
+                              test_client: Tuple[FlaskClient, object],
+                              admin_token: str) -> None:
+        """L’admin voit toutes les commandes."""
         client, _ = test_client
         headers = {"Authorization": f"Bearer {admin_token}"}
         resp = client.get("/api/commandes", headers=headers)
@@ -86,7 +88,12 @@ class TestOrderSearch:
 
 class TestOrderItems:
 
-    def test_access_orderitems(self, test_client, client_token):
+    def test_access_orderitems(
+        self,
+        test_client: Tuple[FlaskClient, Session],
+        client_token: str,
+    ) -> None:
+        """Vérifie la récupération des lignes d’une commande existante."""
         client, session = test_client
 
         produit = Product(
@@ -116,7 +123,9 @@ class TestOrderItems:
         assert isinstance(items, list)
         assert len(items) == 1
 
-    def test_missing_orderitems(self, test_client):
+    def test_missing_orderitems(
+            self, test_client: Tuple[FlaskClient, object]) -> None:
+        """Tentative d’accès à des lignes de commande inexistantes."""
         client, _ = test_client
         resp = client.get("/api/commandes/999/lignes")
         assert resp.status_code == 404
@@ -124,7 +133,10 @@ class TestOrderItems:
 
 class TestOrderUpdate:
 
-    def test_admin_update_status(self, test_client, admin_token):
+    def test_admin_update_status(self,
+                                 test_client: Tuple[FlaskClient, Session],
+                                 admin_token: str) -> None:
+        """L’admin peut modifier le statut d’une commande."""
         client, session = test_client
 
         # Ajout de produit
@@ -145,6 +157,7 @@ class TestOrderUpdate:
         # admin_id = payload_token["id"]
 
         admin = session.query(User).filter_by(email="admin@test.com").first()
+        assert admin is not None
         admin_id = admin.id
 
         # Création de 2 commandes
@@ -191,15 +204,23 @@ class TestOrderUpdate:
         assert data["commande"]["statut"] == "Validée"
 
         db_product = session.get(Product, product_id)
+        assert db_product is not None
         assert db_product.nom == "Produit"
         assert db_product.quantite_stock == 2
         # db_order = session.get(Order, data["commande"]["id"])
         db_order1 = session.get(Order, order1.id)
         db_order2 = session.get(Order, order2_id)
+        assert db_order1 is not None
         assert db_order1.statut == "Validée"
+        assert db_order2 is not None
         assert db_order2.statut == "En attente"
 
-    def test_client_update_status(self, test_client, client_token):
+    def test_client_update_status(
+        self,
+        test_client: Tuple[FlaskClient, Session],
+        client_token: str,
+    ) -> None:
+        """Le client ne peut pas modifier le statut d’une commande."""
         client, session = test_client
 
         # Ajout de produit et Création de commande

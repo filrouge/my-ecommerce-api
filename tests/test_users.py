@@ -5,10 +5,14 @@ from model.models import User
 from config import Config
 from core.auth_utils import get_user_by_email
 
+from typing import Tuple
+from flask.testing import FlaskClient
+from sqlalchemy.orm import Session
+
 
 class TestUserRegister:
 
-    def test_new_user(self, test_client):
+    def test_new_user(self, test_client: Tuple[FlaskClient, Session]) -> None:
         client, session = test_client
         payload = {
             "email": "test@email.com",
@@ -25,10 +29,12 @@ class TestUserRegister:
 
         # user = session.query(User).filter_by(email=payload["email"]).first()
         user = get_user_by_email(session, payload["email"])
+        assert user is not None
         assert check_password_hash(user.password_hash, payload["password"])
         assert isinstance(user.date_creation, datetime)
 
-    def test_duplicate_email(self, test_client):
+    def test_duplicate_email(self,
+                             test_client: Tuple[FlaskClient, Session]) -> None:
         client, session = test_client
         payload = {
             "email": "duplicated@email.com",
@@ -45,7 +51,11 @@ class TestUserRegister:
         users = session.query(User).filter_by(email=payload["email"]).all()
         assert len(users) == 1
 
-    def test_missing_fields(self, test_client):
+    def test_missing_fields(self,
+                            test_client: Tuple[FlaskClient, Session]) -> None:
+        """
+        Vérifie l'échec de connexion si champ obligatoire manquant
+        """
         client, session = test_client
         payload = {
             "email": "just@email.com"
@@ -60,7 +70,7 @@ class TestUserRegister:
 
 class TestUserLogin:
 
-    def test_success(self, test_client):
+    def test_success(self, test_client: Tuple[FlaskClient, Session]) -> None:
         client, _ = test_client
         payload = {
             "email": "admin@email.com",
@@ -85,7 +95,8 @@ class TestUserLogin:
         assert decoded["email"] == payload["email"]
         assert decoded["role"] == payload["role"]
 
-    def test_wrong_password(self, test_client):
+    def test_wrong_password(self,
+                            test_client: Tuple[FlaskClient, Session]) -> None:
         client, _ = test_client
         payload = {
             "email": "login@email.com",
@@ -102,7 +113,7 @@ class TestUserLogin:
 
 
 class TestUserAccess:
-    def test_access_ok(self, test_client):
+    def test_access_ok(self, test_client: Tuple[FlaskClient, Session]) -> None:
         client, session = test_client
         payload = {
             "email": "super_admin@email.com",
@@ -124,11 +135,13 @@ class TestUserAccess:
         # user = session.query(User).filter_by(email=payload["email"]).first()
         user = get_user_by_email(session, payload["email"])
 
+        assert user is not None
         assert resp.status_code == 200
         assert "Bienvenue" in resp.get_json()["message"]
         assert user.role == payload["role"]
 
-    def test_access_denied(self, test_client):
+    def test_access_denied(self,
+                           test_client: Tuple[FlaskClient, Session]) -> None:
         client, _ = test_client
         payload = {
             "email": "not_admin@email.com",
