@@ -1,31 +1,50 @@
 from datetime import datetime, UTC
-from model.models import Order, OrderItem
+from model.models import Order, OrderItem, User
 from services.product_utils import get_product_id
 from core.errors_handlers import NotFoundError, BadRequestError
+from sqlalchemy.orm import Session
+from typing import List, Optional
 
 
-def get_order_by_user(session, user_id):
-    """ Retourne les commandes d'un utilisateur spécifique. """
+def get_order_by_user(session: Session,
+                      user_id: int) -> List[Order]:
+    """
+    Retourne la liste des commandes d'un client (ou None).
+    """
     return session.query(Order).filter_by(utilisateur_id=user_id).all()
 
 
-def get_all_orders(session, user=None):
-    """ Retourne toutes les commandes (admin) ou celles du client. """
+def get_all_orders(session: Session,
+                   user: Optional[User] = None) -> List[Order]:
+    """
+    Retourne toutes les commandes si admin ou celles d'un client.
+
+    Lève une erreur de permissions si client non autorisé
+    """
     if user and user.role != "admin":
         return session.query(Order).filter_by(utilisateur_id=user.id).all()
     return session.query(Order).all()
 
 
-def get_order_by_id(session, order_id):
-    """ Récupère une commande par son ID. """
+def get_order_by_id(session: Session, order_id: int) -> Order:
+    """
+    Récupère une commande par son ID.
+
+    Lève une erreur si commande introuvable
+    """
     order = session.query(Order).filter_by(id=order_id).first()
     if not order:
         raise NotFoundError("Commande introuvable")
     return order
 
 
-def create_new_order(session, user_id, address, items):
-    """ Crée une nouvelle commande pour un utilisateur. """
+def create_new_order(session: Session, user_id: int,
+                     address: str, items: List[dict]) -> Order:
+    """
+    Crée une nouvelle commande avec ses lignes, et met à jour le stock.
+
+    Lève une erreur si stock insuffisant
+    """
     order = Order(
         utilisateur_id=user_id,
         adresse_livraison=address,
@@ -59,8 +78,13 @@ def create_new_order(session, user_id, address, items):
     return order
 
 
-def get_orderitems_all(session, order_id):
-    """ Retourne toutes les lignes d'une commande. """
+def get_orderitems_all(session: Session,
+                       order_id: int) -> List[OrderItem]:
+    """
+    Retourne toutes les lignes d'une commande.
+
+    Lève une erreur si aucune ligne trouvée
+    """
     items = session.query(OrderItem).filter_by(commande_id=order_id).all()
     if not items:
         raise NotFoundError(("Ligne de commande introuvable"))
@@ -68,8 +92,11 @@ def get_orderitems_all(session, order_id):
     return items
 
 
-def change_status_order(session, order_id, new_status):
-    """ Modifie le statut d'une commande. """
+def change_status_order(session: Session,
+                        order_id: int, new_status: str) -> Order:
+    """
+    Modifie le statut d'une commande.
+    """
     order = get_order_by_id(session, order_id)
     order.statut = new_status
 
