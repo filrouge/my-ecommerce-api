@@ -1,16 +1,11 @@
 from flask import request, jsonify, Blueprint, g, Response
 from app.services.product_utils import (
-    get_all_products,
-    get_product_id,
-    add_product,
-    update_product,
-    delete_product_id,
-    search_product
+    get_all_products, get_product_id, add_product,
+    update_product, delete_product_id, search_product
 )
 from app.core.auth import access_granted
 from app.core.utils import (
-    get_json_body,
-    validate_json_fields,
+    get_json_body, validate_json_fields,
     PRODUCT_FIELDS,
     )
 from typing import Tuple

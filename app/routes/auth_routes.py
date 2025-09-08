@@ -1,5 +1,4 @@
 from flask import request, jsonify, Blueprint, g, Response
-from app.model.sessions import get_session
 from app.core.auth_utils import register_user, login_user
 from app.core.utils import (
     get_json_body,
@@ -53,10 +52,8 @@ def login() -> Tuple[Response, int]:
     body = get_json_body(request)
     validate_json_fields(body, USER_FIELDS, {"nom", "role"})
 
-    session = get_session()
-
     token, _ = login_user(
-        session,
+        g.session,
         email=body["email"], password=body["password"]
         )
     return jsonify(

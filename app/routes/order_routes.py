@@ -1,19 +1,13 @@
 from flask import request, Blueprint, jsonify, g, Response
 from app.core.auth import access_granted
 from app.services.order_utils import (
-    get_all_orders,
-    get_order_by_id,
-    create_new_order,
-    change_status_order,
-    get_orderitems_all
-)
+    get_all_orders, get_order_by_id, create_new_order,
+    change_status_order, get_orderitems_all
+    )
 from app.core.errors_handlers import ForbiddenError, BadRequestError
 from app.core.utils import (
-    get_json_body,
-    validate_json_fields,
-    ORDER_FIELDS,
-    ORDER_ITEM_FIELDS,
-    STATUS
+    get_json_body, validate_json_fields,
+    ORDER_FIELDS, ORDER_ITEM_FIELDS, STATUS
     )
 from typing import Tuple
 
@@ -48,10 +42,10 @@ def get_order_id(id: int) -> Tuple[Response, int]:
 
     Lève une erreur ForbiddenError si utilisateur non autorisé
     """
-    current_user = g.current_user
+    # current_user = g.current_user
     order = get_order_by_id(g.session, id)
-    if (current_user.role != "admin"
-            and order.utilisateur_id != current_user.id):
+    if (g.current_user.role != "admin"
+            and order.utilisateur_id != g.current_user.id):
         raise ForbiddenError("Accès refusé")
 
     result = {
@@ -75,22 +69,17 @@ def create_order() -> Tuple[Response, int]:
         si chanmp adresse_livraison vide
         si aucun champ produits
     """
-    current_user = g.current_user
-    # if current_user is None:
-    #     return jsonify({"error": "Action Interdite"}), 401
-
     body = get_json_body(request)
-
     validate_json_fields(body, ORDER_FIELDS, {"statut"})
     address = body["adresse_livraison"]
-    items = body["produits"]
 
+    items = body["produits"]
     for item in items:
         validate_json_fields(item, ORDER_ITEM_FIELDS)
 
     order = create_new_order(
         g.session,
-        user_id=current_user.id,
+        user_id=g.current_user.id,
         items=items,
         address=address
     )
