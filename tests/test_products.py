@@ -18,7 +18,7 @@ class TestProductList:
         assert any(p["nom"] == feed_product[0].nom for p in data)
 
     def test_search_products(
-            self, test_client: Tuple[FlaskClient, Session], feed_product:list ) -> None:
+            self, test_client: Tuple[FlaskClient, Session], feed_product:list) -> None:
         client, _ = test_client
 
         resp = client.get("/api/produits/search?nom={feed_product[0].nom}")
@@ -36,6 +36,21 @@ class TestProductList:
         assert resp.status_code == 200
         assert all(p["quantite_stock"] > 0 for p in data)
         assert len(data) >= 4
+
+    def test_get_product_by_id(self, test_client: Tuple[FlaskClient, Session], client_token: str, feed_product:list) -> None:
+        """
+        Vérifie que la récupération d'un produit par son ID fonctionne.
+        """
+        client, _ = test_client
+        product = feed_product[0]
+
+        resp = client.get(f"/api/produits/{product.id}",
+                          headers={"Authorization": f"Bearer {client_token}"})
+        assert resp.status_code == 200
+
+        data = resp.get_json()
+        assert data["id"] == product.id
+        assert data["nom"] == product.nom
 
 
 class TestProductCreate:
