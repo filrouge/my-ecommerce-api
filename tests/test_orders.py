@@ -1,9 +1,10 @@
-from model.models import Order, OrderItem, Product, User
+from model.models import Order
 import jwt
 from config import Config
 from typing import Tuple
 from flask.testing import FlaskClient
 from sqlalchemy.orm import Session
+import pytest
 
 JWT_KEY = Config.JWT_KEY
 ALGORITHM = Config.ALGORITHM
@@ -134,7 +135,6 @@ class TestOrderUpdate:
 
     def test_client_update_status(self, test_client: Tuple[FlaskClient, Session],
                                   client_token: str, feed_order: list) -> None:
-        """Le client ne peut pas modifier le statut d’une commande."""
         client, _ = test_client
 
         order = feed_order["commandes"][0]["commande"]
@@ -145,3 +145,24 @@ class TestOrderUpdate:
         assert resp.status_code == 403
         data = resp.get_json()
         assert "error" in data and "Accès refusé" in data['error']
+
+    @pytest.mark.parametrize("new_status", [None, "annulée"])
+    def test_update_wrong_status(self,
+                                 test_client: Tuple[FlaskClient, Session], admin_token: str,
+                                 feed_order: list, new_status: list) -> None:
+
+        client, session = test_client
+
+        order = feed_order["commandes"][0]["commande"]
+        payload = {"statut": new_status}
+        headers = {"Authorization": f"Bearer {admin_token}"}
+        resp = client.patch(f"/api/commandes/{order.id}", json=payload, headers=headers)
+
+        data = resp.get_json()
+        print(data)
+        assert resp.status_code == 400
+        assert "error" in data
+        assert any(field in data["error"] for field in ['invalide', 'vide'])
+        db_order = session.get(Order, order.id)
+        assert db_order is not None and db_order.statut == "En attente"
+        
