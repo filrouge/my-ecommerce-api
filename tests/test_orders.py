@@ -1,4 +1,4 @@
-from model.models import Order
+from model.models import Order, User, Product
 import jwt
 from config import Config
 from typing import Tuple
@@ -70,7 +70,7 @@ class TestOrderSearch:
         for c in commandes:
             assert c["utilisateur_id"] == feed_order["utilisateur_id"]
 
-    def test_admin_all_orders(self, test_client: Tuple[FlaskClient, object],
+    def test_admin_all_orders(self, test_client: Tuple[FlaskClient, Session],
                               admin_token: str, feed_order: list) -> None:
         client, _ = test_client
         headers = {"Authorization": f"Bearer {admin_token}"}
@@ -133,7 +133,7 @@ class TestOrderUpdate:
         assert db_order2 is not None
         assert db_order2.statut == "En attente"
 
-    def test_client_update_status(self, test_client: Tuple[FlaskClient, Session],
+    def test_client_no_update_status(self, test_client: Tuple[FlaskClient, Session],
                                   client_token: str, feed_order: list) -> None:
         client, _ = test_client
 
@@ -165,4 +165,3 @@ class TestOrderUpdate:
         assert any(field in data["error"] for field in ['invalide', 'vide'])
         db_order = session.get(Order, order.id)
         assert db_order is not None and db_order.statut == "En attente"
-        
