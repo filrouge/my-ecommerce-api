@@ -77,7 +77,7 @@ def check_valid_fields(body: dict, fields: dict) -> None:
 
     Lève une erreur si champ vide, type incorrect ou valeur négative.
     """
-    for field, expected_type in fields.items():
+    for field, typ in fields.items():
         if field not in body:
             continue
 
@@ -86,7 +86,9 @@ def check_valid_fields(body: dict, fields: dict) -> None:
         if value in (None, '', [], {}):
             raise BadRequestError(f"Champ {field} est vide")
 
-        if not isinstance(value, expected_type):
+        if not isinstance(value, typ):
+            expected_type = typ.__name__ if not isinstance(typ, tuple) else " ou ".join(t.__name__ for t in typ)
+
             raise BadRequestError(
                 f"Champ {field} invalide: type {expected_type} attendu"
                 )
