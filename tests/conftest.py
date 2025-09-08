@@ -112,7 +112,7 @@ def client_token(test_client) -> str:
 def feed_product(test_client) -> List[Product]:
     """
     Crée 4 produits distincts en alimentant la table 'product'.
-    
+
     Retourne une liste contenant les 4 produits et leurs données.
     """
     _, session = test_client
@@ -175,10 +175,10 @@ def feed_order(test_client, client_token, feed_product) -> Dict[str, Any]:
 
         order = create_new_order(session, user.id, address, produits)
         items = get_orderitems_all(session, order.id)
-        orders_data.append({"order": order, "items": items})
+        orders_data.append({"commande": order, "lignes": items})
 
     return {
-        "orders": orders_data,
-        "user_id": user.id,
-        "user_email": user.email
+        "commandes": orders_data,
+        "utilisateur_id": user.id,
+        "email": user.email
         }

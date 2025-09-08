@@ -44,8 +44,8 @@ class TestProductList:
         client, _ = test_client
         product = feed_product[0]
 
-        resp = client.get(f"/api/produits/{product.id}",
-                          headers={"Authorization": f"Bearer {client_token}"})
+        headers={"Authorization": f"Bearer {client_token}"}
+        resp = client.get(f"/api/produits/{product.id}", headers=headers)
         assert resp.status_code == 200
 
         data = resp.get_json()
@@ -63,9 +63,8 @@ class TestProductCreate:
         self, test_client: Tuple[FlaskClient, Session], admin_token: str, payload: list
     ) -> None:
         client, _ = test_client
-        resp = client.post("/api/produits", json=payload, headers={
-            "Authorization": f"Bearer {admin_token}"
-        })
+        headers={"Authorization": f"Bearer {admin_token}"}
+        resp = client.post("/api/produits", json=payload, headers=headers)
         assert resp.status_code == 201
 
         data = resp.get_json()
@@ -84,9 +83,9 @@ class TestProductCreate:
             "prix": 10.0,
             "quantite_stock": 5
         }
-        resp = client.post("/api/produits", json=payload, headers={
-            "Authorization": f"Bearer {client_token}"
-        })
+
+        headers={"Authorization": f"Bearer {client_token}"}
+        resp = client.post("/api/produits", json=payload, headers=headers)
         assert resp.status_code == 403
 
     @pytest.mark.parametrize("payload", [
@@ -98,9 +97,8 @@ class TestProductCreate:
     ) -> None:
         client, session = test_client
 
-        resp = client.post("/api/produits", json=payload, headers={
-            "Authorization": f"Bearer {admin_token}"
-        })
+        headers={"Authorization": f"Bearer {admin_token}"}
+        resp = client.post("/api/produits", json=payload, headers=headers)
         assert resp.status_code == 201
 
         data = resp.get_json()
@@ -120,11 +118,10 @@ class TestProductCreate:
     def test_create_product_missing_field(
         self, test_client: Tuple[FlaskClient, Session], admin_token: str, payload: list
     ) -> None:
-        client, session = test_client
+        client, _ = test_client
 
-        resp = client.post("/api/produits", json=payload, headers={
-            "Authorization": f"Bearer {admin_token}"
-        })
+        headers={"Authorization": f"Bearer {admin_token}"}
+        resp = client.post("/api/produits", json=payload, headers=headers)
         assert resp.status_code == 400
 
         data = resp.get_json()
@@ -149,12 +146,11 @@ class TestProductUpdate:
         session.commit()
         # session.flush()
 
-        resp = client.put(f"/api/produits/{product.id}",
-                          json=payload,
-                          headers={"Authorization": f"Bearer {admin_token}"}
-                          )
+        headers={"Authorization": f"Bearer {admin_token}"}
+        resp = client.put(f"/api/produits/{product.id}", json=payload, headers=headers)
         data = resp.get_json()
         updated = session.get(Product, product.id)
+
         assert resp.status_code == 200
         assert data['produit']["description"] == payload["description"]
         assert updated is not None
@@ -173,10 +169,8 @@ class TestProductUpdate:
         # session.flush()
 
         payload = {"nom": "ProdUpdate", "description": "NewDesc", "prix": prix}
-        resp = client.put(f"/api/produits/{product.id}",
-                          json=payload,
-                          headers={"Authorization": f"Bearer {admin_token}"}
-                          )
+        headers={"Authorization": f"Bearer {admin_token}"}
+        resp = client.put(f"/api/produits/{product.id}", json=payload, headers=headers)
         assert resp.status_code == 400
 
         data = resp.get_json()
@@ -190,10 +184,8 @@ class TestProductUpdate:
         product = feed_product[0]
 
         payload = {"nom": "ProdUpdate", "description": "NewDesc", "prix": 6.0}
-        resp = client.put(f"/api/produits/{product.id}",
-                          json=payload,
-                          headers={"Authorization": f"Bearer {client_token}"}
-                          )
+        headers={"Authorization": f"Bearer {client_token}"}
+        resp = client.put(f"/api/produits/{product.id}", json=payload, headers=headers)
         assert resp.status_code == 403
 
         data = resp.get_json()
@@ -222,9 +214,8 @@ class TestProductDelete:
         client, session = test_client
         product = feed_product[0]
 
-        resp = client.delete(f"/api/produits/{product.id}", headers={
-            "Authorization": f"Bearer {client_token}"
-        })
+        headers={"Authorization": f"Bearer {client_token}"}
+        resp = client.delete(f"/api/produits/{product.id}", headers=headers)
         assert resp.status_code == 403
 
         data = resp.get_json()
@@ -238,10 +229,9 @@ class TestProductDelete:
         self, test_client: Tuple[FlaskClient, Session], admin_token: str
     ) -> None:
         client, _ = test_client
-        
-        resp = client.delete("/api/produits/99999",
-                             headers={"Authorization": f"Bearer {admin_token}"}
-                             )
+
+        headers={"Authorization": f"Bearer {admin_token}"}        
+        resp = client.delete("/api/produits/99999", headers=headers)
         assert resp.status_code == 404
 
         data = resp.get_json()

@@ -80,7 +80,8 @@ class Order(Base):
 
     user: Mapped["User"] = relationship("User", back_populates="orders")
     items: Mapped[List["OrderItem"]] = relationship("OrderItem",
-                                                    back_populates="order")
+                                                    back_populates="order",
+                                                    cascade="all, delete-orphan")
 
     def to_dict(self) -> dict:
         return {
@@ -89,7 +90,8 @@ class Order(Base):
             "adresse_livraison": self.adresse_livraison,
             "statut": self.statut,
             "date_commande": self.date_commande.isoformat() if
-            self.date_commande else None
+            self.date_commande else None,
+            "lignes": [item.to_dict() for item in self.items]
         }
 
 
@@ -114,5 +116,6 @@ class OrderItem(Base):
             "commande_id": self.commande_id,
             "produit_id": self.produit_id,
             "quantite": self.quantite,
-            "prix_unitaire": self.prix_unitaire
+            "prix_unitaire": self.prix_unitaire,
+            "produit_nom": self.product.nom if self.product else None
         }
