@@ -100,20 +100,19 @@ def client_token(test_client) -> str:
     return generate_token(user)
 
 
-# TODO: Modifier les tests avec ces fixtures !
-##############################################
-@pytest.fixture(scope="function")
-def visitor_only(test_client):
-    """
-    Crée un utilisateur sans authentification ni autorisation.
-    """
-    return None
+# @pytest.fixture(scope="function")
+# def visitor_only(test_client):
+#     """
+#     Crée un utilisateur sans authentification ni autorisation.
+#     """
+#     return None
 
 
 @pytest.fixture(scope="function")
 def feed_product(test_client) -> List[Product]:
     """
     Crée 4 produits distincts en alimentant la table 'product'.
+    
     Retourne une liste contenant les 4 produits et leurs données.
     """
     _, session = test_client
