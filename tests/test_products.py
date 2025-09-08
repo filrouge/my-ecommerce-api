@@ -8,7 +8,7 @@ import pytest
 class TestProductList:
 
     def test_list_all_products(
-            self, test_client: Tuple[FlaskClient, Session], feed_product) -> None:
+            self, test_client: Tuple[FlaskClient, Session], feed_product: list) -> None:
         client, _ = test_client
 
         resp = client.get("/api/produits")
@@ -18,7 +18,7 @@ class TestProductList:
         assert any(p["nom"] == feed_product[0].nom for p in data)
 
     def test_search_products(
-            self, test_client: Tuple[FlaskClient, Session], feed_product) -> None:
+            self, test_client: Tuple[FlaskClient, Session], feed_product:list ) -> None:
         client, _ = test_client
 
         resp = client.get("/api/produits/search?nom={feed_product[0].nom}")
@@ -28,10 +28,12 @@ class TestProductList:
 
         resp = client.get("/api/produits/search?categorie={feed_product[1].categorie}")
         data = resp.get_json()
+        assert resp.status_code == 200
         assert all(p["categorie"] == feed_product[1].categorie for p in data)
 
         resp = client.get("/api/produits/search?disponible=true")
         data = resp.get_json()
+        assert resp.status_code == 200
         assert all(p["quantite_stock"] > 0 for p in data)
         assert len(data) >= 4
 
@@ -171,9 +173,6 @@ class TestProductUpdate:
         self, test_client: Tuple[FlaskClient, Session], client_token: str, feed_product: list) -> None:
         client, _ = test_client
         product = feed_product[0]
-        # session.add(product)
-        # session.commit()
-        # session.flush()
 
         payload = {"nom": "ProdUpdate", "description": "NewDesc", "prix": 6.0}
         resp = client.put(f"/api/produits/{product.id}",
