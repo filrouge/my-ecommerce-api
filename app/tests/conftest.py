@@ -14,6 +14,13 @@ from flask.testing import FlaskClient
 from typing import Tuple, Generator, List, Dict, Any
 
 
+# '''TEMPORAIRE: engine mémoire crée avant import de create_app'''
+# engine = create_engine("sqlite:///:memory:", echo=False)
+# SessionLocal = sessionmaker(bind=engine)
+# Base.metadata.create_all(bind=engine)
+# from app.app import create_app
+# from flask import g
+
 @pytest.fixture(scope="session")
 def setup_db() -> Generator[Tuple, None, None]:
     """
@@ -27,11 +34,11 @@ def setup_db() -> Generator[Tuple, None, None]:
     app = create_app()
     app.config["TESTING"] = True
 
+    ''' MUET TEMPORAIRE LE TEMPS DE MIGRER ET INTEGRER MULTI-ENV'''
     engine = create_engine("sqlite:///:memory:", echo=False)
 
     # -> autoflush=True, autocommit=True pour souci commit() en PROD
     SessionLocal = sessionmaker(bind=engine)
-
     Base.metadata.create_all(bind=engine)
     yield app, SessionLocal
 

@@ -11,6 +11,6 @@ __pycache__
 
 checks
 check_doc
-database/ecommerce.db
+app/database/ecommerce.db
 
 instance

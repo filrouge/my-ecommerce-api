@@ -9,6 +9,10 @@ from app.model.sessions import init_session
 from app.core.errors_handlers import register_error_handlers
 
 from flask.app import Flask as FlaskType
+from .config import Config
+
+import os
+from .config import Config, TestConfig, DevConfig, ProdConfig
 
 
 def create_app() -> FlaskType:
@@ -20,6 +24,7 @@ def create_app() -> FlaskType:
     '''
 
     app = Flask(__name__)
+    app.config.from_object(Config)
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
@@ -34,7 +39,16 @@ def create_app() -> FlaskType:
     return app
 
 
+env = os.getenv("FLASK_ENV", "dev").lower()
+if env == "testing":
+    config_class = TestConfig
+elif env == "prod":
+    config_class = ProdConfig
+else:
+    config_class = DevConfig
+
 app = create_app()
+app.config.from_object(config_class)
 
 
 if __name__ == "__main__":
