@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, g, Response
-from core.auth import auth_required
-from model.models import User
-from model.sessions import get_session
+from app.core.auth import auth_required
+from app.model.models import User
+from app.model.sessions import get_session
 from typing import Tuple
 
 main_bp = Blueprint("main", __name__)

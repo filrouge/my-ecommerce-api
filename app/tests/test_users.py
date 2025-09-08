@@ -2,9 +2,9 @@ import pytest
 import jwt
 from datetime import datetime
 from werkzeug.security import check_password_hash
-from model.models import User
-from config import Config
-from core.auth_utils import get_user_by_email
+from app.model.models import User
+from app.config import Config
+from app.core.auth_utils import get_user_by_email
 
 from typing import Tuple, Dict
 from flask.testing import FlaskClient

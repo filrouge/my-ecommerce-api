@@ -1,7 +1,7 @@
 from flask import request, jsonify, Blueprint, g, Response
-from model.sessions import get_session
-from core.auth_utils import register_user, login_user
-from core.utils import (
+from app.model.sessions import get_session
+from app.core.auth_utils import register_user, login_user
+from app.core.utils import (
     get_json_body,
     validate_json_fields,
     USER_FIELDS

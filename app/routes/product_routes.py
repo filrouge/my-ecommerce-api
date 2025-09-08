@@ -1,5 +1,5 @@
 from flask import request, jsonify, Blueprint, g, Response
-from services.product_utils import (
+from app.services.product_utils import (
     get_all_products,
     get_product_id,
     add_product,
@@ -7,8 +7,8 @@ from services.product_utils import (
     delete_product_id,
     search_product
 )
-from core.auth import access_granted
-from core.utils import (
+from app.core.auth import access_granted
+from app.core.utils import (
     get_json_body,
     validate_json_fields,
     PRODUCT_FIELDS,

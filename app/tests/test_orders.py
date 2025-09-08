@@ -1,6 +1,6 @@
-from model.models import Order, User, Product
+from app.model.models import Order, User, Product
 import jwt
-from config import Config
+from app.config import Config
 from typing import Tuple
 from flask.testing import FlaskClient
 from sqlalchemy.orm import Session

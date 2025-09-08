@@ -1,5 +1,5 @@
-from model.models import Product
-from core.errors_handlers import NotFoundError
+from app.model.models import Product
+from app.core.errors_handlers import NotFoundError
 from sqlalchemy.orm import Session
 from typing import List, Optional
 

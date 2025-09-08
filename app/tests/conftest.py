@@ -2,13 +2,13 @@ import pytest
 from flask import g
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-from app import create_app
-from model.database import Base
-from model.models import User, Product, Order, OrderItem
-from core.auth_utils import generate_token
+from app.app import create_app
+from app.model.database import Base
+from app.model.models import User, Product, Order, OrderItem
+from app.core.auth_utils import generate_token
 from werkzeug.security import generate_password_hash
-from services.product_utils import add_product
-from services.order_utils import create_new_order, get_orderitems_all
+from app.services.product_utils import add_product
+from app.services.order_utils import create_new_order, get_orderitems_all
 
 from flask.testing import FlaskClient
 from typing import Tuple, Generator, List, Dict, Any

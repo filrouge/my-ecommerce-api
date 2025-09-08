@@ -1,7 +1,7 @@
 from datetime import datetime, UTC
-from model.models import Order, OrderItem, User
-from services.product_utils import get_product_id
-from core.errors_handlers import NotFoundError, BadRequestError
+from app.model.models import Order, OrderItem, User
+from app.services.product_utils import get_product_id
+from app.core.errors_handlers import NotFoundError, BadRequestError
 from sqlalchemy.orm import Session
 from typing import List, Optional
 

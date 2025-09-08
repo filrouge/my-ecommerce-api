@@ -1,4 +1,4 @@
-from model.models import Product
+from app.model.models import Product
 from typing import Tuple, Dict
 from flask.testing import FlaskClient
 from sqlalchemy.orm import Session
@@ -200,11 +200,12 @@ class TestProductDelete:
     ) -> None:
         client, session = test_client
         product = feed_product[0]
+        product_id = product.id
 
-        resp = client.delete(f"/api/produits/{product.id}",
+        resp = client.delete(f"/api/produits/{product_id}",
                              headers={"Authorization": f"Bearer {admin_token}"}
                              )
-        deleted = session.query(Product).filter_by(id=product.id).first()
+        deleted = session.query(Product).filter_by(id=product_id).first()
         assert resp.status_code == 200
         assert deleted is None
 

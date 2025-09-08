@@ -1,12 +1,12 @@
 from flask import Flask
-from routes.main_routes import main_bp
-from routes.auth_routes import auth_bp
-from routes.product_routes import product_bp
-from routes.order_routes import order_bp
+from app.routes.main_routes import main_bp
+from app.routes.auth_routes import auth_bp
+from app.routes.product_routes import product_bp
+from app.routes.order_routes import order_bp
 
-from model.database import Base, engine
-from model.sessions import init_session
-from core.errors_handlers import register_error_handlers
+from app.model.database import Base, engine
+from app.model.sessions import init_session
+from app.core.errors_handlers import register_error_handlers
 
 from flask.app import Flask as FlaskType
 
