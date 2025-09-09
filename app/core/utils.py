@@ -1,4 +1,4 @@
-from app.core.errors_handlers import BadRequestError
+from app.core.exceptions.app_errors import BadRequestError
 from flask import Request
 
 

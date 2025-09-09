@@ -4,7 +4,7 @@ from app.services.order_utils import (
     get_all_orders, get_order_by_id, create_new_order,
     change_status_order, get_orderitems_all
     )
-from app.core.errors_handlers import ForbiddenError, BadRequestError
+from app.core.exceptions.app_errors import ForbiddenError, BadRequestError
 from app.core.utils import (
     get_json_body, validate_json_fields,
     ORDER_FIELDS, ORDER_ITEM_FIELDS, STATUS

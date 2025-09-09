@@ -1,49 +1,7 @@
 from flask import Flask, jsonify
-from sqlalchemy.exc import (
-    SQLAlchemyError,
-    IntegrityError,
-    OperationalError,
-    DataError,
-    StatementError
-)
-from typing import Type, Dict, Tuple
-
-# Mapping des exceptions ORM
-ORM_ERROR_MAP: Dict[Type[Exception], Tuple[int, str]] = {
-    IntegrityError: (409, "Contrainte d'intégrité violée"),
-    OperationalError: (503, "Service database indisponible"),
-    DataError: (400, "Donnée invalide ou contrainte violée"),
-    StatementError: (500, "Erreur dans la requête SQL"),
-    RuntimeError: (409, "Conflit d'état / ressource")
-}
-
-
-# Classes des exceptions applicatives customisées
-class ApplicationError(Exception):
-    """Exception générique pour toutes les erreurs applicatives."""
-    def __init__(self, message, status_code=400):
-        super().__init__(message)
-        self.status_code = status_code
-
-
-class BadRequestError(ApplicationError):
-    def __init__(self, message):
-        super().__init__(message, status_code=400)
-
-
-class UnauthorizedError(ApplicationError):
-    def __init__(self, message):
-        super().__init__(message, status_code=401)
-
-
-class ForbiddenError(ApplicationError):
-    def __init__(self, message):
-        super().__init__(message, status_code=403)
-
-
-class NotFoundError(ApplicationError):
-    def __init__(self, message):
-        super().__init__(message, status_code=404)
+from sqlalchemy.exc import SQLAlchemyError
+from .exceptions.orm_errors import ORM_ERROR_MAP
+from .exceptions.app_errors import ApplicationError
 
 
 def register_error_handlers(app: Flask) -> None:

@@ -1,7 +1,7 @@
 import pytest
 from flask import g
 from sqlalchemy.orm import Session
-from app.model.database import Base, engine, SessionLocal
+from app.model.database import SessionLocal
 from app.model.models import User, Product, Order, OrderItem
 from app.core.auth_utils import generate_token
 from werkzeug.security import generate_password_hash

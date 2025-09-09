@@ -3,7 +3,7 @@ import jwt
 from functools import wraps
 from app.model.models import User
 from app.model.sessions import get_session
-from app.core.errors_handlers import UnauthorizedError, ForbiddenError
+from app.core.exceptions.app_errors import UnauthorizedError, ForbiddenError
 from typing import Callable, Any
 
 from flask import current_app
