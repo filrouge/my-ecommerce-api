@@ -76,8 +76,7 @@ def register_user(session: Session, email: str,
         date_creation=datetime.now(UTC),
     )
     session.add(user)
-    session.commit()
-    session.refresh(user)
+    session.flush()
 
     return user
 

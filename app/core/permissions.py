@@ -25,21 +25,14 @@ def auth_required(func: Callable) -> Callable:
 
         token = auth_header.split(" ")[1]
         payload = decode_token(token)
-        user_id = payload.get("id")
-        if not user_id:
+        
+        # try:
+        g.current_user = g.session.get(User, payload["id"])
+        if not g.current_user:
             raise UnauthorizedError("Payload Token invalide")
-
-        session = g.session
-        try:
-            user = session.get(User, user_id)
-            if not user:
-                raise UnauthorizedError("Utilisateur introuvable")
-
-            g.current_user = user
-
-            return func(current_user=user, *args, **kwargs)
-        finally:
-            session.close()
+        return func(current_user=g.current_user, *args, **kwargs)
+        # except Exception:
+        #     raise UnauthorizedError("Utilisateur introuvable")
 
     return wrapper
 

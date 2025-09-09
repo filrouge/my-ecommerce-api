@@ -174,7 +174,6 @@ class TestProductUpdate:
         assert resp.status_code == 400
 
         data = resp.get_json()
-        print(data)
         assert "error" in data
         assert any(field in data["error"] for field in ["vide", "int ou float", "valeur négative"])
 

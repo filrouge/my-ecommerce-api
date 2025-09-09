@@ -35,7 +35,9 @@ def create_app() -> FlaskType:
     db_manager = DatabaseManager()
     db_manager.init_db()
 
-    init_session(app)
+    if ENV not in ("testing", "test"):
+        init_session(app)
+
     register_error_handlers(app)
 
     return app
