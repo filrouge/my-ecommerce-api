@@ -3,7 +3,6 @@ import jwt
 from functools import wraps
 from app.model.models import User
 from app.model.sessions import get_session
-from app.config import Config
 from app.core.errors_handlers import UnauthorizedError, ForbiddenError
 from typing import Callable, Any
 

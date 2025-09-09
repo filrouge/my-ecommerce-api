@@ -2,7 +2,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, UTC, timedelta
 from app.model.models import User
 import jwt
-from app.config import Config
 from app.core.errors_handlers import UnauthorizedError, BadRequestError
 from sqlalchemy.orm import Session
 from typing import Tuple

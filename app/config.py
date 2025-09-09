@@ -24,7 +24,7 @@ class TestConfig(Config):
 
 
 class DevConfig(Config):
-    # A mofifier pour contenairisation
+    # A mofifier pour containerisation
     # DATABASE_URL = "sqlite:///:memory:"
     DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR}/database/ecommerce.db")
     DEBUG = True
@@ -35,3 +35,10 @@ class ProdConfig(Config):
     DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR}/database/ecommerce.db")
     JWT_KEY = os.getenv("JWT_KEY", "secret")
     DEBUG = False
+
+
+CONFIG_MAP = {
+    "dev": DevConfig,
+    "testing": TestConfig,
+    "prod": ProdConfig
+}
