@@ -3,26 +3,17 @@ from flask import Request
 
 
 USER_FIELDS: dict[str, type] = {
-    "email": str,
-    "nom": str,
-    "password": str,
-    "role": str
+    "email": str, "nom": str, "password": str, "role": str
 }
 PRODUCT_FIELDS: dict[str, type | tuple[type, ...]] = {
-    "nom": str,
-    "description": str,
-    "categorie": str,
-    "prix": (int, float),
-    "quantite_stock": (int)
+    "nom": str, "description": str, "categorie": str,
+    "prix": (int, float), "quantite_stock": (int)
 }
 ORDER_FIELDS: dict[str, type] = {
-    "produits": list,
-    "adresse_livraison": str,
-    "statut": str
+    "produits": list, "adresse_livraison": str, "statut": str
 }
 ORDER_ITEM_FIELDS: dict[str, type] = {
-    "produit_id": (int),
-    "quantite": (int),
+    "produit_id": (int), "quantite": (int),
 }
 
 STATUS = ["En attente", "Validée", "Expédiée", "Annulée"]
@@ -31,7 +22,6 @@ STATUS = ["En attente", "Validée", "Expédiée", "Annulée"]
 def get_json_body(request: Request) -> dict:
     """
     Vérifie la validité du JSON d'entrée et le renvoie.
-
     Lève une erreur si JSON absent ou invalide.
     """
     if not (body := request.get_json()) or not isinstance(body, dict):
@@ -43,7 +33,6 @@ def get_json_body(request: Request) -> dict:
 def forbidden_fields(body: dict, fields: dict) -> None:
     """
     Vérifie qu'aucun champ non autorisé n'est présent dans body.
-    
     Lève une erreur au moins un champ non autorisé dans body.
     """
     forbidden = [field for field in body if field not in fields]
@@ -54,7 +43,6 @@ def forbidden_fields(body: dict, fields: dict) -> None:
 def required_fields(body: dict, fields: dict, optional_fields: set[str] = None) -> None:
     """
     Vérifie et valide la présence de champs obligatoires.
-
     Lève une erreur si un seul des champs est manquant.
     """
     forbidden_fields(body, fields)
@@ -74,7 +62,6 @@ def required_fields(body: dict, fields: dict, optional_fields: set[str] = None) 
 def check_valid_fields(body: dict, fields: dict) -> None:
     """
     Vérifie la validité d'un champ selon le type et la valeur attendus.
-
     Lève une erreur si champ vide, type incorrect ou valeur négative.
     """
     for field, typ in fields.items():
@@ -94,13 +81,12 @@ def check_valid_fields(body: dict, fields: dict) -> None:
                 )
 
         if isinstance(value, (int, float)) and value < 0:
-            raise BadRequestError(f"Champ {field} invalide: valeur négative")
+            raise BadRequestError(f"Champ {field} avec valeur négative")
 
 
 def validate_json_fields(body: dict, fields: dict, optional_fields: set[str] = None) -> bool:
     """
     Valide le body JSON en vérifiant les clés et les champs.
-
     Lève une erreur si aucun champ attendu.
     """
     required_fields(body, fields, optional_fields)

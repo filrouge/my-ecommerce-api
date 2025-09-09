@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, g, Response
-from app.core.auth import auth_required
+from app.core.permissions import auth_required
 from app.model.models import User
 from typing import Tuple
 

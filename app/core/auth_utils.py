@@ -31,6 +31,19 @@ def generate_token(user: User) -> str:
     return token
 
 
+def decode_token(token: str) -> dict:
+    """Décode un JWT et lève UnauthorizedError si invalide ou expiré."""
+    JWT_KEY = current_app.config.get("JWT_KEY")
+    JWT_ALGO = current_app.config.get("ALGORITHM", "HS256")
+    try:
+        payload = jwt.decode(token, JWT_KEY, JWT_ALGO)
+        return payload
+    except jwt.ExpiredSignatureError:
+        raise UnauthorizedError("Token expiré")
+    except jwt.InvalidTokenError:
+        raise UnauthorizedError("Token invalide")
+
+
 def get_user_by_email(session: Session, email: str) -> User | None:
     '''
     Récupère une instance d'utilisateur par son email (None si inexistant).
