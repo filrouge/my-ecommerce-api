@@ -1,6 +1,6 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, UTC, timedelta
-from app.model.models import User
+from app.models import User
 import jwt
 from app.core.exceptions.app_errors import UnauthorizedError, BadRequestError
 from sqlalchemy.orm import Session

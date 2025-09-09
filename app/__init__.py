@@ -4,13 +4,13 @@ from app.routes.auth_routes import auth_bp
 from app.routes.product_routes import product_bp
 from app.routes.order_routes import order_bp
 
-from app.model.sessions import init_session
+from app.database.sessions import init_session
 from app.core.errors_handlers import register_error_handlers
 from flask.app import Flask as FlaskType
 
 import os
 from .config import CONFIG_MAP
-from app.core.db_manager import DatabaseManager
+from app.database.db_manager import DatabaseManager
 
 
 def create_app() -> FlaskType:

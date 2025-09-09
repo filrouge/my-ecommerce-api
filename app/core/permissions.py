@@ -1,7 +1,7 @@
 from flask import request, g
 import jwt
 from functools import wraps
-from app.model.models import User
+from app.models import User
 from app.core.exceptions.app_errors import UnauthorizedError, ForbiddenError
 from typing import Callable, Any
 

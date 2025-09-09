@@ -1,4 +1,4 @@
-from app.model.models import Product
+from app.models import Product
 from typing import Tuple, Dict
 from flask.testing import FlaskClient
 from sqlalchemy.orm import Session

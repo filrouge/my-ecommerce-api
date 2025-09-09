@@ -1,4 +1,4 @@
-from app.model.database import Base, engine
+from .base import Base, engine
 
 class DatabaseManager:
     """

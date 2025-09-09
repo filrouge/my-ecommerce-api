@@ -1,4 +1,4 @@
-from app.model.models import Order, User, Product
+from app.models import User, Product, Order
 import jwt
 from app.config import Config
 from typing import Tuple

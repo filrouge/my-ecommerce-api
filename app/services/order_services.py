@@ -1,5 +1,5 @@
 from datetime import datetime, UTC
-from app.model.models import Order, OrderItem, User
+from app.models import Order, OrderItem, User
 from app.services.product_services import get_product_id
 from app.core.exceptions.app_errors import NotFoundError, BadRequestError
 from sqlalchemy.orm import Session

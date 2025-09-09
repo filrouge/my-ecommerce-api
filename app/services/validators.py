@@ -1,6 +1,6 @@
 from app.core.exceptions.app_errors import BadRequestError
 from flask import Request
-from app.model.models import User, Product, Order, OrderItem
+from app.models import User, Product, Order, OrderItem
 
 
 USER_FIELDS = User.FIELDS
