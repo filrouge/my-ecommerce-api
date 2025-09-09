@@ -7,10 +7,7 @@ from app.config import Config
 from app.core.errors_handlers import UnauthorizedError, ForbiddenError
 from typing import Callable, Any
 
-
-JWT_KEY = Config.JWT_KEY
-ALGORITHM = Config.ALGORITHM
-
+from flask import current_app
 
 # Décorateur Authentification (token JWT)
 def auth_required(func: Callable) -> Callable:
@@ -28,9 +25,11 @@ def auth_required(func: Callable) -> Callable:
             raise UnauthorizedError("Token manquant")
 
         # !!! Extraire la fonction de vérification et de decodage token !!!
+        JWT_KEY = current_app.config.get("JWT_KEY")
+        JWT_ALGO = current_app.config.get("ALGORITHM", "HS256")
         token = auth_header.split(" ")[1]
         try:
-            current_user = jwt.decode(token, JWT_KEY, algorithms=[ALGORITHM])
+            current_user = jwt.decode(token, JWT_KEY, JWT_ALGO)
         except jwt.ExpiredSignatureError:
             raise UnauthorizedError("Token expiré")
         except jwt.InvalidTokenError:

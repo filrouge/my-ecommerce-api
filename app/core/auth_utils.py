@@ -6,9 +6,7 @@ from app.config import Config
 from app.core.errors_handlers import UnauthorizedError, BadRequestError
 from sqlalchemy.orm import Session
 from typing import Tuple
-
-JWT_KEY = Config.JWT_KEY
-ALGORITHM = Config.ALGORITHM
+from flask import current_app
 
 
 # Générateur de token JWT
@@ -18,13 +16,16 @@ def generate_token(user: User) -> str:
 
     Lève une erreur si la génération du token échoue.
     '''
+    JWT_KEY = current_app.config.get("JWT_KEY")
+    JWT_ALGO = current_app.config.get("ALGORITHM", "HS256")
+
     payload = {
         "id": user.id,
         "email": user.email,
         "role": user.role,
         "exp": datetime.now(UTC) + timedelta(hours=1)
     }
-    token = jwt.encode(payload, JWT_KEY, algorithm=ALGORITHM)
+    token = jwt.encode(payload, JWT_KEY, JWT_ALGO)
     if not token:
         raise RuntimeError("La génération du token a échoué")
 
@@ -46,6 +47,7 @@ def register_user(session: Session, email: str,
 
     Lève une erreur si l'email est déjà utilisé.
     '''
+    #  A SORTIR ET A INTEGRER DANS ROUTES/TESTS/AUTRES !!!
     if get_user_by_email(session, email):
         raise BadRequestError("Adresse e-mail déjà utilisée")
 

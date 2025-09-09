@@ -9,7 +9,7 @@ from app.core.auth_utils import get_user_by_email
 from typing import Tuple, Dict
 from flask.testing import FlaskClient
 from sqlalchemy.orm import Session
-
+from flask import current_app
 
 class TestUserRegister:
 
@@ -82,8 +82,8 @@ class TestUserLogin:
     def test_success(self, test_client: Tuple[FlaskClient, Session],
                      payload: Dict) -> None:
         client, session = test_client
-        JWT_KEY = Config.JWT_KEY
-        ALGORITHM = Config.ALGORITHM
+        JWT_KEY = current_app.config.get("JWT_KEY")
+        JWT_ALGO = current_app.config.get("ALGORITHM", "HS256")
 
         client.post("/api/auth/register", json=payload)
         resp = client.post("/api/auth/login", json={
@@ -96,7 +96,7 @@ class TestUserLogin:
         assert "token" in data
 
         token = data["token"]
-        decoded = jwt.decode(token, JWT_KEY, algorithms=[ALGORITHM])
+        decoded = jwt.decode(token, JWT_KEY, JWT_ALGO)
         assert decoded["email"] == payload["email"]
 
         email = payload.get("email")
