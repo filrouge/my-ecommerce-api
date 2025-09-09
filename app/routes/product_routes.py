@@ -1,10 +1,10 @@
 from flask import request, jsonify, Blueprint, g, Response
-from app.services.product_utils import (
+from app.services.product_services import (
     get_all_products, get_product_id, add_product,
     update_product, delete_product_id, search_product
 )
 from app.core.permissions import access_granted
-from app.core.utils import (
+from app.services.validators import (
     get_json_body, validate_json_fields,
     PRODUCT_FIELDS,
     )

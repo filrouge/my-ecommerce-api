@@ -1,11 +1,11 @@
 from flask import request, Blueprint, jsonify, g, Response
 from app.core.permissions import access_granted
-from app.services.order_utils import (
+from app.services.order_services import (
     get_all_orders, get_order_by_id, create_new_order,
     change_status_order, get_orderitems_all
     )
 from app.core.exceptions.app_errors import ForbiddenError, BadRequestError
-from app.core.utils import (
+from app.services.validators import (
     get_json_body, validate_json_fields,
     ORDER_FIELDS, ORDER_ITEM_FIELDS, STATUS
     )

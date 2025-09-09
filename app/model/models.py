@@ -34,6 +34,10 @@ class User(Base):
             "date_creation": self.date_creation.isoformat() if
             self.date_creation else None
         }
+    
+    FIELDS: dict[str, type] = {
+        "email": str, "nom": str, "password": str, "role": str
+        }
 
 
 class Product(Base):
@@ -61,6 +65,10 @@ class Product(Base):
             "prix": self.prix,
             "quantite_stock": self.quantite_stock
         }
+    
+    FIELDS: dict[str, type | tuple[type, ...]] = {
+    "nom": str, "description": str, "categorie": str, "prix": (int, float), "quantite_stock": (int)
+    }
 
 
 class Order(Base):
@@ -93,6 +101,11 @@ class Order(Base):
             self.date_commande else None,
             "lignes": [item.to_dict() for item in self.items]
         }
+    
+    FIELDS: dict[str, type] = {
+    "produits": list, "adresse_livraison": str, "statut": str
+    }
+    STATUS = ["En attente", "Validée", "Expédiée", "Annulée"]
 
 
 class OrderItem(Base):
@@ -119,3 +132,7 @@ class OrderItem(Base):
             "prix_unitaire": self.prix_unitaire,
             "produit_nom": self.product.nom if self.product else None
         }
+    
+    FIELDS: dict[str, type] = {
+    "produit_id": (int), "quantite": (int),
+    }

@@ -1,6 +1,6 @@
 from flask import request, jsonify, Blueprint, g, Response
 from app.core.auth_utils import register_user, login_user
-from app.core.utils import (
+from app.services.validators import (
     get_json_body,
     validate_json_fields,
     USER_FIELDS

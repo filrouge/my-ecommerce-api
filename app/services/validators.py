@@ -1,22 +1,14 @@
 from app.core.exceptions.app_errors import BadRequestError
 from flask import Request
+from app.model.models import User, Product, Order, OrderItem
 
 
-USER_FIELDS: dict[str, type] = {
-    "email": str, "nom": str, "password": str, "role": str
-}
-PRODUCT_FIELDS: dict[str, type | tuple[type, ...]] = {
-    "nom": str, "description": str, "categorie": str,
-    "prix": (int, float), "quantite_stock": (int)
-}
-ORDER_FIELDS: dict[str, type] = {
-    "produits": list, "adresse_livraison": str, "statut": str
-}
-ORDER_ITEM_FIELDS: dict[str, type] = {
-    "produit_id": (int), "quantite": (int),
-}
+USER_FIELDS = User.FIELDS
+ORDER_FIELDS = Order.FIELDS
+ORDER_ITEM_FIELDS = OrderItem.FIELDS
+PRODUCT_FIELDS = Product.FIELDS
 
-STATUS = ["En attente", "Validée", "Expédiée", "Annulée"]
+STATUS = Order.STATUS
 
 
 def get_json_body(request: Request) -> dict:

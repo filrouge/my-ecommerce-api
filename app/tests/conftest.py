@@ -5,8 +5,8 @@ from app.model.database import SessionLocal
 from app.model.models import User, Product, Order, OrderItem
 from app.core.auth_utils import generate_token
 from werkzeug.security import generate_password_hash
-from app.services.product_utils import add_product
-from app.services.order_utils import create_new_order, get_orderitems_all
+from app.services.product_services import add_product
+from app.services.order_services import create_new_order, get_orderitems_all
 
 from flask.testing import FlaskClient
 from typing import Tuple, Generator, List, Dict, Any
