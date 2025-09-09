@@ -11,6 +11,8 @@ from flask.testing import FlaskClient
 from sqlalchemy.orm import Session
 from flask import current_app
 
+from app.core.auth_utils import jwt_settings
+
 class TestUserRegister:
 
     @pytest.mark.parametrize("payload", [
@@ -82,8 +84,7 @@ class TestUserLogin:
     def test_success(self, test_client: Tuple[FlaskClient, Session],
                      payload: Dict) -> None:
         client, session = test_client
-        JWT_KEY = current_app.config.get("JWT_KEY")
-        JWT_ALGO = current_app.config.get("ALGORITHM", "HS256")
+        JWT_KEY, JWT_ALGO = jwt_settings()
 
         client.post("/api/auth/register", json=payload)
         resp = client.post("/api/auth/login", json={

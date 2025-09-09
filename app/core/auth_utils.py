@@ -8,15 +8,21 @@ from typing import Tuple
 from flask import current_app
 
 
+def jwt_settings() -> Tuple[str, str]:
+    """Retourne un tuple des paramêtres JWT."""
+    return (
+        current_app.config.get("JWT_KEY"),
+        current_app.config.get("ALGORITHM")
+    )
+
+
 # Générateur de token JWT
 def generate_token(user: User) -> str:
     '''
     Génère un token JWT pour un utilisateur donné.
-
     Lève une erreur si la génération du token échoue.
     '''
-    JWT_KEY = current_app.config.get("JWT_KEY")
-    JWT_ALGO = current_app.config.get("ALGORITHM", "HS256")
+    JWT_KEY, JWT_ALGO = jwt_settings()
 
     payload = {
         "id": user.id,
@@ -33,8 +39,8 @@ def generate_token(user: User) -> str:
 
 def decode_token(token: str) -> dict:
     """Décode un JWT et lève UnauthorizedError si invalide ou expiré."""
-    JWT_KEY = current_app.config.get("JWT_KEY")
-    JWT_ALGO = current_app.config.get("ALGORITHM", "HS256")
+    JWT_KEY, JWT_ALGO = jwt_settings()
+
     try:
         payload = jwt.decode(token, JWT_KEY, JWT_ALGO)
         return payload
@@ -59,7 +65,6 @@ def register_user(session: Session, email: str,
 
     Lève une erreur si l'email est déjà utilisé.
     '''
-    #  A SORTIR ET A INTEGRER DANS ROUTES/TESTS/AUTRES !!!
     if get_user_by_email(session, email):
         raise BadRequestError("Adresse e-mail déjà utilisée")
 
