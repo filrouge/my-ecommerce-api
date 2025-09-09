@@ -1,8 +1,7 @@
 from flask import request, jsonify, Blueprint, g, Response
-from app.core.auth_utils import register_user, login_user
+from app.core.auth_utils import register_user, login_user, check_credentials_strength
 from app.services.validators import (
-    get_json_body,
-    validate_json_fields,
+    get_json_body, validate_json_fields,
     USER_FIELDS
     )
 from typing import Tuple
@@ -23,8 +22,8 @@ def register() -> Tuple[Response, int]:
             - int: code HTTP (201, 400 ou 500)
     '''
     body = get_json_body(request)
-
     validate_json_fields(body, USER_FIELDS, {"role"})
+    check_credentials_strength(body)
 
     new_user = register_user(
         g.session,

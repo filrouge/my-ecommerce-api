@@ -54,6 +54,44 @@ class TestUserRegister:
 
 
     @pytest.mark.parametrize("payload", [
+        {"email": "email.com", "nom": "Test", "password": "123456"},
+        {"email": "@email.com", "nom": "Test", "password": "123456"},
+        {"email": "test@", "nom": "Test", "password": "123456"},
+        {"email": "test@@email.com", "nom": "Test", "password": "123456"}
+    ])
+    def test_strange_email(self,
+                             test_client: Tuple[FlaskClient, Session],
+                             payload: Dict) -> None:
+        client, session = test_client
+        client.post("/api/auth/register", json=payload)
+
+        resp = client.post("/api/auth/register", json=payload)
+        assert resp.status_code == 401
+        assert resp.get_json()["error"] == "Email invalide"
+
+        user = session.query(User).filter_by(email=payload["email"]).one_or_none()
+        assert user is None
+
+    
+    @pytest.mark.parametrize("payload", [
+        {"email": "test@email.com", "nom": "Test", "password": "123"},
+        {"email": "test@email.com", "nom": "Test", "password": "1234"}
+    ])
+    def test_short_password(self,
+                             test_client: Tuple[FlaskClient, Session],
+                             payload: Dict) -> None:
+        client, session = test_client
+        client.post("/api/auth/register", json=payload)
+
+        resp = client.post("/api/auth/register", json=payload)
+        assert resp.status_code == 401
+        assert resp.get_json()["error"] == "Mot de passe trop court"
+
+        user = session.query(User).filter_by(email=payload["email"]).one_or_none()
+        assert user is None
+
+
+    @pytest.mark.parametrize("payload", [
         {"email": "just@email.com"},
         {"nom": "justName", "password": "123456"}
     ])
