@@ -4,20 +4,20 @@ from app.routes.auth_routes import auth_bp
 from app.routes.product_routes import product_bp
 from app.routes.order_routes import order_bp
 
-from app.model.database import Base, engine
 from app.model.sessions import init_session
 from app.core.errors_handlers import register_error_handlers
 from flask.app import Flask as FlaskType
 
 import os
 from .config import CONFIG_MAP
+from app.core.db_manager import DatabaseManager
 
 
 def create_app() -> FlaskType:
     '''
     Point d'entrée de la Factory Flask assurant :
         - l'enregistrement des routes via Blueprints
-        - la creation des tables si inexistantes
+        - la creation des tables si inexistantes -> migré vers init_db.py
         - l'intégration des exceptions handlers
     '''
     # Config selon export FLASK_ENV
@@ -32,9 +32,11 @@ def create_app() -> FlaskType:
     app.register_blueprint(product_bp, url_prefix="/api/produits")
     app.register_blueprint(order_bp, url_prefix="/api/commandes")
 
-    Base.metadata.create_all(bind=engine)
+    db_manager = DatabaseManager()
+    db_manager.init_db()
 
     init_session(app)
     register_error_handlers(app)
 
     return app
+

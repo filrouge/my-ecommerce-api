@@ -12,6 +12,7 @@ from flask.testing import FlaskClient
 from typing import Tuple, Generator, List, Dict, Any
 from app import create_app
 import os
+from app.core.db_manager import DatabaseManager
 
 # Force TestConfig à la creation de app
 os.environ["FLASK_ENV"] = "testing"
@@ -29,11 +30,12 @@ def setup_db() -> Generator[Tuple, None, None]:
     """
     app = create_app()
     app.config["TESTING"] = True
-   
-    Base.metadata.create_all(bind=engine)
+
+    db_manager = DatabaseManager()
+    db_manager.init_db()
     yield app, SessionLocal
 
-    Base.metadata.drop_all(bind=engine)
+    db_manager.close_db()
 
 
 @pytest.fixture(scope="function")
