@@ -1,5 +1,4 @@
 from flask import request, g
-import jwt
 from functools import wraps
 from app.models import User
 from app.core.exceptions.app_errors import UnauthorizedError, ForbiddenError
