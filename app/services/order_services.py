@@ -1,7 +1,7 @@
 from datetime import datetime, UTC
-from model.models import Order, OrderItem, User
-from services.product_utils import get_product_id
-from core.errors_handlers import NotFoundError, BadRequestError
+from app.models import Order, OrderItem, User
+from app.services.product_services import get_product_id
+from app.core.exceptions.app_errors import NotFoundError, BadRequestError
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
@@ -52,8 +52,7 @@ def create_new_order(session: Session, user_id: int,
         date_commande=datetime.now(UTC).date()
     )
     session.add(order)
-    # session.flush()  # génère l'ID de la commande
-    session.commit()
+    session.flush()  # génère l'ID de la commande
 
     for item in items:
         product = get_product_id(session, item["produit_id"])
@@ -73,8 +72,7 @@ def create_new_order(session: Session, user_id: int,
 
         product.quantite_stock -= order_item.quantite
 
-    session.commit()
-    session.refresh(order)
+    session.flush()
     return order
 
 
@@ -100,6 +98,6 @@ def change_status_order(session: Session,
     order = get_order_by_id(session, order_id)
     order.statut = new_status
 
-    session.commit()
+    session.flush()
     session.refresh(order)
     return order

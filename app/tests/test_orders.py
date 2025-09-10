@@ -1,4 +1,4 @@
-from model.models import Order, User, Product
+from app.models import Product, Order
 import jwt
 from config import Config
 from typing import Tuple
@@ -165,3 +165,16 @@ class TestOrderUpdate:
         assert any(field in data["error"] for field in ['invalide', 'vide'])
         db_order = session.get(Order, order.id)
         assert db_order is not None and db_order.statut == "En attente"
+
+    def test_order_no_stock(self, test_client: Tuple[FlaskClient, Session], client_token: str, feed_product: list[Product]) -> None:
+        client, _ = test_client
+        headers = {"Authorization": f"Bearer {client_token}"}
+        data = {
+            "adresse_livraison": "inconnue",
+            "produits": [{"produit_id": feed_product[0].id, "quantite": 99}]
+        }
+        resp = client.post("/api/commandes", json=data, headers=headers)
+        data = resp.get_json()
+
+        assert resp.status_code == 400
+        assert "stock insuffisant" in data["error"].lower()

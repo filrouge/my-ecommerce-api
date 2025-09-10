@@ -1,34 +1,53 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, UTC, timedelta
-from model.models import User
+from app.models import User
 import jwt
-from config import Config
-from core.errors_handlers import UnauthorizedError, BadRequestError
+from app.core.exceptions.app_errors import UnauthorizedError, BadRequestError
 from sqlalchemy.orm import Session
 from typing import Tuple
+from flask import current_app
 
-JWT_KEY = Config.JWT_KEY
-ALGORITHM = Config.ALGORITHM
+
+def jwt_settings() -> Tuple[str, str]:
+    """Retourne un tuple des paramêtres JWT."""
+    return (
+        current_app.config.get("JWT_KEY"),
+        current_app.config.get("ALGORITHM")
+    )
 
 
 # Générateur de token JWT
 def generate_token(user: User) -> str:
     '''
     Génère un token JWT pour un utilisateur donné.
-
     Lève une erreur si la génération du token échoue.
     '''
+    JWT_KEY, JWT_ALGO = jwt_settings()
+
     payload = {
         "id": user.id,
         "email": user.email,
         "role": user.role,
         "exp": datetime.now(UTC) + timedelta(hours=1)
     }
-    token = jwt.encode(payload, JWT_KEY, algorithm=ALGORITHM)
+    token = jwt.encode(payload, JWT_KEY, JWT_ALGO)
     if not token:
         raise RuntimeError("La génération du token a échoué")
 
     return token
+
+
+def decode_token(token: str) -> dict:
+    """Décode un JWT et lève UnauthorizedError si invalide ou expiré."""
+    JWT_KEY, JWT_ALGO = jwt_settings()
+
+    try:
+        payload = jwt.decode(token, JWT_KEY, JWT_ALGO)
+        return payload
+    except jwt.ExpiredSignatureError:
+        raise UnauthorizedError("Token expiré")
+    except jwt.InvalidTokenError:
+        raise UnauthorizedError("Token invalide")
 
 
 def get_user_by_email(session: Session, email: str) -> User | None:
@@ -36,6 +55,20 @@ def get_user_by_email(session: Session, email: str) -> User | None:
     Récupère une instance d'utilisateur par son email (None si inexistant).
     '''
     return session.query(User).filter_by(email=email).first()
+
+
+def check_credentials_strength(body: dict)-> bool:
+    """Vérifie et valide le format des credentials."""
+    email, password = body.get("email"), body.get("password")
+    PWD_LENGTH = 4
+
+    if email.count("@") != 1 or email.startswith("@") or email.endswith("@"):
+        raise UnauthorizedError("Email invalide")
+    
+    if len(password) <= PWD_LENGTH:
+        raise UnauthorizedError("Mot de passe trop court")
+    
+    return True
 
 
 def register_user(session: Session, email: str,
@@ -57,8 +90,7 @@ def register_user(session: Session, email: str,
         date_creation=datetime.now(UTC),
     )
     session.add(user)
-    session.commit()
-    session.refresh(user)
+    session.flush()
 
     return user
 

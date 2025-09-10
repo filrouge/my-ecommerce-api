@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify, g, Response
-from core.auth import auth_required
-from model.models import User
-from model.sessions import get_session
+from app.core.permissions import auth_required
+from app.models import User
 from typing import Tuple
 
 main_bp = Blueprint("main", __name__)
@@ -23,9 +22,8 @@ def list_users(current_user: User) -> Tuple[Response, int] | Response:
     if current_user.role != "admin":
         return jsonify({"error": "Accès refusé"}), 403
 
-    session = get_session()
     try:
-        users = session.query(User).all()
+        users = g.session.query(User).all()
         return jsonify([u.to_dict() for u in users])
     except Exception as e:
         return jsonify({"error": f"Erreur de sérialisation : {str(e)}"}), 500

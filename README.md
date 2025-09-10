@@ -40,50 +40,73 @@ Fonctionnalités principales :
 ```
 my-ecommerce-api/
 │
-├── app.py                      # Point d’entrée API (+ Blueprints)
-├── config.py                   # Configuration Flask/SQLAlchemy
+├── app/
+│    ├── __init__.py                 # Factory Flask (+ Blueprints)
+│    ├── app.py                      # Point d’entrée API
+│    │
+│    ├── core/                       # Middleware sécurité (JWT, accès, error handlers)
+│    │   ├── __init__.py
+│    │   │
+│    │   ├── auth_utils.py
+│    │   ├── errors_handlers.py
+│    │   ├── permissions.py
+│    │   │
+│    │   └── exceptions/
+│    │       ├── app_errors.py
+│    │       └── orm_errors.py
+│    │
+│    ├── database/                    # ORM SQLAlchemy (gestion de la base/sessions)
+│    │   ├── __init__.py
+│    │   │
+│    │   ├── base.py
+│    │   ├── db_manager.py
+│    │   └── sessions.py            
+│    │
+│    ├── models/                      # Modèles SQLAlchemy
+│    │   ├── __init__.py
+│    │   │
+│    │   ├── items.py
+│    │   ├── orders.py
+│    │   ├── products.py
+│    │   └── users.py
+│    │
+│    ├── routes/                      # Routes (`api/auth`, `/api/produits*`, `/api/commandes*`)
+│    │   ├── __init__.py
+│    │   │
+│    │   ├── auth_routes.py
+│    │   ├── main_routes.py
+│    │   ├── order_routes.py
+│    │   └── product_routes.py
+│    │
+│    ├── services/                    # Logique métier (+ validation JSON)
+│    │   ├── __init__.py
+│    │   │
+│    │   ├── order_services.py
+│    │   ├── product_servicess.py
+│    │   └── validators.py
+│    │
+│    └── tests/                       # Tests unitaires/fonctionnels (+ fixtures)
+│        ├── __init__.py
+│        │
+│        ├── conftest.py
+│        ├── report.html
+│        ├── test_orders.py
+│        ├── test_products.py
+│        └── test_users.py
 │
-├── core/                       # Middleware sécurité (JWT, accès, validation JSON, error handlers)
-│   ├── __init__.py
-│   ├── auth_utils.py
-│   ├── auth.py
-│   ├── errors_handlers.py
-│   └── utils.py
 │
-├── database/                   # (optionnel pour les tests)
-│
-├── docs/                       # Documentations API / Tests
-│   ├── api_endpoints.md
-│   └── tests.md
-│
-├── model/                      # ORM SQLAlchemy (mdolèles, gestion des sessions)
-│   ├── __init__.py
-│   ├── database.py
-│   ├── sessions.py
-│   └── models.py
-│
-├── routes/                     # Routes (`api/auth`, `/api/produits*`, `/api/commandes*`)
-│   ├── __init__.py
-│   ├── auth_routes.py
-│   ├── main_routes.py
-│   ├── order_routes.py
-│   └── product_routes.py
-│
-├── services/                   # Logique métier
-│   ├── __init__.py
-│   ├── product_utils.py
-│   └── order_utils.py
-│
-├── tests/                      # Tests unitaires/fonctionnels (+ fixtures)
-│   ├── __init__.py
-│   ├── conftest.py
-│   ├── report.html
-│   ├── test_users.py
-│   ├── test_products.py
-│   └── test_orders.py
+├── docs/                             # Documentations API / Tests      
+│    ├── api_endpoints.md
+│    ├── tests.md
+│    └── img/
+│        ├── server-flask.png
+│        └── others_to_come.png
 │
 ├── .gitignore
-├── requirements.txt            # Liste des dépendances python
+├── .env_template                     # Liste les variables environnement
+├── config.py                         # Configuration (Flask/SQLAlchemy + env)
+├── pytest.ini                        # Configuration Pytest
+├── requirements.txt                  # Liste des dépendances python
 └── README.md
 ```
 
@@ -150,13 +173,21 @@ DATABASE_URL=sqlite:///path-to-database.db
 JWT_SECRET_KEY=your-jwt-secret
 ```
 
+<!-- 
+A compléter 
+introduire .env et .env_template
+FLASK_ENV dans Config
+pytest.ini
+ -->
+
+
 <br>
 
 ### ▶️ Lancement
 
-Exécutez `python app.py` ou `flask run --debug`.  
+Exécutez `python app.app.py` ou `flask run --debug`.  
 
-![Server Flask](server-flask.png)
+![Server Flask](docs/img/server-flask.png)
 
 <br>
 
@@ -165,6 +196,14 @@ Exécutez `python app.py` ou `flask run --debug`.
 > ⚠️ Lancez le serveur en mode DEBUG pour développement uniquement
 
 <br>
+
+<!-- 
+export FLASK_ENV= ? sinon
+
+dev : `FLASK_ENV=dev `python -m app.app` ou `flask run`
+test : `FLASK_ENV=testing pytest -v`
+prod : `FLASK_ENV=prod gunicorn app:app`
+ -->
 
 ---
 
@@ -198,7 +237,9 @@ Les tests unitaires s'appuient sur la librairie `pytest` et couvrent les points 
     ✅ *Commandes* : création, consultation, modification  
     ✅ *Erreurs* : validation, restriction, exécution  
 
-<!-- TODO : pytest.ini + fixture parametrize pour alléger -->
+<!-- 
+pytest.ini !!!!
+ -->
 
 <br>
 
@@ -209,10 +250,8 @@ Les tests unitaires s'appuient sur la librairie `pytest` et couvrent les points 
 ---
 
 #### 📌 TODO
-> - Refactoring des tests (fixtures)
 > - Add-ons:
+>     - Harmoniser le typing (natif) / docstring
+>     - OOP (si léger refactoring)
 >     - Logger & Monitoring
->     - Jeux de données (script `seed_data.py`)
->     - Tests d’intégration end-to-end
 >     - Dockérisation
->     - Intégration CI/CD (`GitHub Actions`)

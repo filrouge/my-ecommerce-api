@@ -1,9 +1,7 @@
 from flask import request, jsonify, Blueprint, g, Response
-from model.sessions import get_session
-from core.auth_utils import register_user, login_user
-from core.utils import (
-    get_json_body,
-    validate_json_fields,
+from app.core.auth_utils import register_user, login_user, check_credentials_strength
+from app.services.validators import (
+    get_json_body, validate_json_fields,
     USER_FIELDS
     )
 from typing import Tuple
@@ -11,7 +9,7 @@ from typing import Tuple
 auth_bp = Blueprint("auth", __name__)
 
 
-# Routes :
+# POST /api/auth/register
 @auth_bp.route('/register', methods=['POST'])
 def register() -> Tuple[Response, int]:
     '''
@@ -24,8 +22,8 @@ def register() -> Tuple[Response, int]:
             - int: code HTTP (201, 400 ou 500)
     '''
     body = get_json_body(request)
-
     validate_json_fields(body, USER_FIELDS, {"role"})
+    check_credentials_strength(body)
 
     new_user = register_user(
         g.session,
@@ -39,6 +37,7 @@ def register() -> Tuple[Response, int]:
         ), 201
 
 
+# POST /api/auth/login
 @auth_bp.route("/login", methods=["POST"])
 def login() -> Tuple[Response, int]:
     """
@@ -53,10 +52,8 @@ def login() -> Tuple[Response, int]:
     body = get_json_body(request)
     validate_json_fields(body, USER_FIELDS, {"nom", "role"})
 
-    session = get_session()
-
     token, _ = login_user(
-        session,
+        g.session,
         email=body["email"], password=body["password"]
         )
     return jsonify(

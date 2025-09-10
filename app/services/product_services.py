@@ -1,5 +1,5 @@
-from model.models import Product
-from core.errors_handlers import NotFoundError
+from app.models import Product
+from app.core.exceptions.app_errors import NotFoundError
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
@@ -30,9 +30,7 @@ def add_product(session: Session, **kwargs) -> Product:
     product = Product(**kwargs)
 
     session.add(product)
-    session.commit()
-    # session.flush()
-    session.refresh(product)
+    session.flush()
     return product
 
 
@@ -45,8 +43,7 @@ def update_product(session: Session, produit_id: int, **kwargs) -> Product:
     for field, value in kwargs.items():
         setattr(product, field, value)
 
-    session.commit()
-    # session.flush()
+    session.flush()
     session.refresh(product)
     return product
 
@@ -58,8 +55,7 @@ def delete_product_id(session: Session, produit_id: int) -> bool:
     product = get_product_id(session, produit_id)
 
     session.delete(product)
-    session.commit()
-    # session.flush()
+    session.flush()
     return True
 
 

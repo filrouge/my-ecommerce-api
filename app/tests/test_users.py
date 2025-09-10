@@ -2,14 +2,16 @@ import pytest
 import jwt
 from datetime import datetime
 from werkzeug.security import check_password_hash
-from model.models import User
-from config import Config
-from core.auth_utils import get_user_by_email
+from app.models import User
+# from app.config import Config
+from app.core.auth_utils import get_user_by_email
 
 from typing import Tuple, Dict
 from flask.testing import FlaskClient
 from sqlalchemy.orm import Session
+# from flask import current_app
 
+from app.core.auth_utils import jwt_settings
 
 class TestUserRegister:
 
@@ -52,6 +54,44 @@ class TestUserRegister:
 
 
     @pytest.mark.parametrize("payload", [
+        {"email": "email.com", "nom": "Test", "password": "123456"},
+        {"email": "@email.com", "nom": "Test", "password": "123456"},
+        {"email": "test@", "nom": "Test", "password": "123456"},
+        {"email": "test@@email.com", "nom": "Test", "password": "123456"}
+    ])
+    def test_strange_email(self,
+                             test_client: Tuple[FlaskClient, Session],
+                             payload: Dict) -> None:
+        client, session = test_client
+        client.post("/api/auth/register", json=payload)
+
+        resp = client.post("/api/auth/register", json=payload)
+        assert resp.status_code == 401
+        assert resp.get_json()["error"] == "Email invalide"
+
+        user = session.query(User).filter_by(email=payload["email"]).one_or_none()
+        assert user is None
+
+    
+    @pytest.mark.parametrize("payload", [
+        {"email": "test@email.com", "nom": "Test", "password": "123"},
+        {"email": "test@email.com", "nom": "Test", "password": "1234"}
+    ])
+    def test_short_password(self,
+                             test_client: Tuple[FlaskClient, Session],
+                             payload: Dict) -> None:
+        client, session = test_client
+        client.post("/api/auth/register", json=payload)
+
+        resp = client.post("/api/auth/register", json=payload)
+        assert resp.status_code == 401
+        assert resp.get_json()["error"] == "Mot de passe trop court"
+
+        user = session.query(User).filter_by(email=payload["email"]).one_or_none()
+        assert user is None
+
+
+    @pytest.mark.parametrize("payload", [
         {"email": "just@email.com"},
         {"nom": "justName", "password": "123456"}
     ])
@@ -82,8 +122,7 @@ class TestUserLogin:
     def test_success(self, test_client: Tuple[FlaskClient, Session],
                      payload: Dict) -> None:
         client, session = test_client
-        JWT_KEY = Config.JWT_KEY
-        ALGORITHM = Config.ALGORITHM
+        JWT_KEY, JWT_ALGO = jwt_settings()
 
         client.post("/api/auth/register", json=payload)
         resp = client.post("/api/auth/login", json={
@@ -96,7 +135,7 @@ class TestUserLogin:
         assert "token" in data
 
         token = data["token"]
-        decoded = jwt.decode(token, JWT_KEY, algorithms=[ALGORITHM])
+        decoded = jwt.decode(token, JWT_KEY, JWT_ALGO)
         assert decoded["email"] == payload["email"]
 
         email = payload.get("email")

@@ -1,17 +1,22 @@
+import os
 import pytest
 from flask import g
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
-from app import create_app
-from model.database import Base
-from model.models import User, Product, Order, OrderItem
-from core.auth_utils import generate_token
+from sqlalchemy.orm import Session
+from app.database.base import SessionLocal
+from app.models import User, Product, Order, OrderItem
+from app.core.auth_utils import generate_token
 from werkzeug.security import generate_password_hash
-from services.product_utils import add_product
-from services.order_utils import create_new_order, get_orderitems_all
+from app.services.product_services import add_product
+from app.services.order_services import create_new_order, get_orderitems_all
 
 from flask.testing import FlaskClient
 from typing import Tuple, Generator, List, Dict, Any
+from app import create_app
+from app.database.db_manager import DatabaseManager
+
+
+# Force TestConfig à la creation de app
+os.environ["FLASK_ENV"] = "testing"
 
 
 @pytest.fixture(scope="session")
@@ -22,20 +27,16 @@ def setup_db() -> Generator[Tuple, None, None]:
 
     Retourne un tuple :
         - Flask app (configurée pour les tests)
-        - sessionmaker (lié à la base en mémoire)
+        - SessionLocal (définie fois dans database.py)
     """
     app = create_app()
     app.config["TESTING"] = True
 
-    engine = create_engine("sqlite:///:memory:", echo=False)
-
-    # -> autoflush=True, autocommit=True pour souci commit() en PROD
-    SessionLocal = sessionmaker(bind=engine)
-
-    Base.metadata.create_all(bind=engine)
+    db_manager = DatabaseManager()
+    db_manager.init_db()
     yield app, SessionLocal
 
-    Base.metadata.drop_all(bind=engine)
+    db_manager.close_db()
 
 
 @pytest.fixture(scope="function")
@@ -98,14 +99,6 @@ def client_token(test_client) -> str:
     session.add(user)
     session.commit()
     return generate_token(user)
-
-
-# @pytest.fixture(scope="function")
-# def visitor_only(test_client):
-#     """
-#     Crée un utilisateur sans authentification ni autorisation.
-#     """
-#     return None
 
 
 @pytest.fixture(scope="function")
@@ -182,3 +175,11 @@ def feed_order(test_client, client_token, feed_product) -> Dict[str, Any]:
         "utilisateur_id": user.id,
         "email": user.email
         }
+
+
+# @pytest.fixture(scope="function")
+# def visitor_only(test_client):
+#     """
+#     Crée un utilisateur sans authentification ni autorisation.
+#     """
+#     return None

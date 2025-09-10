@@ -1,5 +1,5 @@
 from flask import g, Flask
-from model.database import SessionLocal
+from .base import SessionLocal
 from sqlalchemy.orm import Session
 from typing import Optional
 

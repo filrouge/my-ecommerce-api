@@ -1,22 +1,18 @@
 from flask import request, g
 import jwt
 from functools import wraps
-from model.models import User
-from model.sessions import get_session
-from config import Config
-from core.errors_handlers import UnauthorizedError, ForbiddenError
+from app.models import User
+from app.core.exceptions.app_errors import UnauthorizedError, ForbiddenError
 from typing import Callable, Any
 
-
-JWT_KEY = Config.JWT_KEY
-ALGORITHM = Config.ALGORITHM
-
+from app.core.auth_utils import decode_token
 
 # Décorateur Authentification (token JWT)
 def auth_required(func: Callable) -> Callable:
     '''
     Vérifie la présence et la validité du token
     dans l'en-tête `Authorization: Bearer <token>`.
+    Utilise g.session pour les requêtes SQLAlchemy.
 
     Retourne une fonction décorée appliquant la vérification JWT.
     Lève une erreur si token expiré, invalide ou manquant.
@@ -27,31 +23,16 @@ def auth_required(func: Callable) -> Callable:
         if not auth_header or not auth_header.startswith("Bearer "):
             raise UnauthorizedError("Token manquant")
 
-        # !!! Extraire la fonction de vérification et de decodage token !!!
         token = auth_header.split(" ")[1]
-        try:
-            current_user = jwt.decode(token, JWT_KEY, algorithms=[ALGORITHM])
-        except jwt.ExpiredSignatureError:
-            raise UnauthorizedError("Token expiré")
-        except jwt.InvalidTokenError:
-            raise UnauthorizedError("Token invalide")
-
-        user_id = current_user.get("id")
-        if not user_id:
+        payload = decode_token(token)
+        
+        # try:
+        g.current_user = g.session.get(User, payload["id"])
+        if not g.current_user:
             raise UnauthorizedError("Payload Token invalide")
-
-        session = get_session()
-        try:
-            user = session.get(User, user_id)
-            if not user:
-                raise UnauthorizedError("Utilisateur introuvable")
-
-            # Ajouter g.current_user: absent -> echec sur "commandes" !
-            g.current_user = user
-
-            return func(current_user=user, *args, **kwargs)
-        finally:
-            session.close()
+        return func(current_user=g.current_user, *args, **kwargs)
+        # except Exception:
+        #     raise UnauthorizedError("Utilisateur introuvable")
 
     return wrapper
 
