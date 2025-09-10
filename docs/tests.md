@@ -27,17 +27,6 @@ tests/
 > Modifiez la ligne suivante pour utiliser une base dédiée (fichier `database_test.db`) :
 `engine = create_engine("sqlite:///:memory:", echo=False)`  
 
-<!--
-TODO  
-> Il faudra également modifier le session.flush() par un session.commit() "manuel" sur chaque test:
-```python
-session.commit()
-# session.flush()
-session.refresh(product)
-return product
-```
--->
-
 <br>
 
 ### ▶️ Exécution
@@ -100,5 +89,5 @@ Les tests couvrent, entre-autres, les points suivants:
 
 <br>
 
-######## ℹ️ TODO
+######## ℹ️ TODO ?
 - Rapport de couverture : pytest --cov=.

@@ -1,3 +1,4 @@
+import os
 import pytest
 from flask import g
 from sqlalchemy.orm import Session
@@ -11,8 +12,8 @@ from app.services.order_services import create_new_order, get_orderitems_all
 from flask.testing import FlaskClient
 from typing import Tuple, Generator, List, Dict, Any
 from app import create_app
-import os
 from app.database.db_manager import DatabaseManager
+
 
 # Force TestConfig à la creation de app
 os.environ["FLASK_ENV"] = "testing"

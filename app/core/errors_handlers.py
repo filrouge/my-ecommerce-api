@@ -5,7 +5,7 @@ from .exceptions.app_errors import ApplicationError
 
 
 def register_error_handlers(app: Flask) -> None:
-    # Handler pour les erreurs applicatives
+
     @app.errorhandler(ApplicationError)
     def handle_app_exceptions(error: ApplicationError):
         if isinstance(error, ApplicationError):
@@ -15,7 +15,7 @@ def register_error_handlers(app: Flask) -> None:
 
     @app.errorhandler(SQLAlchemyError)
     def handle_orm_exceptions(error: SQLAlchemyError):
-        # # Pour DEBUG seulement -- centraliser condition PROD/DEV ?
+        # # Pour DEBUG seulement -- conf PROD/DEV centralisée ?
         # if isinstance(error, IntegrityError):
         #     return jsonify({
         #         "error": f"Database - Contrainte d'intégrité violée \

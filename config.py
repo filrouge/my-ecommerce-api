@@ -3,16 +3,14 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent
 load_dotenv(dotenv_path=BASE_DIR / ".env")
-BASE_DIR = str(BASE_DIR)
 
 
 class Config:
-    PATH = BASE_DIR
     JWT_KEY = os.getenv("JWT_KEY", "secret")
     ALGORITHM = os.getenv("ALGORITHM", "HS256")
-    DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{PATH}/database/ecommerce.db")
+    DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR}/database/ecommerce.db")
     TESTING = False
     DEBUG = False
 

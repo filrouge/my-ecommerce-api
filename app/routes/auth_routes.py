@@ -9,7 +9,7 @@ from typing import Tuple
 auth_bp = Blueprint("auth", __name__)
 
 
-# Routes :
+# POST /api/auth/register
 @auth_bp.route('/register', methods=['POST'])
 def register() -> Tuple[Response, int]:
     '''
@@ -37,6 +37,7 @@ def register() -> Tuple[Response, int]:
         ), 201
 
 
+# POST /api/auth/login
 @auth_bp.route("/login", methods=["POST"])
 def login() -> Tuple[Response, int]:
     """

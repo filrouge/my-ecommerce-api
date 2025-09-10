@@ -3,7 +3,6 @@ from __future__ import annotations
 from app.database.base import Base
 from sqlalchemy import Integer, Float, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from typing import List
 
 
 class OrderItem(Base):

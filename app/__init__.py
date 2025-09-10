@@ -9,7 +9,7 @@ from app.core.errors_handlers import register_error_handlers
 from flask.app import Flask as FlaskType
 
 import os
-from .config import CONFIG_MAP
+from config import CONFIG_MAP
 from app.database.db_manager import DatabaseManager
 
 
