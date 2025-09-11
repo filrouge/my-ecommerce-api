@@ -239,6 +239,8 @@ Les tests unitaires s'appuient sur la librairie `pytest` et couvrent les points 
 
 <!-- 
 pytest.ini !!!!
+
+"Ajout d’un rapport de couverture" avec  `pytest --cov=mon_projet --cov-report=term-missing`
  -->
 
 <br>

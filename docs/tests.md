@@ -27,6 +27,23 @@ tests/
 > Modifiez la ligne suivante pour utiliser une base dédiée (fichier `database_test.db`) :
 `engine = create_engine("sqlite:///:memory:", echo=False)`  
 
+<!-- 
+au niveu config.py ou __init__.py sinon terminal via export FLASK_ENV = "dev"
+    # `app.config["TESTING"] = True`  
+    # `app.config["DEBUG"] = True`  
+
+"Ajouter rapport de couverture":
+  `pytest --cov=mon_projet --cov-report=term-missing`
+   pytest --cov=. --cov-report=term --cov-report=html
+  `pytest --cov=core --cov=model --cov=routes --cov=services --cov-report=term --cov-report=html`
+
+pytest.ini !!!!
+[pytest]
+addopts = --cov=core --cov=model --cov=routes --cov=services --cov-report=term --cov-report=html
+ -->
+
+
+
 <br>
 
 ### ▶️ Exécution
@@ -79,6 +96,25 @@ Les tests couvrent, entre-autres, les points suivants:
     - Consultation de tous les commandes (`admin`)
     - Consultation des lignes d'une commande  (# `public` !!!)
     - Modification de statut d’une commande (`admin`)
+
+<!-- 
+Couvertures incluses
+    Validation présence email, nom, password.
+    Vérification utilisateur existant par email.
+    @auth_required
+    @access_granted
+    creation de produit interdit (non-admin)
+    creation de produit avec champs optionnels
+    creation avec champs obligatoire manquants
+    update interdit (non-admin)
+    update echec (champs invalides)
+    suppression interdite / produit inexistant
+    item inexistant
+    update order interdit (non-client)
+    update order (statut inconnu)
+    order echec (pas de stock)
+
+ -->
 
 <br>
 
