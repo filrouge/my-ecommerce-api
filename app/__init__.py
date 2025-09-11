@@ -5,7 +5,7 @@ from app.routes.product_routes import product_bp
 from app.routes.order_routes import order_bp
 
 from app.database.sessions import init_session
-from app.core.errors_handlers import register_error_handlers
+from .errors_handlers import register_error_handlers
 from flask.app import Flask as FlaskType
 
 import os
