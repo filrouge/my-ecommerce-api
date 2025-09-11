@@ -84,12 +84,6 @@ def create_product() -> Tuple[Response, int]:
         pour toute erreur base
     """
     body = get_json_body(request)
-
-    # REQUIRED_FIELDS = {
-    #     k: v for k, v in PRODUCT_FIELDS.items()
-    #     if k not in {"description", "quantite_stock"}
-    #     }
-    # required_fields(body, REQUIRED_FIELDS)
     validate_json_fields(body, PRODUCT_FIELDS, {"description", "quantite_stock"})
 
     product = add_product(

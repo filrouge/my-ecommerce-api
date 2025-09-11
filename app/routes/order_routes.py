@@ -42,7 +42,6 @@ def get_order_id(id: int) -> Tuple[Response, int]:
 
     Lève une erreur ForbiddenError si utilisateur non autorisé
     """
-    # current_user = g.current_user
     order = get_order_by_id(g.session, id)
     if (g.current_user.role != "admin"
             and order.utilisateur_id != g.current_user.id):
