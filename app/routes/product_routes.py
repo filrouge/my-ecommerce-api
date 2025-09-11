@@ -3,7 +3,7 @@ from app.services.product_services import (
     get_all_products, get_product_id, add_product,
     update_product, delete_product_id, search_product
 )
-from app.core.permissions import access_granted
+from app.core.auth_decorators import access_granted
 from app.services.validators import (
     get_json_body, validate_json_fields,
     PRODUCT_FIELDS,
@@ -84,12 +84,6 @@ def create_product() -> Tuple[Response, int]:
         pour toute erreur base
     """
     body = get_json_body(request)
-
-    # REQUIRED_FIELDS = {
-    #     k: v for k, v in PRODUCT_FIELDS.items()
-    #     if k not in {"description", "quantite_stock"}
-    #     }
-    # required_fields(body, REQUIRED_FIELDS)
     validate_json_fields(body, PRODUCT_FIELDS, {"description", "quantite_stock"})
 
     product = add_product(

@@ -29,7 +29,7 @@ Fonctionnalités principales :
 - 🛒 *Gestion des commandes*  
 <br>
 
-> 📂 Consultez la documentation [docs/api_endpoints.md](docs/api_endpoints.md) pour plus d’informations sur l'architecture et les fonctionnalités de l'API.
+> 📂 Consultez la documentation [api_endpoints.md](docs/api_endpoints.md) pour plus d’informations sur l'architecture et les fonctionnalités de l'API.
 
 <br>
 
@@ -222,7 +222,7 @@ Ce tableau offre une synthèse des *body* attendus pour les fonctionnalités pri
 
 <br>
 
-> 📂 Consultez la documentation [docs/api_endpoints.md](docs/api_endpoints.md) pour plus d’informations sur les endpoints (routes, formats JSON, exemples cURL...), et la gestion des erreurs (couverture, cas, messages...).
+> 📂 Consultez la documentation [api_endpoints.md](docs/api_endpoints.md) pour plus d’informations sur les endpoints (routes, formats JSON, exemples cURL...), et la gestion des erreurs (couverture, cas, messages...).
 
 <br>
 
@@ -239,11 +239,13 @@ Les tests unitaires s'appuient sur la librairie `pytest` et couvrent les points 
 
 <!-- 
 pytest.ini !!!!
+
+"Ajout d’un rapport de couverture" avec  `pytest --cov=mon_projet --cov-report=term-missing`
  -->
 
 <br>
 
-> 📂 Consultez [docs/tests.md](docs/tests.md) pour plus d’informations sur les tests (couverture fonctionnalités / erreurs).
+> 📂 Consultez [tests.md](docs/tests.md) pour plus d’informations sur les tests (couverture fonctionnalités / erreurs).
 
 <br>
 

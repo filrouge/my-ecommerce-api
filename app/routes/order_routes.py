@@ -1,5 +1,5 @@
 from flask import request, Blueprint, jsonify, g, Response
-from app.core.permissions import access_granted
+from app.core.auth_decorators import access_granted
 from app.services.order_services import (
     get_all_orders, get_order_by_id, create_new_order,
     change_status_order, get_orderitems_all
@@ -42,7 +42,6 @@ def get_order_id(id: int) -> Tuple[Response, int]:
 
     Lève une erreur ForbiddenError si utilisateur non autorisé
     """
-    # current_user = g.current_user
     order = get_order_by_id(g.session, id)
     if (g.current_user.role != "admin"
             and order.utilisateur_id != g.current_user.id):

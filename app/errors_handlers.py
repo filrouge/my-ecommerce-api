@@ -1,7 +1,7 @@
 from flask import Flask, jsonify
 from sqlalchemy.exc import SQLAlchemyError
-from .exceptions.orm_errors import ORM_ERROR_MAP
-from .exceptions.app_errors import ApplicationError
+from app.core.exceptions.orm_errors import ORM_ERROR_MAP
+from app.core.exceptions.app_errors import ApplicationError
 
 
 def register_error_handlers(app: Flask) -> None:

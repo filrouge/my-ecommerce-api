@@ -1,13 +1,9 @@
 from app.models import Product, Order
-import jwt
-from config import Config
 from typing import Tuple
 from flask.testing import FlaskClient
 from sqlalchemy.orm import Session
 import pytest
-
-JWT_KEY = Config.JWT_KEY
-ALGORITHM = Config.ALGORITHM
+from app.core.auth_utils import decode_token
 
 
 class TestOrderCreation:
@@ -49,9 +45,7 @@ class TestOrderCreation:
         assert db_order.statut == "En attente"
         assert db_order.adresse_livraison == payload["adresse_livraison"]
 
-        payload_token = jwt.decode(
-            client_token, JWT_KEY, algorithms=[ALGORITHM]
-            )
+        payload_token = decode_token(client_token)
         user_id = payload_token["id"]
         assert db_order.utilisateur_id == user_id
 

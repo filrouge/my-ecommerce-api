@@ -1,17 +1,14 @@
 import pytest
-import jwt
 from datetime import datetime
 from werkzeug.security import check_password_hash
 from app.models import User
-# from app.config import Config
 from app.core.auth_utils import get_user_by_email
 
 from typing import Tuple, Dict
 from flask.testing import FlaskClient
 from sqlalchemy.orm import Session
-# from flask import current_app
 
-from app.core.auth_utils import jwt_settings
+from app.core.auth_utils import decode_token
 
 class TestUserRegister:
 
@@ -122,7 +119,6 @@ class TestUserLogin:
     def test_success(self, test_client: Tuple[FlaskClient, Session],
                      payload: Dict) -> None:
         client, session = test_client
-        JWT_KEY, JWT_ALGO = jwt_settings()
 
         client.post("/api/auth/register", json=payload)
         resp = client.post("/api/auth/login", json={
@@ -135,7 +131,7 @@ class TestUserLogin:
         assert "token" in data
 
         token = data["token"]
-        decoded = jwt.decode(token, JWT_KEY, JWT_ALGO)
+        decoded = decode_token(token)
         assert decoded["email"] == payload["email"]
 
         email = payload.get("email")
