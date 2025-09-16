@@ -36,7 +36,6 @@ class TestOrderCreation:
         assert data["message"].startswith("Commande")
         assert data["commande"]["statut"] == "En attente"
         assert data["commande"]["adresse_livraison"] == payload["adresse_livraison"]
-        print(data["commande"])
         assert len(data["commande"]["lignes"]) == 2
 
         db_order = session.get(Order, data["commande"]["id"])
@@ -153,10 +152,8 @@ class TestOrderUpdate:
         resp = client.patch(f"/api/commandes/{order.id}", json=payload, headers=headers)
 
         data = resp.get_json()
-        print(data)
-        assert resp.status_code == 400
-        assert "error" in data
-        assert any(field in data["error"] for field in ['invalide', 'vide'])
+        assert resp.status_code == 422
+        assert "Input should be" in [field for field in [data[0]["msg"]]][0]
         db_order = session.get(Order, order.id)
         assert db_order is not None and db_order.statut == "En attente"
 

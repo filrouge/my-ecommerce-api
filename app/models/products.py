@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 from app.database.base import Base
 from sqlalchemy import Integer, String, Float
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -31,7 +30,3 @@ class Product(Base):
             "prix": self.prix,
             "quantite_stock": self.quantite_stock
         }
-    
-    FIELDS: dict[str, type | tuple[type, ...]] = {
-    "nom": str, "description": str, "categorie": str, "prix": (int, float), "quantite_stock": int
-    }

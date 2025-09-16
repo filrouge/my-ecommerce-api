@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from app.routes.main_routes import main_bp
 from app.routes.auth_routes import auth_bp
 from app.routes.product_routes import product_bp
@@ -11,6 +11,9 @@ from flask.app import Flask as FlaskType
 import os
 from config import CONFIG_MAP
 from app.database.db_manager import DatabaseManager
+
+from .spec import spec
+from flask.app import Flask as FlaskType
 
 
 def create_app() -> FlaskType:
@@ -39,6 +42,8 @@ def create_app() -> FlaskType:
         init_session(app)
 
     register_error_handlers(app)
+
+    spec.register(app)
 
     return app
 

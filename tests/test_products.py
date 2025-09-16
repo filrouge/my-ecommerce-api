@@ -122,12 +122,11 @@ class TestProductCreate:
 
         headers={"Authorization": f"Bearer {admin_token}"}
         resp = client.post("/api/produits", json=payload, headers=headers)
-        assert resp.status_code == 400
+        assert resp.status_code == 422
 
         data = resp.get_json()
-        assert "error" in data
-        assert "Champ(s) manquant(s)" in data["error"]
-        assert any(field in data["error"] for field in ["prix", "nom"])
+        assert "missing" in data[0]["type"]
+        assert any(field in data[0]["loc"] for field in ["prix", "nom"])
 
 class TestProductUpdate:
 
@@ -156,7 +155,7 @@ class TestProductUpdate:
         assert updated is not None
         assert updated.prix == new_price
 
-    @pytest.mark.parametrize("prix", [-6.0, None, 'str'])
+    @pytest.mark.parametrize("prix", [-6.0, "", 'str'])
     def test_wrong_update_product(
         self, test_client: Tuple[FlaskClient, Session], admin_token: str, prix: list
     ) -> None:
@@ -171,11 +170,12 @@ class TestProductUpdate:
         payload = {"nom": "ProdUpdate", "description": "NewDesc", "prix": prix}
         headers={"Authorization": f"Bearer {admin_token}"}
         resp = client.put(f"/api/produits/{product.id}", json=payload, headers=headers)
-        assert resp.status_code == 400
+        assert resp.status_code == 422
 
         data = resp.get_json()
-        assert "error" in data
-        assert any(field in data["error"] for field in ["vide", "int ou float", "valeur négative"])
+        assert "prix" in data[0]["loc"]
+        assert any(field in data[0]["type"] for field in ["greater_than", "float_parsing"])
+        assert any(field in data[0]["msg"] for field in ["greater than 0", "unable to parse string"])
 
     def test_update_product_by_client(
         self, test_client: Tuple[FlaskClient, Session], client_token: str, feed_product: list) -> None:

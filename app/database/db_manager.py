@@ -21,7 +21,7 @@ class DatabaseManager:
 
     def close_db(self) -> None:
         """Supprime toutes les tables définies dans les modèles SQLAlchemy."""
-        if self.env != "prod":
+        if self.env != "prod" or self.env != "dev":
             self.base.metadata.drop_all(bind=self.engine)
         else:
             raise RuntimeError("Suppression de tables interdite en PROD !")

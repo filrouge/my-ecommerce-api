@@ -97,6 +97,13 @@ curl -X POST http://127.0.0.1:5000/api/auth/register \
 -d '{"email":"client@test.com","nom":"clienttestcom","password":"secret"}'
 ```
 
+<!-- 
+Windows Powershell
+curl -X POST http://localhost:5000/api/auth/register `
+  -H "Content-Type: application/json" `
+  -d '{"email":"test1@email.com","nom":"Test1","password":"test123"}'
+ -->
+
 <small>*Réponse (201 Created)*</small>
 
 ```json
@@ -464,4 +471,3 @@ Celui-ci fournit des *messages personnalisés* sous la forme : `{"error": "DataB
 | **StatementError**       |     `500`    |     Erreur dans l’exécution SQL                     |
 | **OperationalError**     |     `503`    |     Problème côté DataBase (connexion, timeout…)    |
 | **autres**               |     `500`    |     Erreur interne à la BdD inconnue                |
-

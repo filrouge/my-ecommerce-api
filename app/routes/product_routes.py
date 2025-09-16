@@ -4,32 +4,47 @@ from app.services.product_services import (
     update_product, delete_product_id, search_product
 )
 from app.core.auth_decorators import access_granted
-from app.services.validators import (
-    get_json_body, validate_json_fields,
-    PRODUCT_FIELDS,
-    )
 from typing import Tuple
+
+from spectree import Response as SpecResp
+from app.spec import spec
+from pydantic import ValidationError
+from app.schemas.errors.validation_schemas import ValidationErrorsSchema
+from app.schemas.product_schemas import (
+    ProductCreateSchema, ProductUpdateSchema, ProductRespSchema,
+    ProductCreateRespSchema, ProductUpdateRespSchema,
+    ProductDeleteRespSchema, ProductListSchema)
+from app.schemas.errors.product_errors import (
+    ProductCreateError, ProductUpdateError, ProductDeleteError,
+    ProductListError)
 
 product_bp = Blueprint("product_bp", __name__)
 
-
 # GET /api/produits
 @product_bp.route("", methods=["GET"])
+@spec.validate(
+    resp=SpecResp(HTTP_200=ProductListSchema, HTTP_422=ProductListError),
+    tags=["Produits"]
+)
 def get_products() -> Tuple[Response, int]:
     """
     Récupère la liste complète des produits en base (JSON).
 
-    Retourne une erreur :
-        pour toute erreur base
+    Retourne une erreur pour toute erreur base
     """
     products = get_all_products(g.session)
 
-    result = [product.to_dict() for product in products]
+    # result = [product.to_dict() for product in products]
+    result = [ProductRespSchema.model_validate(p).model_dump() for p in products]
     return jsonify(result), 200
 
 
-# GET /api/produits/<id>
+# GET /api/produits/search
 @product_bp.route("/search", methods=["GET"])
+@spec.validate(
+    resp=SpecResp(HTTP_200=ProductListSchema, HTTP_422=ProductListError),
+    tags=["Produits"]
+)
 def list_products() -> Tuple[Response, int]:
     """
     Récupère la liste des produits selon les critères
@@ -43,23 +58,25 @@ def list_products() -> Tuple[Response, int]:
     categorie = request.args.get("categorie")
     disponible = request.args.get("disponible", "false").lower() == "true"
 
-    if nom or categorie or disponible:
-        products = search_product(
-            g.session,
-            nom=nom,
-            categorie=categorie,
-            disponible=disponible
-            )
-    else:
-        products = get_all_products(g.session)
+    products = search_product(
+        g.session,
+        nom=nom,
+        categorie=categorie,
+        disponible=disponible
+        ) if (nom or categorie or disponible) else get_all_products(g.session)
 
-    result = [product.to_dict() for product in products]
+    # result = [product.to_dict() for product in products]
+    result = [ProductRespSchema.model_validate(p).model_dump() for p in products]
     return jsonify(result), 200
 
 
 # GET /api/produits/<id>
 @product_bp.route("/<int:id>", methods=["GET"])
 @access_granted('admin', 'client')
+@spec.validate(
+    resp=SpecResp(HTTP_200=ProductRespSchema, HTTP_422=ValidationErrorsSchema),
+    tags=["Produits"]
+)
 def get_product(id: int) -> Tuple[Response, int]:
     """
     Récupère un produit par son ID (JSON).
@@ -69,12 +86,18 @@ def get_product(id: int) -> Tuple[Response, int]:
         pour toute erreur base
     """
     product = get_product_id(g.session, id)
-    return jsonify(product.to_dict()), 200
+    response = ProductRespSchema.model_validate(product)
+    return jsonify(response.model_dump()), 200
 
 
 # POST /api/produits
 @product_bp.route('', methods=['POST'])
 @access_granted('admin')
+@spec.validate(
+    json=ProductCreateSchema,
+    resp=SpecResp(HTTP_201=ProductCreateRespSchema, HTTP_422=ProductCreateError),
+    tags=["Produits"]
+)
 def create_product() -> Tuple[Response, int]:
     """
     Création d'un nouveau produit (admin uniquement).
@@ -83,9 +106,12 @@ def create_product() -> Tuple[Response, int]:
         si JSON invalide
         pour toute erreur base
     """
-    body = get_json_body(request)
-    validate_json_fields(body, PRODUCT_FIELDS, {"description", "quantite_stock"})
+    try:
+        body = ProductCreateSchema(**request.json)
+    except ValidationError as e:
+        return jsonify({"errors": e.errors()}), 422
 
+    body = body.model_dump()
     product = add_product(
         g.session,
         nom=body["nom"],
@@ -94,17 +120,21 @@ def create_product() -> Tuple[Response, int]:
         prix=body.get("prix"),
         quantite_stock=body.get("quantite_stock", 0)
     )
-    return jsonify(
-        {
-            "message": "Produit ajouté",
-            "produit": product.to_dict()
-        }
-    ), 201
+    response = ProductRespSchema.model_validate(product)
+    return jsonify({
+        "message": "Produit ajouté",
+        "produit": response.model_dump()
+        }), 201
 
 
 # PUT /api/produits/<id>
 @product_bp.route("/<int:id>", methods=["PUT"])
 @access_granted('admin')
+@spec.validate(
+    json=ProductUpdateSchema,
+    resp=SpecResp(HTTP_200=ProductUpdateRespSchema, HTTP_422=ProductUpdateError),
+    tags=["Produits"]
+)
 def update_product_id(id: int) -> Tuple[Response, int]:
     """
     Mise à jour des caractéristiques d'un produit (admin uniquement).
@@ -113,17 +143,19 @@ def update_product_id(id: int) -> Tuple[Response, int]:
         si produit introuvable
         pour toute erreur base
     """
-    body = get_json_body(request)
-
-    optional_fields = set(PRODUCT_FIELDS) - set(body.keys())
-    validate_json_fields(body, PRODUCT_FIELDS, optional_fields)
-
+    try:
+        body = ProductUpdateSchema(**request.json)
+    except ValidationError as e:
+        return jsonify({"errors": e.errors()}), 422
+    
+    body = body.model_dump(exclude_none=True)
     product = update_product(g.session, id, **body)
+    response = ProductRespSchema.model_validate(product)
     return jsonify(
         {
             "message": "Produit mis à jour",
             "produit_id": product.id,
-            "produit": product.to_dict()
+            "produit": response.model_dump()
         }
     ), 200
 
@@ -131,6 +163,10 @@ def update_product_id(id: int) -> Tuple[Response, int]:
 # DELETE /api/produits/<id>
 @product_bp.route("/<int:id>", methods=["DELETE"])
 @access_granted('admin')
+@spec.validate(
+    resp=SpecResp(HTTP_200=ProductDeleteRespSchema, HTTP_422=ProductDeleteError),
+    tags=["Produits"]
+)
 def delete_product(id: int) -> Tuple[Response, int]:
     """
     Supprime un produit du catalogue (admin uniquement).
@@ -140,4 +176,5 @@ def delete_product(id: int) -> Tuple[Response, int]:
         pour toute erreur base
     """
     delete_product_id(g.session, id)
-    return jsonify({"message": f"Produit {id} supprimé"}), 200
+    return jsonify({"message": f"Produit {id} supprimé", "deleted_id": id}), 200
+    # return jsonify({"message": f"Produit {id} supprimé"}), 200

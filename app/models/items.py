@@ -1,12 +1,11 @@
 from __future__ import annotations
-
 from app.database.base import Base
 from sqlalchemy import Integer, Float, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
 class OrderItem(Base):
-    __tablename__ = 'item_order'
+    __tablename__ = 'order_item'
 
     id: Mapped[int] = mapped_column(primary_key=True)
     commande_id: Mapped[int] = mapped_column(Integer, ForeignKey("order.id"),
@@ -29,7 +28,3 @@ class OrderItem(Base):
             "prix_unitaire": self.prix_unitaire,
             "produit_nom": self.product.nom if self.product else None
         }
-    
-    FIELDS: dict[str, type] = {
-    "produit_id": int, "quantite": int,
-    }
