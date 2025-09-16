@@ -22,9 +22,8 @@ engine: Engine = create_engine(
     echo=False
     )
 
-# autoflush=True, autocommit=True -> souci commit() en PROD ?
 SessionLocal: sessionmaker[Session] = sessionmaker(
-    bind=engine, autoflush=False, autocommit=False
+    bind=engine, autoflush=True, autocommit=False
 )
 
 Base = declarative_base()

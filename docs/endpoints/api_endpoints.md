@@ -97,6 +97,13 @@ curl -X POST http://127.0.0.1:5000/api/auth/register \
 -d '{"email":"client@test.com","nom":"clienttestcom","password":"secret"}'
 ```
 
+<!-- 
+Windows Powershell
+curl -X POST http://localhost:5000/api/auth/register `
+  -H "Content-Type: application/json" `
+  -d '{"email":"test1@email.com","nom":"Test1","password":"test123"}'
+ -->
+
 <small>*Réponse (201 Created)*</small>
 
 ```json
@@ -465,3 +472,19 @@ Celui-ci fournit des *messages personnalisés* sous la forme : `{"error": "DataB
 | **OperationalError**     |     `503`    |     Problème côté DataBase (connexion, timeout…)    |
 | **autres**               |     `500`    |     Erreur interne à la BdD inconnue                |
 
+
+<!-- 
+Exigences couvertes
+✅ Auth
+•	Email unique
+•	Rôle par défaut client
+•	Connexion valide et génération JWT
+✅ Produits
+•	Ajout (admin uniquement)
+•	Modification / suppression (admin uniquement)
+•	Recherche par nom, catégorie, disponibilité
+✅ Commandes
+•	Création commande (client)
+•	Historique et suivi statut
+•	Admin : voir toutes les commandes et modifier statut
+ -->

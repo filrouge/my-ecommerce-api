@@ -14,3 +14,5 @@ check_doc
 database/ecommerce.db
 
 instance
+
+debug

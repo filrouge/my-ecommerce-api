@@ -7,9 +7,19 @@ L’ensemble des tests unitaires est écrit avec **pytest** et couvre les foncti
 
 ---
 
-## 📂 Structure
+## 📂 Organisation
 
-Ces tests s'appuient sur des fichiers dédiés à chaque domaine de routes.
+Ces tests s'appuient sur des fichiers dédiés à chaque domaine de routes.  
+
+<!-- 
+Outils
+•	Framework : pytest
+•	Client HTTP : FlaskClient (via app.test_client())
+•	Base de test : SQLite en mémoire
+    o	Création/drop à chaque test via fixtures
+    o	Sessions isolées pour éviter les fuites de données
+ -->
+
 Le fichier `conftest.py` centralise les **fixtures partagées** pour générer un client Flask et une session SQLAlchemy (`test_client`), des tokens JWT admin et client (`admin_token`, `client_token`) et fournir un jeu de données produits/commandes injectés dans la base (`feed_product`, `feed_order`)  
 
 ```
@@ -17,9 +27,22 @@ tests/
 ├── conftest.py          → Fixtures (BDD, client Flask...)
 │
 ├── test_users.py        → couvre la partie Utilisateurs (inscription, authentification, autorisation)
-├── test_products.py     → couvre la partie Produits (liste, création, modification, suppression)
-└── test_orders.py       → couvre la partie Commandes (création, consultation, mise à jour du statut)
+├── test_products.py     → couvre la partie Produits (création, consultation, modification, suppression)
+└── test_orders.py       → couvre la partie Commandes (création, consultation, mise à jour)
 ```
+
+<!-- 
+Organisation des tests
+tests/
+├── conftest.py      # Fixtures communes
+├── test_auth.py     # Tests inscription/connexion/JWT
+├── test_products.py # CRUD et recherche produits
+└── test_orders.py   # Commandes (client/admin)
+Fixtures principales
+•	app : instance Flask configurée pour les tests
+•	client : client HTTP Flask
+•	session : session DB injectée dans g.session
+ -->
 
 <br>
 
@@ -40,6 +63,8 @@ au niveu config.py ou __init__.py sinon terminal via export FLASK_ENV = "dev"
 pytest.ini !!!!
 [pytest]
 addopts = --cov=core --cov=model --cov=routes --cov=services --cov-report=term --cov-report=html
+
+"Ajout d’un rapport de couverture" avec  `pytest --cov=mon_projet --cov-report=term-missing`
  -->
 
 
@@ -74,10 +99,8 @@ Les tests couvrent, entre-autres, les points suivants:
       - Validée avec token JWT renvoyé
       - Refusée si mauvais mot de passe  
     - Accès restreint (`/api/admin-only-route`)
-      - Autorisé pour `admin`
-      - Autorisé pour `client`
-      - Refusé pour autre que `admin`
-      - Refusé pour autre que `client` propriétaire
+      - Autorisé pour `admin` et/ou `client`
+      - Refusé pour autre que `admin` ou `client` propriétaire
 
 <br>
 
@@ -120,10 +143,3 @@ Couvertures incluses
 
 > ℹ️ _Pour générer un rapport de tests (`<mon-rapport>.html`), installez `pytest-html` avec `pip install pytest-html`, puis executez :_  
 `pytest -vv test_products.py --html=<mon-rapport>.html --self-contained-html`
-
-
-
-<br>
-
-######## ℹ️ TODO ?
-- Rapport de couverture : pytest --cov=.
