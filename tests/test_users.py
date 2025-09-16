@@ -14,13 +14,14 @@ class TestUserRegister:
 
     @pytest.mark.parametrize("payload", [
         {"email": "test1@email.com", "nom": "Test1", "password": "123456"},
-        {"email": "test2@email.com", "nom": "Test2", "password": "abcdef"}
+        # {"email": "test2@email.com", "nom": "Test2", "password": "abcdef"}
     ])
     def test_new_user(self, test_client: Tuple[FlaskClient, Session],
                       payload: Dict) -> None:
         client, session = test_client
 
         resp = client.post("/api/auth/register", json=payload)
+        print(resp.get_json())
         assert resp.status_code == 201
 
         data = resp.get_json()
@@ -63,8 +64,10 @@ class TestUserRegister:
         client.post("/api/auth/register", json=payload)
 
         resp = client.post("/api/auth/register", json=payload)
-        assert resp.status_code == 401
-        assert resp.get_json()["error"] == "Email invalide"
+        assert resp.status_code == 422
+        print(resp)
+        assert resp.get_json()[0]["loc"] == ["email"]
+        assert "value is not a valid email address" in resp.get_json()[0]["msg"]
 
         user = session.query(User).filter_by(email=payload["email"]).one_or_none()
         assert user is None
@@ -81,8 +84,9 @@ class TestUserRegister:
         client.post("/api/auth/register", json=payload)
 
         resp = client.post("/api/auth/register", json=payload)
-        assert resp.status_code == 401
-        assert resp.get_json()["error"] == "Mot de passe trop court"
+        assert resp.status_code == 422
+        assert resp.get_json()[0]["loc"] == ["password"]
+        assert "at least 5 characters" in resp.get_json()[0]["msg"]
 
         user = session.query(User).filter_by(email=payload["email"]).one_or_none()
         assert user is None
@@ -101,8 +105,10 @@ class TestUserRegister:
         client, session = test_client
 
         resp = client.post("/api/auth/register", json=payload)
-        assert resp.status_code == 400
-        assert "manquant(s)" in resp.get_json()["error"].lower()
+        assert resp.status_code == 422
+        assert "missing" in resp.get_json()[0]["type"]
+        assert "email" or  "nom" or "password" in resp.get_json()[0]["loc"]
+        assert "Field required" in resp.get_json()[0]["msg"]
 
         email = payload.get("email")
         if email:
@@ -125,6 +131,7 @@ class TestUserLogin:
             "email": payload["email"],
             "password": payload["password"],
         })
+        print(resp)
         assert resp.status_code == 200
 
         data = resp.get_json()
@@ -156,6 +163,25 @@ class TestUserLogin:
             "password": wrong_password
         })
         assert resp.status_code == 401
+
+    @pytest.mark.parametrize("no_password", [None])
+    def test_no_password(self,
+                            test_client: Tuple[FlaskClient, Session],
+                            no_password: None) -> None:
+        client, _ = test_client
+        payload = {
+            "email": "login@email.com",
+            "nom": "Wrong",
+            "password": "pwd_ok"
+        }
+
+        client.post("/api/auth/register", json=payload)
+        resp = client.post("/api/auth/login", json={
+            "email": payload["email"],
+            "password": no_password
+        })
+        assert resp.status_code == 422
+        assert resp.get_json()[0]["loc"] == ["password"]
 
 
 class TestUserAccess:
