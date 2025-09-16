@@ -44,7 +44,6 @@ class OrderCreateSchema(BaseModel):
         }
     )
 
-# Update du statut d'une commande (PATCH)
 class OrderUpdateSchema(BaseModel):
     statut: OrderStatusLiteral
 
@@ -58,10 +57,6 @@ class OrderUpdateSchema(BaseModel):
         }
     )
 
-
-# ---------------------------
-# Response Schemas pour routes
-# ---------------------------
 class OrderRespSchema(BaseModel):
     id: int
     utilisateur_id: int
@@ -70,7 +65,6 @@ class OrderRespSchema(BaseModel):
     date_commande: datetime
     lignes: List[OrderItemSchema] = []
 
-    # model_config = {"from_attributes": True}
     model_config = ConfigDict(
         from_attributes=True,
         json_schema_extra={

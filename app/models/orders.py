@@ -1,8 +1,7 @@
 from __future__ import annotations
-
 from app.database.base import Base
-from datetime import datetime, date, timezone
-from sqlalchemy import Integer, String, Date, ForeignKey, Enum, DateTime
+from datetime import datetime, timezone
+from sqlalchemy import Integer, String, ForeignKey, Enum, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import List
 

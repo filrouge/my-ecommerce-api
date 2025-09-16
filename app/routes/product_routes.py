@@ -22,7 +22,10 @@ product_bp = Blueprint("product_bp", __name__)
 
 # GET /api/produits
 @product_bp.route("", methods=["GET"])
-@spec.validate(resp=SpecResp(HTTP_200=ProductListSchema, HTTP_422=ProductListError), tags=["Produits"])
+@spec.validate(
+    resp=SpecResp(HTTP_200=ProductListSchema, HTTP_422=ProductListError),
+    tags=["Produits"]
+)
 def get_products() -> Tuple[Response, int]:
     """
     Récupère la liste complète des produits en base (JSON).
@@ -38,7 +41,10 @@ def get_products() -> Tuple[Response, int]:
 
 # GET /api/produits/search
 @product_bp.route("/search", methods=["GET"])
-@spec.validate(resp=SpecResp(HTTP_200=ProductListSchema, HTTP_422=ProductListError), tags=["Produits"])
+@spec.validate(
+    resp=SpecResp(HTTP_200=ProductListSchema, HTTP_422=ProductListError),
+    tags=["Produits"]
+)
 def list_products() -> Tuple[Response, int]:
     """
     Récupère la liste des produits selon les critères
@@ -67,7 +73,10 @@ def list_products() -> Tuple[Response, int]:
 # GET /api/produits/<id>
 @product_bp.route("/<int:id>", methods=["GET"])
 @access_granted('admin', 'client')
-@spec.validate(resp=SpecResp(HTTP_200=ProductRespSchema, HTTP_422=ValidationErrorsSchema), tags=["Produits"])
+@spec.validate(
+    resp=SpecResp(HTTP_200=ProductRespSchema, HTTP_422=ValidationErrorsSchema),
+    tags=["Produits"]
+)
 def get_product(id: int) -> Tuple[Response, int]:
     """
     Récupère un produit par son ID (JSON).
@@ -84,7 +93,11 @@ def get_product(id: int) -> Tuple[Response, int]:
 # POST /api/produits
 @product_bp.route('', methods=['POST'])
 @access_granted('admin')
-@spec.validate(json=ProductCreateSchema, resp=SpecResp(HTTP_201=ProductCreateRespSchema, HTTP_422=ProductCreateError), tags=["Produits"])
+@spec.validate(
+    json=ProductCreateSchema,
+    resp=SpecResp(HTTP_201=ProductCreateRespSchema, HTTP_422=ProductCreateError),
+    tags=["Produits"]
+)
 def create_product() -> Tuple[Response, int]:
     """
     Création d'un nouveau produit (admin uniquement).
@@ -117,7 +130,11 @@ def create_product() -> Tuple[Response, int]:
 # PUT /api/produits/<id>
 @product_bp.route("/<int:id>", methods=["PUT"])
 @access_granted('admin')
-@spec.validate(json=ProductUpdateSchema, resp=SpecResp(HTTP_200=ProductUpdateRespSchema, HTTP_422=ProductUpdateError), tags=["Produits"])
+@spec.validate(
+    json=ProductUpdateSchema,
+    resp=SpecResp(HTTP_200=ProductUpdateRespSchema, HTTP_422=ProductUpdateError),
+    tags=["Produits"]
+)
 def update_product_id(id: int) -> Tuple[Response, int]:
     """
     Mise à jour des caractéristiques d'un produit (admin uniquement).
@@ -146,7 +163,10 @@ def update_product_id(id: int) -> Tuple[Response, int]:
 # DELETE /api/produits/<id>
 @product_bp.route("/<int:id>", methods=["DELETE"])
 @access_granted('admin')
-@spec.validate(resp=SpecResp(HTTP_200=ProductDeleteRespSchema, HTTP_422=ProductDeleteError), tags=["Produits"])
+@spec.validate(
+    resp=SpecResp(HTTP_200=ProductDeleteRespSchema, HTTP_422=ProductDeleteError),
+    tags=["Produits"]
+)
 def delete_product(id: int) -> Tuple[Response, int]:
     """
     Supprime un produit du catalogue (admin uniquement).

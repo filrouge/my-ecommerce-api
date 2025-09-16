@@ -2,18 +2,9 @@ from typing import Optional
 from pydantic import BaseModel, Field, ConfigDict, model_validator, RootModel
 
 
-# class ProductBaseSchema(BaseModel):
-#     nom: str = Field(..., min_length=1, max_length=100)
-#     description: Optional[str] = Field(default="")
-#     categorie: Optional[str] = Field(default="")
-#     prix: float = Field(..., gt=0)
-#     quantite_stock: int = Field(default=0, ge=0)
-
 class ProductCreateSchema(BaseModel):
     nom: str = Field(..., min_length=1)
-    # description: Optional[str] = Field(default="")
     description: Optional[str] = Field(default=None)
-    # categorie: str
     categorie: Optional[str] = Field(default=None)
     prix: float = Field(..., gt=0)
     quantite_stock: int = Field(..., ge=0)
@@ -128,7 +119,7 @@ class ProductDeleteRespSchema(BaseModel):
         }
     )
 
-# - Modèle root pour renvoyer liste de produits (Spectree) -
+# RootModel pour renvoyer liste de produits
 class ProductListSchema(RootModel[list[ProductRespSchema]]):
     model_config = ConfigDict(
         from_attributes=True,
@@ -139,12 +130,3 @@ class ProductListSchema(RootModel[list[ProductRespSchema]]):
             ]
         }
     )
-
-class MessageSchema(BaseModel):
-    message: str
-
-    model_config = ConfigDict(from_attributes=True,
-        json_schema_extra={
-            "example": {"message": "Produit introuvable"}
-            }
-        )

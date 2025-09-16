@@ -2,12 +2,12 @@ from pydantic import BaseModel, ConfigDict
 from typing import Any, Tuple, Optional
 
 class ValidationErrorItem(BaseModel):
-    loc: Tuple[Any, ...]           # Chemin vers le champ en erreur
+    loc: Tuple[Any, ...]           # Champ(s) en erreur
     msg: str                       # Message d'erreur
     type: str                      # Type d'erreur Pydantic
     # ctx: Optional[Dict[str, Any]] = None
-    input: Optional[Any] = None    # Valeur en entrée qui a provoqué l'erreur
-    url: Optional[str] = None      # Lien vers la doc Pydantic (facultatif)
+    input: Optional[Any] = None    # Entrée qui a provoqué l'erreur
+    url: Optional[str] = None      # Lien doc Pydantic
 
     model_config = ConfigDict(
         json_schema_extra={

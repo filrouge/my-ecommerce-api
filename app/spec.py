@@ -6,5 +6,7 @@ spec = SpecTree(
     version="1.0.0",
     description="Documentation API Flask (via Spectree)",
     servers=[{"url": "http://localhost:5000"}],
-    # servers=[],  # Force pour que Swagger UI ne montre pas de "Servers"
+    # Force pour que Swagger UI ne montre pas de "Servers"
+    # Sans "Servers" -> perte de la possibilité de cURL tests
+    # servers=[],
 )

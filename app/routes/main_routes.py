@@ -17,7 +17,6 @@ def home() -> str:
 @auth_required
 def list_users(current_user: User) -> Tuple[Response, int] | Response:
     '''
-        TODO: EXPLICATIONS
     '''
     if current_user.role != "admin":
         return jsonify({"error": "Accès refusé"}), 403
@@ -32,7 +31,6 @@ def list_users(current_user: User) -> Tuple[Response, int] | Response:
 @main_bp.route("/public-space/users", methods=["GET"])
 def public_list_users() -> Tuple[Response, int] | Response:
     '''
-        TODO: EXPLICATIONS
     '''
     try:
         users = g.session.query(User).all()
@@ -44,6 +42,8 @@ def public_list_users() -> Tuple[Response, int] | Response:
 @main_bp.route("/admin-route")
 @auth_required
 def admin_route(current_user: User) -> Tuple[Response, int] | Response:
+    '''
+    '''
     if current_user.role != "admin":
         return jsonify({"error": "Accès refusé"}), 403
     else:

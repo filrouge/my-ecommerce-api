@@ -13,7 +13,11 @@ auth_bp = Blueprint("auth", __name__)
 
 # POST /api/auth/register
 @auth_bp.route('/register', methods=['POST'])
-@spec.validate(json=RegisterSchema, resp=SpecResp(HTTP_201=RegisterRespSchema, HTTP_422=RegisterError), tags=["Users"])
+@spec.validate(
+    json=RegisterSchema,
+    resp=SpecResp(HTTP_201=RegisterRespSchema, HTTP_422=RegisterError),
+    tags=["Users"]
+)
 def register() -> Tuple[Response, int]:
     '''
         Route pour l'inscription d'un utilisateur.
@@ -44,7 +48,11 @@ def register() -> Tuple[Response, int]:
 
 # POST /api/auth/login
 @auth_bp.route("/login", methods=["POST"])
-@spec.validate(json=LoginSchema, resp=SpecResp(HTTP_200=TokenRespSchema, HTTP_422=LoginError, HTTP_401=TokenError), tags=["Users"])
+@spec.validate(
+    json=LoginSchema,
+    resp=SpecResp(HTTP_200=TokenRespSchema, HTTP_422=LoginError, HTTP_401=TokenError),
+    tags=["Users"]
+)
 def login() -> Tuple[Response, int]:
     """
     Route pour l'authentification d'un utilisateur.

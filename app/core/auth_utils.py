@@ -57,20 +57,6 @@ def get_user_by_email(session: Session, email: str) -> User | None:
     return session.query(User).filter_by(email=email).first()
 
 
-# def check_credentials_strength(body: dict)-> bool:
-#     """Vérifie et valide le format des credentials."""
-#     email, password = body.get("email"), body.get("password")
-#     PWD_LENGTH = 4
-
-#     if email.count("@") != 1 or email.startswith("@") or email.endswith("@"):
-#         raise UnauthorizedError("Email invalide")
-    
-#     if len(password) <= PWD_LENGTH:
-#         raise UnauthorizedError("Mot de passe trop court")
-    
-#     return True
-
-
 def register_user(session: Session, email: str,
                   nom: str, password: str, role: str) -> User:
     '''

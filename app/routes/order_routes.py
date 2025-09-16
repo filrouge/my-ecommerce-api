@@ -24,7 +24,10 @@ order_bp = Blueprint("order_bp", __name__)
 # GET /api/commandes
 @order_bp.route("", methods=["GET"])
 @access_granted('admin', 'client')
-@spec.validate(resp=SpecResp(HTTP_200=OrderListSchema, HTTP_422=OrderListError), tags=["Commandes"])
+@spec.validate(
+    resp=SpecResp(HTTP_200=OrderListSchema, HTTP_422=OrderListError),
+    tags=["Commandes"]
+)
 def list_orders() -> Tuple[Response, int]:
     """
     Récupère toutes les commandes (admin) ou celles du client.
@@ -37,7 +40,10 @@ def list_orders() -> Tuple[Response, int]:
 # GET /api/commandes/<id>
 @order_bp.route("/<int:id>", methods=["GET"])
 @access_granted('admin', 'client')
-@spec.validate(resp=SpecResp(HTTP_200=OrderRespSchema, HTTP_422=OrderGetError), tags=["Commandes"])
+@spec.validate(
+    resp=SpecResp(HTTP_200=OrderRespSchema, HTTP_422=OrderGetError),
+    tags=["Commandes"]
+)
 def get_order_id(id: int) -> Tuple[Response, int]:
     """
     Récupère les détails d'une commande (admin, client propriétaire).
@@ -55,9 +61,11 @@ def get_order_id(id: int) -> Tuple[Response, int]:
 # POST /api/commandes
 @order_bp.route("", methods=["POST"])
 @access_granted('client')
-@spec.validate(json=OrderCreateSchema,
-               resp=SpecResp(HTTP_201=OrderCreateRespSchema, HTTP_422=OrderCreateError),
-               tags=["Commandes"])
+@spec.validate(
+    json=OrderCreateSchema,
+    resp=SpecResp(HTTP_201=OrderCreateRespSchema, HTTP_422=OrderCreateError),
+    tags=["Commandes"]
+)
 def create_order() -> Tuple[Response, int]:
     """
     Création d'une commande pour un client (client uniquement).
@@ -87,9 +95,11 @@ def create_order() -> Tuple[Response, int]:
 # PATCH /api/commandes/<id>
 @order_bp.route("/<int:id>", methods=["PATCH"])
 @access_granted('admin')
-@spec.validate(json=OrderUpdateSchema,
-               resp=SpecResp(HTTP_200=OrderUpdateRespSchema, HTTP_422=OrderUpdateError),
-               tags=["Commandes"])
+@spec.validate(
+    json=OrderUpdateSchema,
+    resp=SpecResp(HTTP_200=OrderUpdateRespSchema, HTTP_422=OrderUpdateError),
+    tags=["Commandes"]
+)
 def update_status_order(id: int) -> Tuple[Response, int]:
     """
     Modifie le statut d'une commande (admin uniquement).
@@ -107,7 +117,10 @@ def update_status_order(id: int) -> Tuple[Response, int]:
 
 # GET /api/commandes/<id>/lignes
 @order_bp.route("/<int:id>/lignes", methods=["GET"])
-@spec.validate(resp=SpecResp(HTTP_200=List[OrderItemRespSchema], HTTP_422=OrderListError), tags=["Commandes"])
+@spec.validate(
+    resp=SpecResp(HTTP_200=List[OrderItemRespSchema], HTTP_422=OrderListError),
+    tags=["Commandes"]
+)
 def list_orderitems(id: int) -> Tuple[Response, int]:
     """
     Récupère les lignes d'une commande (accès public !!).

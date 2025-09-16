@@ -14,14 +14,13 @@ class TestUserRegister:
 
     @pytest.mark.parametrize("payload", [
         {"email": "test1@email.com", "nom": "Test1", "password": "123456"},
-        # {"email": "test2@email.com", "nom": "Test2", "password": "abcdef"}
+        {"email": "test2@email.com", "nom": "Test2", "password": "abcdef"}
     ])
     def test_new_user(self, test_client: Tuple[FlaskClient, Session],
                       payload: Dict) -> None:
         client, session = test_client
 
         resp = client.post("/api/auth/register", json=payload)
-        print(resp.get_json())
         assert resp.status_code == 201
 
         data = resp.get_json()
@@ -65,7 +64,6 @@ class TestUserRegister:
 
         resp = client.post("/api/auth/register", json=payload)
         assert resp.status_code == 422
-        print(resp)
         assert resp.get_json()[0]["loc"] == ["email"]
         assert "value is not a valid email address" in resp.get_json()[0]["msg"]
 
@@ -131,7 +129,6 @@ class TestUserLogin:
             "email": payload["email"],
             "password": payload["password"],
         })
-        print(resp)
         assert resp.status_code == 200
 
         data = resp.get_json()

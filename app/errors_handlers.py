@@ -4,7 +4,9 @@ from app.core.exceptions.orm_errors import ORM_ERROR_MAP
 from app.core.exceptions.app_errors import ApplicationError
 
 from pydantic import ValidationError
-from app.schemas.errors.validation_schemas import ValidationErrorItem, ValidationErrorsSchema
+from app.schemas.errors.validation_schemas import (
+    ValidationErrorItem, ValidationErrorsSchema
+)
 
 
 def register_error_handlers(app: Flask) -> None:
@@ -32,7 +34,6 @@ def register_error_handlers(app: Flask) -> None:
 
         return jsonify({"error": "Database - Erreur interne inconnue"}), 500
     
-    # Handler pour ValidationError (Pydantic)
     @app.errorhandler(ValidationError)
     def handle_validation_error(error: ValidationError):
         """ Format en JSON les détails du ValidationError. """
