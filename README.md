@@ -20,22 +20,30 @@
 
 ## 📌 Description
 
-**API REST** construite avec les librairies **Flask**, **SQLAlchemy** et **JWT**, et reposant sur une architecture modulaire avec séparation des responsabilités.
+**API REST** construite avec **Flask**, **SQLAlchemy**, **JWT** et **Pydantic**, et reposant sur une architecture modulaire qui couvrent les fonctionnalités principales :
 
-Fonctionnalités principales :
-
-- 👤 *Gestion des utilisateurs / permissions*  
+- 👤 *Gestion des utilisateurs*  
 - 📦 *Gestion des produits*  
 - 🛒 *Gestion des commandes*  
+  
+
+La séparation des responsabilités est assurée comme suit :
+
+- logique HTTP (request/response, status code): `routes/`
+- logique métier et manipulation de la base (g.session): `services/`
+- centralisation des entités/relations SQLAlchemy: `model/`
+- socle d'infrastructure commun (connexion, JWT, sécurité): `core/`
+- validation et typage automatique (Pydantic): `schemas/`
+
 <br>
 
-> 📂 Consultez la documentation [api_endpoints.md](docs/api_endpoints.md) pour plus d’informations sur l'architecture et les fonctionnalités de l'API.
+> 📂 Consultez [api_endpoints.md](docs/endpoints/api_endpoints.md) pour plus d’informations sur l'architecture et les fonctionnalités de l'API.
 
 <br>
 
 ---
 
-## 📂 Structure du projet
+## 📂 Structure
 
 ```
 my-ecommerce-api/
@@ -45,54 +53,54 @@ my-ecommerce-api/
 │    ├── app.py                      # Point d’entrée API
 │    │
 │    ├── core/                       # Middleware sécurité (JWT, accès, error handlers)
-│    │   ├── __init__.py
-│    │   │
-│    │   ├── auth_utils.py
-│    │   ├── errors_handlers.py
-│    │   ├── permissions.py
-│    │   │
-│    │   └── exceptions/
-│    │       ├── app_errors.py
-│    │       └── orm_errors.py
+│    │    ├── __init__.py
+│    │    │
+│    │    ├── auth_utils.py
+│    │    ├── errors_handlers.py
+│    │    ├── permissions.py
+│    │    │
+│    │    └── exceptions/
+│    │         ├── app_errors.py
+│    │         └── orm_errors.py
 │    │
 │    ├── database/                    # ORM SQLAlchemy (gestion de la base/sessions)
-│    │   ├── __init__.py
-│    │   │
-│    │   ├── base.py
-│    │   ├── db_manager.py
-│    │   └── sessions.py            
+│    │    ├── __init__.py
+│    │    │
+│    │    ├── base.py
+│    │    ├── db_manager.py
+│    │    └── sessions.py            
 │    │
 │    ├── models/                      # Modèles SQLAlchemy
-│    │   ├── __init__.py
-│    │   │
-│    │   ├── items.py
-│    │   ├── orders.py
-│    │   ├── products.py
-│    │   └── users.py
+│    │    ├── __init__.py
+│    │    │
+│    │    ├── items.py
+│    │    ├── orders.py
+│    │    ├── products.py
+│    │    └── users.py
 │    │
 │    ├── routes/                      # Routes (`api/auth`, `/api/produits*`, `/api/commandes*`)
-│    │   ├── __init__.py
-│    │   │
-│    │   ├── auth_routes.py
-│    │   ├── main_routes.py
-│    │   ├── order_routes.py
-│    │   └── product_routes.py
+│    │    ├── __init__.py
+│    │    │
+│    │    ├── auth_routes.py
+│    │    ├── main_routes.py
+│    │    ├── order_routes.py
+│    │    └── product_routes.py
 │    │
-│    ├── services/                    # Logique métier (+ validation JSON)
-│    │   ├── __init__.py
-│    │   │
-│    │   ├── order_services.py
-│    │   ├── product_servicess.py
-│    │   └── validators.py
+│    └── services/                    # Logique métier (+ validation JSON)
+│         ├── __init__.py
+│         │
+│         ├── order_services.py
+│         ├── product_servicess.py
+│         └── validators.py
+│    
+├── tests/                       # Tests unitaires/fonctionnels (+ fixtures)
+│    ├── __init__.py
 │    │
-│    └── tests/                       # Tests unitaires/fonctionnels (+ fixtures)
-│        ├── __init__.py
-│        │
-│        ├── conftest.py
-│        ├── report.html
-│        ├── test_orders.py
-│        ├── test_products.py
-│        └── test_users.py
+│    ├── conftest.py
+│    ├── report.html
+│    ├── test_orders.py
+│    ├── test_products.py
+│    └── test_users.py
 │
 │
 ├── docs/                             # Documentations API / Tests      
@@ -173,14 +181,6 @@ DATABASE_URL=sqlite:///path-to-database.db
 JWT_SECRET_KEY=your-jwt-secret
 ```
 
-<!-- 
-A compléter 
-introduire .env et .env_template
-FLASK_ENV dans Config
-pytest.ini
- -->
-
-
 <br>
 
 ### ▶️ Lancement
@@ -193,23 +193,20 @@ Exécutez `python app.app.py` ou `flask run --debug`.
 
 > 🌐 API accessible sur http://127.0.0.1:5000  
 > 
-> ⚠️ Lancez le serveur en mode DEBUG pour développement uniquement
+> ⚠️ Lancez le serveur en mode DEBUG pour développement (ou test) uniquement
 
 <br>
-
-<!-- 
-export FLASK_ENV= ? sinon
-
-dev : `FLASK_ENV=dev `python -m app.app` ou `flask run`
-test : `FLASK_ENV=testing pytest -v`
-prod : `FLASK_ENV=prod gunicorn app:app`
- -->
 
 ---
 
 ## 📄 Documentation API
 
-Ce tableau offre une synthèse des *body* attendus pour les fonctionnalités principales.
+La documentation, disponible sur les URLs suivants, a été générée avec la librairie Spectree et le framework Pydantic :  
+- Swagger UI : http://localhost:5000/apidoc/swagger  
+- Redoc : http://localhost:5000/apidoc/redoc  
+- Scalar: http://localhost:5000/apidoc/scalar/  
+  
+Le prochain tableau synthétise les *body* attendus pour les principales fonctionnalités (.e. endpoints); ces exemple sont également disponibles sous le format OpenAPI JSON (http://localhost:5000/apidoc/openapi.json).  
 
 | Fonctionnalité                       | Body |
 |--------------------------------------|---------|
@@ -222,7 +219,7 @@ Ce tableau offre une synthèse des *body* attendus pour les fonctionnalités pri
 
 <br>
 
-> 📂 Consultez la documentation [api_endpoints.md](docs/api_endpoints.md) pour plus d’informations sur les endpoints (routes, formats JSON, exemples cURL...), et la gestion des erreurs (couverture, cas, messages...).
+> 📂 Consultez [api_endpoints.md](docs/endpoints/api_endpoints.md) pour plus d’informations.
 
 <br>
 
@@ -230,30 +227,23 @@ Ce tableau offre une synthèse des *body* attendus pour les fonctionnalités pri
 
 ## 🧪 Tests
 
-Les tests unitaires s'appuient sur la librairie `pytest` et couvrent les points :  
+Les tests unitaires s'appuient sur le framework `pytest` et couvrent les points :  
 
-    ✅ *Authentification / Autorisation* : inscription, login, rôles  
+    ✅ *Utilisateurs* : inscription, authentification, autorisation  
     ✅ *Produits* : création, consultation, suppression  
     ✅ *Commandes* : création, consultation, modification  
     ✅ *Erreurs* : validation, restriction, exécution  
 
-<!-- 
-pytest.ini !!!!
-
-"Ajout d’un rapport de couverture" avec  `pytest --cov=mon_projet --cov-report=term-missing`
- -->
-
 <br>
 
-> 📂 Consultez [tests.md](docs/tests.md) pour plus d’informations sur les tests (couverture fonctionnalités / erreurs).
+> 📂 Consultez [tests.md](docs/tests/tests.md) pour plus d’informations (et voir les résultats des tests réalisés en base mémoire).
 
 <br>
 
 ---
 
 #### 📌 TODO
-> - Add-ons:
->     - Harmoniser le typing (natif) / docstring
+> - Futurs Add-ons:
 >     - OOP (si léger refactoring)
 >     - Logger & Monitoring
 >     - Dockérisation

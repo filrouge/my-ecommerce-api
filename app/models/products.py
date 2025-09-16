@@ -31,7 +31,3 @@ class Product(Base):
             "prix": self.prix,
             "quantite_stock": self.quantite_stock
         }
-    
-    FIELDS: dict[str, type | tuple[type, ...]] = {
-    "nom": str, "description": str, "categorie": str, "prix": (int, float), "quantite_stock": int
-    }

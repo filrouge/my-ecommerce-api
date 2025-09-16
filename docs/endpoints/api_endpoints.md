@@ -471,20 +471,3 @@ Celui-ci fournit des *messages personnalisés* sous la forme : `{"error": "DataB
 | **StatementError**       |     `500`    |     Erreur dans l’exécution SQL                     |
 | **OperationalError**     |     `503`    |     Problème côté DataBase (connexion, timeout…)    |
 | **autres**               |     `500`    |     Erreur interne à la BdD inconnue                |
-
-
-<!-- 
-Exigences couvertes
-✅ Auth
-•	Email unique
-•	Rôle par défaut client
-•	Connexion valide et génération JWT
-✅ Produits
-•	Ajout (admin uniquement)
-•	Modification / suppression (admin uniquement)
-•	Recherche par nom, catégorie, disponibilité
-✅ Commandes
-•	Création commande (client)
-•	Historique et suivi statut
-•	Admin : voir toutes les commandes et modifier statut
- -->

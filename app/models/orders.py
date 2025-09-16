@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from app.database.base import Base
 from datetime import datetime, date, timezone
-from sqlalchemy import Integer, String, Date, ForeignKey, Enum
+from sqlalchemy import Integer, String, Date, ForeignKey, Enum, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import List
 
@@ -18,9 +18,10 @@ class Order(Base):
     adresse_livraison: Mapped[str] = mapped_column(String(255), nullable=False)   
     statut: Mapped[str] = mapped_column(Enum(*STATUS, name="order_status"),
                                         default="En attente", nullable=False)
-    date_commande: Mapped[date] = mapped_column(
-        Date,
-        default=lambda: datetime.now(timezone.utc).date(),
+    date_commande: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        # default=lambda: datetime.now(timezone.utc).date(),
+        default=datetime.now(timezone.utc),
         nullable=False
     )
 
@@ -39,7 +40,3 @@ class Order(Base):
             self.date_commande else None,
             "lignes": [item.to_dict() for item in self.items]
         }
-    
-    FIELDS: dict[str, type] = {
-    "produits": list, "adresse_livraison": str, "statut": str
-    }

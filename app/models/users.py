@@ -34,7 +34,3 @@ class User(Base):
             "date_creation": self.date_creation.isoformat() if
             self.date_creation else None
         }
-    
-    FIELDS: dict[str, type] = {
-        "email": str, "nom": str, "password": str, "role": str
-        }
