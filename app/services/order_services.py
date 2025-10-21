@@ -19,7 +19,7 @@ def get_all_orders(session: Session,
     """
     Retourne toutes les commandes si admin ou celles d'un client.
 
-    Lève une erreur de permissions si client non autorisé
+    Lève une erreur si client non autorisé
     """
     if user and user.role != "admin":
         return session.query(Order).filter_by(utilisateur_id=user.id).all()
@@ -53,6 +53,7 @@ def create_new_order(session: Session, user_id: int,
     )
     session.add(order)
     session.flush()  # génère l'ID de la commande
+    # session.commit()
 
     for item in items:
         product = get_product_id(session, item["produit_id"])
@@ -73,6 +74,7 @@ def create_new_order(session: Session, user_id: int,
         product.quantite_stock -= order_item.quantite
 
     session.flush()
+    # session.commit()
     return order
 
 
@@ -81,7 +83,7 @@ def get_orderitems_all(session: Session,
     """
     Retourne toutes les lignes d'une commande.
 
-    Lève une erreur si aucune ligne trouvée
+    Lève une erreur si aucune ligne de commande trouvée
     """
     items = session.query(OrderItem).filter_by(commande_id=order_id).all()
     if not items:
@@ -99,5 +101,6 @@ def change_status_order(session: Session,
     order.statut = new_status
 
     session.flush()
+    # session.commit()
     session.refresh(order)
     return order

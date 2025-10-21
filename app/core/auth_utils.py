@@ -60,8 +60,7 @@ def get_user_by_email(session: Session, email: str) -> User | None:
 def register_user(session: Session, email: str,
                   nom: str, password: str, role: str) -> User:
     '''
-    Crée un nouvel utilisateur dans la base et
-    retourne l'instance de l'utilisateur créé.
+    Crée un nouvel utilisateur dans la base et retourne son instance.
 
     Lève une erreur si l'email est déjà utilisé.
     '''
@@ -76,7 +75,6 @@ def register_user(session: Session, email: str,
         date_creation=datetime.now(UTC),
     )
     session.add(user)
-    # session.flush()
     session.commit()
     session.refresh(user)
 

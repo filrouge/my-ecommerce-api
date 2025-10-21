@@ -31,6 +31,7 @@ def add_product(session: Session, **kwargs) -> Product:
 
     session.add(product)
     session.flush()
+    # session.commit()
     return product
 
 
@@ -44,6 +45,7 @@ def update_product(session: Session, produit_id: int, **kwargs) -> Product:
         setattr(product, field, value)
 
     session.flush()
+    # session.commit()
     session.refresh(product)
     return product
 
@@ -56,6 +58,7 @@ def delete_product_id(session: Session, produit_id: int) -> bool:
 
     session.delete(product)
     session.flush()
+    # session.commit()
     return True
 
 
