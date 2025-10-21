@@ -1,10 +1,10 @@
 from app.database.base import Base, engine
 import os
 
+
 class DatabaseManager:
     """
     Gestion de la création et suppression des tables SQLAlchemy.
-    Peut être utilisé depuis la factory Flask ou les tests.
     """
 
     def __init__(self, base=Base, engine=engine):

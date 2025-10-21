@@ -3,8 +3,6 @@ from app.database.base import SessionLocal
 from sqlalchemy.orm import Session
 from typing import Optional
 
-''' initialisation de session avec gestion centralisée 'flask.g' '''
-
 
 def get_session() -> Session:
     """ Renvoie une session SQLAlchemy stockée dans g. """
