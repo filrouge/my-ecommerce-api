@@ -28,6 +28,7 @@ class ProductCreateSchema(BaseModel):
         }
     )
 
+
 class ProductUpdateSchema(BaseModel):
     nom: Optional[str] = None
     description: Optional[str] = None
@@ -53,6 +54,7 @@ class ProductUpdateSchema(BaseModel):
         }
     )
 
+
 class ProductRespSchema(BaseModel):
     id: int
     nom: str
@@ -75,6 +77,7 @@ class ProductRespSchema(BaseModel):
         }
     )
 
+
 class ProductCreateRespSchema(BaseModel):
     message: str
     produit: ProductRespSchema
@@ -88,6 +91,7 @@ class ProductCreateRespSchema(BaseModel):
             }
         }
     )
+
 
 class ProductUpdateRespSchema(BaseModel):
     message: str
@@ -105,6 +109,7 @@ class ProductUpdateRespSchema(BaseModel):
         }
     )
 
+
 class ProductDeleteRespSchema(BaseModel):
     message: str
     deleted_id: int
@@ -118,6 +123,7 @@ class ProductDeleteRespSchema(BaseModel):
             }
         }
     )
+
 
 # RootModel pour renvoyer liste de produits
 class ProductListSchema(RootModel[list[ProductRespSchema]]):

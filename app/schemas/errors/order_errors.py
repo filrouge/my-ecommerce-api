@@ -1,8 +1,9 @@
 from pydantic import ConfigDict
-from app.schemas.errors.validation_schemas import ValidationErrorsSchema
+from app.schemas.errors.json_schemas import ValidationErrorSchema
+from app.schemas.errors.errors_schemas import ErrorClass
 
-# Erreurs dédiées par endpoint - classes (avec example via json_schema_extra)
-class OrderCreateError(ValidationErrorsSchema):
+# Erreurs dédiées par endpoint - classes (exemple via json_schema_extra)
+class OrderCreateError(ValidationErrorSchema):
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
@@ -19,7 +20,7 @@ class OrderCreateError(ValidationErrorsSchema):
         }
     )
 
-class OrderUpdateError(ValidationErrorsSchema):
+class OrderUpdateError(ValidationErrorSchema):
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
@@ -36,7 +37,7 @@ class OrderUpdateError(ValidationErrorsSchema):
         }
     )
 
-class OrderDeleteError(ValidationErrorsSchema):
+class OrderDeleteError(ValidationErrorSchema):
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
@@ -53,7 +54,7 @@ class OrderDeleteError(ValidationErrorsSchema):
         }
     )
 
-class OrderListError(ValidationErrorsSchema):
+class OrderListError(ValidationErrorSchema):
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
@@ -70,7 +71,7 @@ class OrderListError(ValidationErrorsSchema):
         }
     )
 
-class OrderGetError(ValidationErrorsSchema):
+class OrderGetError(ValidationErrorSchema):
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
@@ -86,3 +87,9 @@ class OrderGetError(ValidationErrorsSchema):
             }
         }
     )
+
+
+OrderError400 = ErrorClass("order", 400)
+OrderError401 = ErrorClass("order", 401)
+OrderError403 = ErrorClass("order", 403)
+OrderError404 = ErrorClass("order", 404)
