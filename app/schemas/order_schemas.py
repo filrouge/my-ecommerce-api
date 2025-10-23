@@ -10,8 +10,8 @@ class OrderItemSchema(BaseModel):
     produit_id: int
     quantite: int = Field(..., ge=0)
 
-    # model_config = {"from_attributes": True}
     model_config = ConfigDict(from_attributes=True)
+
 
 class OrderItemRespSchema(BaseModel):
     id: int
@@ -20,17 +20,11 @@ class OrderItemRespSchema(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-# class OrderBase(BaseModel):
-#     adresse_livraison: str
-#     lignes: List[OrderItemSchema] = []
-
-#     model_config = ConfigDict(from_attributes=True)
 
 class OrderCreateSchema(BaseModel):
     adresse_livraison: str = Field(..., min_length=1)
     produits: List[OrderItemSchema]
 
-    # model_config = {"from_attributes": True}
     model_config = ConfigDict(
         from_attributes=True,
         json_schema_extra={
@@ -43,6 +37,7 @@ class OrderCreateSchema(BaseModel):
             }
         }
     )
+
 
 class OrderUpdateSchema(BaseModel):
     statut: OrderStatusLiteral
@@ -57,6 +52,7 @@ class OrderUpdateSchema(BaseModel):
         }
     )
 
+
 class OrderRespSchema(BaseModel):
     id: int
     utilisateur_id: int
@@ -64,6 +60,17 @@ class OrderRespSchema(BaseModel):
     statut: str
     date_commande: datetime
     lignes: List[OrderItemSchema] = []
+
+    @field_validator("date_commande", mode="before")
+    def parse_date_commande(cls, v):
+        if isinstance(v, datetime):
+            return v
+        if isinstance(v, str):
+            try:
+                return parsedate_to_datetime(v)
+            except Exception:
+                return datetime.fromisoformat(v)
+        return v
 
     model_config = ConfigDict(
         from_attributes=True,
@@ -82,16 +89,6 @@ class OrderRespSchema(BaseModel):
         }
     )
 
-    @field_validator("date_commande", mode="before")
-    def parse_date_commande(cls, v):
-        if isinstance(v, datetime):
-            return v
-        if isinstance(v, str):
-            try:
-                return parsedate_to_datetime(v)
-            except Exception:
-                return datetime.fromisoformat(v)
-        return v
 
 class OrderCreateRespSchema(BaseModel):
     message: str
@@ -107,6 +104,7 @@ class OrderCreateRespSchema(BaseModel):
         }
     )
 
+
 class OrderUpdateRespSchema(BaseModel):
     message: str
     commande: OrderUpdateSchema
@@ -120,6 +118,7 @@ class OrderUpdateRespSchema(BaseModel):
             }
         }
     )
+
 
 class OrderListSchema(RootModel[list[OrderRespSchema]]):
     model_config = ConfigDict(

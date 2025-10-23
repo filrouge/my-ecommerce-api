@@ -9,6 +9,7 @@ main_bp = Blueprint("main", __name__)
 # Routes :
 @main_bp.route("/")
 def home() -> str:
+    ''' Pour tests '''
     return "API e-commerce opérationnelle !"
 
 
@@ -16,8 +17,7 @@ def home() -> str:
 @main_bp.route("/admin-space/users", methods=["GET"])
 @auth_required
 def list_users(current_user: User) -> Tuple[Response, int] | Response:
-    '''
-    '''
+    ''' Pour tests '''
     if current_user.role != "admin":
         return jsonify({"error": "Accès refusé"}), 403
 
@@ -30,8 +30,7 @@ def list_users(current_user: User) -> Tuple[Response, int] | Response:
 
 @main_bp.route("/public-space/users", methods=["GET"])
 def public_list_users() -> Tuple[Response, int] | Response:
-    '''
-    '''
+    ''' Pour tests '''
     try:
         users = g.session.query(User).all()
         return jsonify([u.to_dict() for u in users])
@@ -42,8 +41,7 @@ def public_list_users() -> Tuple[Response, int] | Response:
 @main_bp.route("/admin-route")
 @auth_required
 def admin_route(current_user: User) -> Tuple[Response, int] | Response:
-    '''
-    '''
+    ''' Pour tests '''
     if current_user.role != "admin":
         return jsonify({"error": "Accès refusé"}), 403
     else:

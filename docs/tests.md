@@ -17,7 +17,7 @@ tests/
 ├── conftest.py          → Fixtures (instance isolée, client Flask et session BdD en mémoire...)
 │
 ├── test_users.py        → couvre les tests inscription, connexion (+ token JWT) et autorisation
-├── test_products.py     → couvre les test Produits (création, consultation, modification, suppression)
+├── test_products.py     → couvre les tests Produits (création, consultation, modification, suppression)
 └── test_orders.py       → couvre les tests Commandes (création, consultation, mise à jour)
 ```
 
@@ -45,8 +45,6 @@ A paramétrer dans `pytest.ini` !!!!
 addopts = --cov=core --cov=model --cov=routes --cov=services --cov-report=term --cov-report=html
  -->
 
-
-
 <br>
 
 ### ▶️ Exécution
@@ -57,10 +55,10 @@ pytest -v
 ```
 
 Executez les commandes suivantes selon la campagne de tests souhaitée.  
-- `pytest -v tests/test_users.py` : → cible un seul fichier de tests  
-- `pytest -vv tests/test_users.py` : → affiche le détail des assertions  
-- `pytest -v tests/test_users.py::TestLogin` : → cible un seul module de tests  
-- `pytest -v tests/test_users.py::TestAdminAccess::test_access_denied` : → cible un test spécifique
+- → un seul fichier de tests: `pytest -v tests/test_users.py`  
+- → détail des assertions: `pytest -vv tests/test_users.py`  
+- → un seul module de tests: `pytest -v tests/test_users.py::TestLogin`  
+- → un test spécifique: `pytest -v tests/test_users.py::TestAdminAccess::test_access_denied`
 
 <br>
 
@@ -106,9 +104,9 @@ Les tests couvrent, entre-autres, les points suivants:
 
 Les copies d'écran suivantes indiquent les résultats des tests effectués en base mémoire :  
 
-![Pytest_user](docs/tests/img/results_user_tests.png)  
+![Pytest_user](img/results_user_tests.png)  
   
-![Pytest_product](docs/tests/img/results_product_tests.png)  
+![Pytest_product](img/results_product_tests.png)  
   
-![Pytest_order](docs/tests/img/results_order_tests.png)
+![Pytest_order](img/results_order_tests.png)
   

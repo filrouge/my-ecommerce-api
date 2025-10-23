@@ -13,7 +13,8 @@ from app.schemas.order_schemas import (
 )
 from pydantic import ValidationError
 from app.schemas.errors.order_errors import(
-    OrderCreateError, OrderUpdateError, OrderListError, OrderGetError
+    OrderCreateError, OrderUpdateError, OrderListError, OrderGetError,
+    OrderError400, OrderError401, OrderError403, OrderError404
 )
 from spectree import Response as SpecResp
 from app.spec import spec
@@ -25,7 +26,9 @@ order_bp = Blueprint("order_bp", __name__)
 @order_bp.route("", methods=["GET"])
 @access_granted('admin', 'client')
 @spec.validate(
-    resp=SpecResp(HTTP_200=OrderListSchema, HTTP_422=OrderListError),
+    resp=SpecResp(HTTP_200=OrderListSchema, HTTP_422=OrderListError,
+                  HTTP_400=OrderError400, HTTP_401=OrderError401,
+                  HTTP_403=OrderError403,HTTP_404=OrderError404),
     tags=["Commandes"]
 )
 def list_orders() -> Tuple[Response, int]:
@@ -41,13 +44,14 @@ def list_orders() -> Tuple[Response, int]:
 @order_bp.route("/<int:id>", methods=["GET"])
 @access_granted('admin', 'client')
 @spec.validate(
-    resp=SpecResp(HTTP_200=OrderRespSchema, HTTP_422=OrderGetError),
+    resp=SpecResp(HTTP_200=OrderRespSchema, HTTP_422=OrderGetError,
+                  HTTP_400=OrderError400, HTTP_401=OrderError401,
+                  HTTP_403=OrderError403,HTTP_404=OrderError404),
     tags=["Commandes"]
 )
 def get_order_id(id: int) -> Tuple[Response, int]:
     """
-    Récupère les détails d'une commande (admin, client propriétaire).
-    Lève une erreur ForbiddenError si utilisateur non autorisé
+    Détails d'une commande (admin, propriétaire only).
     """
     order = get_order_by_id(g.session, id)
     if (g.current_user.role != "admin"
@@ -63,15 +67,15 @@ def get_order_id(id: int) -> Tuple[Response, int]:
 @access_granted('client')
 @spec.validate(
     json=OrderCreateSchema,
-    resp=SpecResp(HTTP_201=OrderCreateRespSchema, HTTP_422=OrderCreateError),
+    resp=SpecResp(HTTP_201=OrderCreateRespSchema, HTTP_422=OrderCreateError,
+                  HTTP_400=OrderError400, HTTP_401=OrderError401,
+                  HTTP_403=OrderError403,HTTP_404=OrderError404),
+    security={"auth_apiKey": []},
     tags=["Commandes"]
 )
 def create_order() -> Tuple[Response, int]:
     """
-    Création d'une commande pour un client (client uniquement).
-    Lève une erreur BadRequestError :
-        si chanmp adresse_livraison vide
-        si aucun champ produits
+    Création de commande (client only)
     """   
     body = OrderCreateSchema.model_validate(request.json)
     body = body.model_dump(exclude_none=True)
@@ -97,13 +101,14 @@ def create_order() -> Tuple[Response, int]:
 @access_granted('admin')
 @spec.validate(
     json=OrderUpdateSchema,
-    resp=SpecResp(HTTP_200=OrderUpdateRespSchema, HTTP_422=OrderUpdateError),
+    resp=SpecResp(HTTP_200=OrderUpdateRespSchema, HTTP_422=OrderUpdateError,
+                  HTTP_400=OrderError400, HTTP_401=OrderError401,
+                  HTTP_403=OrderError403,HTTP_404=OrderError404),
     tags=["Commandes"]
 )
 def update_status_order(id: int) -> Tuple[Response, int]:
     """
-    Modifie le statut d'une commande (admin uniquement).
-    Lève une erreur BadRequestError si statut invalide
+    Modification du statut de commande (admin only)
     """
     try:
         body = OrderUpdateSchema.model_validate(request.json)
@@ -118,12 +123,14 @@ def update_status_order(id: int) -> Tuple[Response, int]:
 # GET /api/commandes/<id>/lignes
 @order_bp.route("/<int:id>/lignes", methods=["GET"])
 @spec.validate(
-    resp=SpecResp(HTTP_200=List[OrderItemRespSchema], HTTP_422=OrderListError),
+    resp=SpecResp(HTTP_200=List[OrderItemRespSchema], HTTP_422=OrderListError,
+                  HTTP_400=OrderError400, HTTP_401=OrderError401,
+                  HTTP_403=OrderError403,HTTP_404=OrderError404),
     tags=["Commandes"]
 )
 def list_orderitems(id: int) -> Tuple[Response, int]:
     """
-    Récupère les lignes d'une commande (accès public !!).
+    Liste les lignes d'une commande (accès public !).
     """
     order = get_order_by_id(g.session, id)
     items = get_orderitems_all(g.session, order.id)

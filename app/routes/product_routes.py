@@ -9,28 +9,30 @@ from typing import Tuple
 from spectree import Response as SpecResp
 from app.spec import spec
 from pydantic import ValidationError
-from app.schemas.errors.validation_schemas import ValidationErrorsSchema
+from app.schemas.errors.json_schemas import ValidationErrorSchema
 from app.schemas.product_schemas import (
     ProductCreateSchema, ProductUpdateSchema, ProductRespSchema,
     ProductCreateRespSchema, ProductUpdateRespSchema,
     ProductDeleteRespSchema, ProductListSchema)
 from app.schemas.errors.product_errors import (
-    ProductCreateError, ProductUpdateError, ProductDeleteError,
-    ProductListError)
+    ProductCreateError, ProductUpdateError, ProductDeleteError, ProductListError,
+    ProductError400, ProductError401, ProductError403, ProductError404
+)
 
 product_bp = Blueprint("product_bp", __name__)
+
 
 # GET /api/produits
 @product_bp.route("", methods=["GET"])
 @spec.validate(
-    resp=SpecResp(HTTP_200=ProductListSchema, HTTP_422=ProductListError),
+    resp=SpecResp(HTTP_200=ProductListSchema, HTTP_422=ProductListError,
+                  HTTP_400=ProductError400, HTTP_401=ProductError401,
+                  HTTP_403=ProductError403,HTTP_404=ProductError404),
     tags=["Produits"]
 )
 def get_products() -> Tuple[Response, int]:
     """
-    Récupère la liste complète des produits en base (JSON).
-
-    Retourne une erreur pour toute erreur base
+    Liste complète des produits du catalogue
     """
     products = get_all_products(g.session)
 
@@ -42,17 +44,14 @@ def get_products() -> Tuple[Response, int]:
 # GET /api/produits/search
 @product_bp.route("/search", methods=["GET"])
 @spec.validate(
-    resp=SpecResp(HTTP_200=ProductListSchema, HTTP_422=ProductListError),
+    resp=SpecResp(HTTP_200=ProductListSchema, HTTP_422=ProductListError,
+                  HTTP_400=ProductError400, HTTP_401=ProductError401,
+                  HTTP_403=ProductError403,HTTP_404=ProductError404),
     tags=["Produits"]
 )
 def list_products() -> Tuple[Response, int]:
     """
-    Récupère la liste des produits selon les critères
-    de nom, de catégorie ou de disponibilité (JSON).
-
-    Retourne une erreur :
-        si produit introuvable
-        pour toute erreur base
+    Recherche de produits par nom, catégorie ou disponibilité
     """
     nom = request.args.get("nom")
     categorie = request.args.get("categorie")
@@ -74,16 +73,14 @@ def list_products() -> Tuple[Response, int]:
 @product_bp.route("/<int:id>", methods=["GET"])
 @access_granted('admin', 'client')
 @spec.validate(
-    resp=SpecResp(HTTP_200=ProductRespSchema, HTTP_422=ValidationErrorsSchema),
+    resp=SpecResp(HTTP_200=ProductRespSchema, HTTP_422=ValidationErrorSchema,
+                  HTTP_400=ProductError400, HTTP_401=ProductError401,
+                  HTTP_403=ProductError403,HTTP_404=ProductError404),
     tags=["Produits"]
 )
 def get_product(id: int) -> Tuple[Response, int]:
     """
-    Récupère un produit par son ID (JSON).
-
-    Retourne une erreur :
-        si produit introuvable
-        pour toute erreur base
+    Recherce de produit via son ID
     """
     product = get_product_id(g.session, id)
     response = ProductRespSchema.model_validate(product)
@@ -95,16 +92,14 @@ def get_product(id: int) -> Tuple[Response, int]:
 @access_granted('admin')
 @spec.validate(
     json=ProductCreateSchema,
-    resp=SpecResp(HTTP_201=ProductCreateRespSchema, HTTP_422=ProductCreateError),
+    resp=SpecResp(HTTP_201=ProductCreateRespSchema, HTTP_422=ProductCreateError,
+                  HTTP_400=ProductError400, HTTP_401=ProductError401,
+                  HTTP_403=ProductError403,HTTP_404=ProductError404),
     tags=["Produits"]
 )
 def create_product() -> Tuple[Response, int]:
     """
-    Création d'un nouveau produit (admin uniquement).
-
-    Retourne une erreur :
-        si JSON invalide
-        pour toute erreur base
+    Ajout de produit au catalogue (admin only).
     """
     try:
         body = ProductCreateSchema(**request.json)
@@ -132,16 +127,14 @@ def create_product() -> Tuple[Response, int]:
 @access_granted('admin')
 @spec.validate(
     json=ProductUpdateSchema,
-    resp=SpecResp(HTTP_200=ProductUpdateRespSchema, HTTP_422=ProductUpdateError),
+    resp=SpecResp(HTTP_200=ProductUpdateRespSchema, HTTP_422=ProductUpdateError,
+                  HTTP_400=ProductError400, HTTP_401=ProductError401,
+                  HTTP_403=ProductError403,HTTP_404=ProductError404),
     tags=["Produits"]
 )
 def update_product_id(id: int) -> Tuple[Response, int]:
     """
-    Mise à jour des caractéristiques d'un produit (admin uniquement).
-
-    Retourne une erreur :
-        si produit introuvable
-        pour toute erreur base
+    Mise à jour des caractéristiques produit (admin only)
     """
     try:
         body = ProductUpdateSchema(**request.json)
@@ -164,16 +157,14 @@ def update_product_id(id: int) -> Tuple[Response, int]:
 @product_bp.route("/<int:id>", methods=["DELETE"])
 @access_granted('admin')
 @spec.validate(
-    resp=SpecResp(HTTP_200=ProductDeleteRespSchema, HTTP_422=ProductDeleteError),
+    resp=SpecResp(HTTP_200=ProductDeleteRespSchema, HTTP_422=ProductDeleteError,
+                  HTTP_400=ProductError400, HTTP_401=ProductError401,
+                  HTTP_403=ProductError403,HTTP_404=ProductError404),
     tags=["Produits"]
 )
 def delete_product(id: int) -> Tuple[Response, int]:
     """
-    Supprime un produit du catalogue (admin uniquement).
-
-    Retourne une erreur :
-        si produit introuvable
-        pour toute erreur base
+    Suppression de produit du catalogue (admin only)
     """
     delete_product_id(g.session, id)
     return jsonify({"message": f"Produit {id} supprimé", "deleted_id": id}), 200

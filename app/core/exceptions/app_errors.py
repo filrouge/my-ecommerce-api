@@ -2,26 +2,40 @@
 
 class ApplicationError(Exception):
     """Exception générique pour toutes les erreurs applicatives."""
-    def __init__(self, message, status_code=400):
+    status_code: int
+
+    def __init__(self, message: str, status_code: int = 400) -> None:
         super().__init__(message)
         self.status_code = status_code
 
 
 class BadRequestError(ApplicationError):
-    def __init__(self, message):
-        super().__init__(message, status_code=400)
+    """ 400 Bad Request """
+    status_code: int = 400
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message, status_code=self.status_code)
 
 
 class UnauthorizedError(ApplicationError):
-    def __init__(self, message):
-        super().__init__(message, status_code=401)
+    """ 401 Unauthorized """
+    status_code: int = 401
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message, status_code=self.status_code)
 
 
 class ForbiddenError(ApplicationError):
-    def __init__(self, message):
-        super().__init__(message, status_code=403)
+    """ 403 Forbidden """
+    status_code: int = 403
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message, status_code=self.status_code)
 
 
 class NotFoundError(ApplicationError):
-    def __init__(self, message):
-        super().__init__(message, status_code=404)
+    """ 404 Not Found """
+    status_code: int = 404
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message, status_code=self.status_code)

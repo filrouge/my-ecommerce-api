@@ -27,10 +27,10 @@ Elle est construite avec les librairies **Flask**, **SQLAlchemy** et **JWT**, et
 
 <br>
 
-L'architecture modulaire assure une séparation des responsabilités (type MVC) `routes` → `services` → `model` → `DataBase`, où :
-- *routes* : exposition de l’API et application des contrôles d’accès
-- *services* : description de la logique métier et des interactions avec la base
-- *model* : définition des tables et relations (SQLAlchemy)
+L'architecture modulaire assure une continuité `routes` → `services` → `model` → `DataBase`, où :
+- les *routes* exposent l’API avec des contrôles d’accès
+- les *services* décrivent la logique métier et les interactions avec la base
+- les *models* définissent des tables et relations (SQLAlchemy)
 
 <br>
 
@@ -74,13 +74,16 @@ Ce tableau présente le `Body` des requêtes CRUD (via cURL, Postman ...) pour l
 
 <br>
 
-Les exemples suivants, formatés pour cURL, fournissent les `body` (des requêtes) attendus et le format JSON des réponses associées.
+![swagger_home](img/swagger_home.png)
 
-> La présence de *headers* (`Authorization: Bearer <token>`) dans les *body* est obligatoire pour posséder les droits nécessaires à l'exécution des actions CRUD avec permissions.
+![swagger_login](img/swagger_login.png)
 
 <br>
 
 #### Exemples cURL
+
+> Les exemples suivants, formatés pour cURL, fournissent les `body` (des requêtes) attendus et le format JSON des réponses associées.  
+> La présence de *headers* (`Authorization: Bearer <token>`) dans les *body* est obligatoire pour obtenir les droits nécessaires à l'exécution des actions CRUD avec permissions.
 
 <br>
 
@@ -409,6 +412,13 @@ curl -X GET http://127.0.0.1:5000/api/commandes/11/lignes \
 
 <br>
 
+![scalar_home](img/scalar_home.png)
+
+![scalar_register](img/scalar_register.png)
+
+
+![redoc_home](img/redoc_home.png)
+
 ---
 
 ## ⚠️ Gestion des erreurs/exceptions
@@ -431,8 +441,8 @@ Les erreurs applicatives remontées par l'API reposent sur les exceptions centra
 
 | *Domaine*        | *Erreur*                             | *Code* | *Message*      |
 |------------------|--------------------------------------|--------|--------------------|
-| Authentification | Email manquant ou invalide           |  400   | BadRequestError    |
-| Authentification | Email ou mot de passe incorrect      |  403   | ForbiddenError     |
+| Authentification | Email manquant ou invalide           |  400   | BadRequestError    | Pydantic
+| Authentification | Email ou mot de passe incorrect      |  403   | ForbiddenError     | 
 | Authentification | Token manquant                       |  401   | UnauthorizedError  |
 | Authentification | Token expiré                         |  401   | UnauthorizedError  |
 | Authentification | Token invalide                       |  401   | UnauthorizedError  |
@@ -442,19 +452,19 @@ Les erreurs applicatives remontées par l'API reposent sur les exceptions centra
 | Autorisation     | Action non autorisée                 |  403   | ForbiddenError     |
 | Autorisation     | Accès refusé                         |  403   | ForbiddenError     |
 | Produits         | Produit introuvable                  |  404   | NotFoundError      |
-| Produits         | Nom, prix ou quantite manquant       |  400   | BadRequestError    |
-| Produits         | Prix invalide                        |  400   | BadRequestError    |
-| Produits         | Quantité invalide                    |  400   | BadRequestError    |
+| Produits         | Nom, prix ou quantite manquant       |  422   | BadRequestError    | Pydantic
+| Produits         | Prix invalide                        |  422   | BadRequestError    | Pydantic
+| Produits         | Quantité invalide                    |  422   | BadRequestError    | Pydantic
 | Commandes        | Commande introuvable                 |  404   | NotFoundError      |
 | Commandes        | Ligne de Commande introuvable        |  404   | NotFoundError      |
-| Commandes        | Produit ou adresse manquant          |  400   | BadRequestError    |
-| Commandes        | Statut manquant pour update          |  400   | BadRequestError    |
-| Commandes        | Statut invalide                      |  400   | BadRequestError    |
+| Commandes        | Produit ou adresse manquant          |  422   | BadRequestError    | Pydantic
+| Commandes        | Statut manquant pour update          |  422   | BadRequestError    | Pydantic
+| Commandes        | Statut invalide                      |  422   | BadRequestError    | Pydantic
 | Commandes        | Accès aux autres commandes           |  403   | ForbiddenError     |
-| Commandes        | Ligne de Commande vide ou invalide   |  403   | ForbiddenError     |
+| Commandes        | Ligne de Commande vide ou invalide   |  422   | ForbiddenError     | Pydantic
 |------------------|--------------------------------------|--------|--------------------|
-| Commun           | JSON invalide                        |  400   | BadRequestError    |
-| Commun           | Champs manquant(s)                   |  400   | BadRequestError    |
+| Commun           | JSON invalide                        |  422   | BadRequestError    | Pydantic
+| Commun           | Champs manquant(s)                   |  422   | BadRequestError    | Pydantic
 
 <br>
 

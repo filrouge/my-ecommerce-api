@@ -10,6 +10,7 @@ ENV = os.getenv("FLASK_ENV", "dev").lower()
 app_config = CONFIG_MAP.get(ENV, CONFIG_MAP["dev"])
 DB_URL = app_config.DATABASE_URL
 
+
 '''
 Point d'entrée pour la création de session SQLAlchemy:
     - Engine pour database locale SQLite

@@ -1,8 +1,13 @@
 from pydantic import ConfigDict
-from app.schemas.errors.validation_schemas import ValidationErrorsSchema
+from app.schemas.errors.json_schemas import ValidationErrorSchema
+from app.schemas.errors.errors_schemas import ErrorClass
 
+"""
+    Erreurs dédiées par endpoint - classes (exemple via json_schema_extra)
+"""
 
-class RegisterError(ValidationErrorsSchema):
+# REGISTER
+class RegisterError(ValidationErrorSchema):
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
@@ -17,7 +22,8 @@ class RegisterError(ValidationErrorsSchema):
         }
     )
 
-class LoginError(ValidationErrorsSchema):
+# LOGIN
+class LoginError(ValidationErrorSchema):
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
@@ -32,7 +38,8 @@ class LoginError(ValidationErrorsSchema):
         }
     )
 
-class TokenError(ValidationErrorsSchema):
+# TOKEN
+class TokenError(ValidationErrorSchema):
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
@@ -46,3 +53,9 @@ class TokenError(ValidationErrorsSchema):
             }
         }
     )
+
+
+UserError400 = ErrorClass("user", 400)
+UserError401 = ErrorClass("user", 401)
+UserError403 = ErrorClass("user", 403)
+UserError404 = ErrorClass("user", 404)
