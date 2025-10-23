@@ -24,7 +24,7 @@ def auth_required(func: Callable) -> Callable:
 
         token = auth_header.split(" ")[1]
         payload = decode_token(token)
-        
+
         g.current_user = g.session.get(User, payload["id"])
         if not g.current_user:
             raise UnauthorizedError("Payload Token invalide")
@@ -34,11 +34,11 @@ def auth_required(func: Callable) -> Callable:
 
 
 # Décorateur Autorisation (rôle) :
-def access_granted(*role_names: str) -> Callable:
+def access_granted(*roles: str) -> Callable:
     """
     Vérifie le(s) rôle(s) pour autoriser des actions CRUD
     (@access_granted(role) avec role = "client" et/ou "admin")
-    
+
     Retourne une fonction décorée appliquant la vérification du rôle.
     Lève une erreur si (rôle) utilisateur non autorisé
     """
@@ -49,7 +49,7 @@ def access_granted(*role_names: str) -> Callable:
             if current_user is None:
                 raise UnauthorizedError("Utilisateur non reconnu")
 
-            if role_names and current_user.role not in role_names:
+            if roles and current_user.role not in roles:
                 raise ForbiddenError("Accès refusé")
 
             return func(*args, **kwargs)

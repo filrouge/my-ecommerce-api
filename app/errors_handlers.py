@@ -2,7 +2,6 @@ from flask import Flask, jsonify
 from sqlalchemy.exc import SQLAlchemyError
 from app.core.exceptions.errors_maps import ORM_ERROR_MAP
 from app.core.exceptions.app_errors import ApplicationError
-
 from pydantic import ValidationError
 from app.schemas.errors.json_schemas import (
     ValidationErrorItem, ValidationErrorSchema
@@ -24,11 +23,6 @@ def register_error_handlers(app: Flask) -> None:
         if exc_name in ORM_ERROR_MAP:
             code, info = next(iter(ORM_ERROR_MAP[exc_name].items()))
             return jsonify({"error": info["error"]}), code
-
-        # for exception_type, (code, msg) in ORM_ERROR_MAP.items():
-        #     if isinstance(error, exception_type):
-        #         # return jsonify({"error": f"Database - {msg}"}), code
-        #         return jsonify({"error": msg}), code
 
         return jsonify({"error": "Database - Erreur interne inconnue"}), 500
     

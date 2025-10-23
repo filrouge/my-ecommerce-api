@@ -12,7 +12,7 @@ def get_session() -> Session:
 
 
 def close_session() -> None:
-    """ Cloture automatique de la session après chaque requête. """
+    """ Cloture auto de la session après chaque requête. """
     session = g.pop("session", None)
     if session:
         session.close()

@@ -4,8 +4,9 @@ __pycache__
 .pytest_cache
 *.pyc
 .coverage
-
 .mypy_cache
+.vscode
+my-ecommerce-api.code-workspace
 
 .env
 
@@ -16,3 +17,5 @@ database/ecommerce.db
 instance
 
 debug
+docs/utils
+docs/utils/*

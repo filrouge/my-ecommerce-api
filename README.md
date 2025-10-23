@@ -20,14 +20,17 @@
 
 ## 📌 Description
 
-**API REST** construite avec **Flask**, **SQLAlchemy**, **JWT** et **Pydantic**, et reposant sur une architecture modulaire qui couvrent les fonctionnalités principales :
+**API REST** construite avec **Flask**, **SQLAlchemy**, **JWT** et **Pydantic**.  
+
+Fonctionnalités principales :
 
 - 👤 *Gestion des utilisateurs*  
 - 📦 *Gestion des produits*  
 - 🛒 *Gestion des commandes*  
   
+<br>
 
-La séparation des responsabilités est assurée comme suit :
+Architecture modulaire avec séparation des responsabilités :
 
 - logique HTTP (request/response, status code): `routes/`
 - logique métier et manipulation de la base (g.session): `services/`
@@ -35,9 +38,13 @@ La séparation des responsabilités est assurée comme suit :
 - socle d'infrastructure commun (connexion, JWT, sécurité): `core/`
 - validation et typage automatique (Pydantic): `schemas/`
 
+
+![Architecture](docs/img/architecture.png)
+
+
 <br>
 
-> 📂 Consultez [api_endpoints.md](docs/endpoints/api_endpoints.md) pour plus d’informations sur l'architecture et les fonctionnalités de l'API.
+> 📂 Consultez [api_endpoints.md](docs/api_endpoints.md) pour plus d’informations sur l'architecture et les fonctionnalités de l'API.
 
 <br>
 
@@ -49,72 +56,95 @@ La séparation des responsabilités est assurée comme suit :
 my-ecommerce-api/
 │
 ├── app/
-│    ├── __init__.py                 # Factory Flask (+ Blueprints)
-│    ├── app.py                      # Point d’entrée API
+│    ├── __init__.py                   # Factory Flask (+ Blueprints)
+│    ├── errors_handlers.py
+│    ├── run.py                        # Point d’entrée API
+│    ├── spec.py                       # Point d'entrée Swagger
 │    │
-│    ├── core/                       # Middleware sécurité (JWT, accès, error handlers)
+│    ├── core/                         # Middleware sécurité (JWT, accès, error handlers)
 │    │    ├── __init__.py
-│    │    │
+│    │    ├── auth_decorators.py
 │    │    ├── auth_utils.py
-│    │    ├── errors_handlers.py
-│    │    ├── permissions.py
 │    │    │
 │    │    └── exceptions/
-│    │         ├── app_errors.py
-│    │         └── orm_errors.py
+│    │        ├── app_errors.py
+│    │        ├── errors_maps.py
+│    │        └── orm_errors.py
 │    │
-│    ├── database/                    # ORM SQLAlchemy (gestion de la base/sessions)
+│    ├── database/                     # ORM SQLAlchemy (gestion base/sessions)
 │    │    ├── __init__.py
-│    │    │
 │    │    ├── base.py
 │    │    ├── db_manager.py
-│    │    └── sessions.py            
+│    │    └── sessions.py
 │    │
-│    ├── models/                      # Modèles SQLAlchemy
+│    ├── models/                       # Modèles SQLAlchemy
 │    │    ├── __init__.py
-│    │    │
 │    │    ├── items.py
 │    │    ├── orders.py
 │    │    ├── products.py
 │    │    └── users.py
 │    │
-│    ├── routes/                      # Routes (`api/auth`, `/api/produits*`, `/api/commandes*`)
+│    ├── routes/                       # Routes (`api/auth`, `/api/produits*`, `/api/commandes*`)
 │    │    ├── __init__.py
-│    │    │
 │    │    ├── auth_routes.py
 │    │    ├── main_routes.py
 │    │    ├── order_routes.py
 │    │    └── product_routes.py
 │    │
-│    └── services/                    # Logique métier (+ validation JSON)
-│         ├── __init__.py
-│         │
-│         ├── order_services.py
-│         ├── product_servicess.py
-│         └── validators.py
-│    
-├── tests/                       # Tests unitaires/fonctionnels (+ fixtures)
-│    ├── __init__.py
+│    ├─── services/                    # Logique métier (+ validation JSON)
+│    │    ├── __init__.py
+│    │    ├── order_services.py
+│    │    └── product_services.py
 │    │
+│    └── schemas/                      # Schemas (validation json, erreurs)
+│         ├── __init__.py
+│         ├── order_schemas.py
+│         ├── product_schemas.py
+│         ├── user_schemas.py
+│         └── errors/
+│              ├── __init__.py
+│              ├── errors_schemas.py
+│              ├── json_schemas.py
+│              ├── order_errors.py
+│              ├── product_errors.py
+│              └── user_errors.py
+│
+├── tests/                             # Tests unitaires (+ fixtures)
+│    ├── __init__.py
 │    ├── conftest.py
 │    ├── report.html
 │    ├── test_orders.py
 │    ├── test_products.py
 │    └── test_users.py
 │
+├── database/                          # Base SQLite (local)
+│    └── ecommerce.db
 │
-├── docs/                             # Documentations API / Tests      
+├── docs/                              # Documentations API / Tests      
 │    ├── api_endpoints.md
 │    ├── tests.md
+│    ├── utils/
+│    │    ├── api_utils.py
+│    │    ├── fake_seeds.py
+│    │    └── Flask_notebook.ipynb
+│    │
 │    └── img/
-│        ├── server-flask.png
-│        └── others_to_come.png
+│         ├── server-flask.png
+│         ├── results_order_tests.png
+│         ├── results_product_tests.png
+│         ├── results_user_tests.png
+│         ├── redoc_home.png
+│         ├── scalar_home.png
+│         ├── scalar_register.png
+│         ├── swagger_home.png
+│         └── swagger_login.png
+│
 │
 ├── .gitignore
-├── .env_template                     # Liste les variables environnement
-├── config.py                         # Configuration (Flask/SQLAlchemy + env)
-├── pytest.ini                        # Configuration Pytest
-├── requirements.txt                  # Liste des dépendances python
+├── .env_template                      # Variables environnement
+├── config.py                          # Configuration (Flask/SQLAlchemy + env)
+├── pytest.ini                         # Configuration Pytest
+├── requirements.txt                   # Dépendances python
 └── README.md
 ```
 
@@ -173,12 +203,14 @@ pip install -r requirements.txt
 
 ### 🔧 Configuration
 
-Une fois le projet cloné et l'environnement crée, modifiez le fichier `config.py` avec vos propres valeurs :
+Une fois le projet cloné et l'environnement crée, faites une copie du fichier `.env__template`...
+Ensuite nommez le `.env` et modifiez ensuite les paramêtres du fichier `.env` avec vos propres valeurs :  
 
 ```
-DATABASE_URL=sqlite:///path-to-database.db
-
-JWT_SECRET_KEY=your-jwt-secret
+JWT_KEY=votre-nouvelle-clé  
+ALGORITHM=votre-algorithme  
+DATABASE_URL=votre-base-de-donnes  
+FLASK_ENV=votre-nouvel-environnement  
 ```
 
 <br>
@@ -201,7 +233,7 @@ Exécutez `python app.app.py` ou `flask run --debug`.
 
 ## 📄 Documentation API
 
-La documentation, disponible sur les URLs suivants, a été générée avec la librairie Spectree et le framework Pydantic :  
+La documentation, disponible sur les URLs suivants, est générée avec la librairie Spectree et le framework Pydantic :  
 - Swagger UI : http://localhost:5000/apidoc/swagger  
 - Redoc : http://localhost:5000/apidoc/redoc  
 - Scalar: http://localhost:5000/apidoc/scalar/  
@@ -219,7 +251,7 @@ Le prochain tableau synthétise les *body* attendus pour les principales fonctio
 
 <br>
 
-> 📂 Consultez [api_endpoints.md](docs/endpoints/api_endpoints.md) pour plus d’informations.
+> 📂 Consultez [api_endpoints.md](docs/api_endpoints.md) pour plus d’informations.
 
 <br>
 
@@ -236,14 +268,13 @@ Les tests unitaires s'appuient sur le framework `pytest` et couvrent les points 
 
 <br>
 
-> 📂 Consultez [tests.md](docs/tests/tests.md) pour plus d’informations (et voir les résultats des tests réalisés en base mémoire).
+> 📂 Consultez [tests.md](docs/tests.md) pour plus d’informations (et voir les résultats des tests réalisés en base mémoire).
 
 <br>
 
 ---
 
-#### 📌 TODO
-> - Futurs Add-ons:
->     - OOP (si léger refactoring)
->     - Logger & Monitoring
->     - Dockérisation
+#### 📌 Todo
+> - Axes d'améliorations:
+>     - Logger pour monitoring
+>     - Docker (containerisation)

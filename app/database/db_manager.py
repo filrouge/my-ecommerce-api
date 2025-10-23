@@ -3,9 +3,7 @@ import os
 
 
 class DatabaseManager:
-    """
-    Gestion de la création et suppression des tables SQLAlchemy.
-    """
+    """ Gestion création/suppression des tables SQLAlchemy. """
 
     def __init__(self, base=Base, engine=engine):
         self.base = base
@@ -21,7 +19,7 @@ class DatabaseManager:
 
     def close_db(self) -> None:
         """Supprime toutes les tables définies dans les modèles SQLAlchemy."""
-        if self.env != "prod" or self.env != "dev":
+        if self.env != "prod" and self.env != "dev":
             self.base.metadata.drop_all(bind=self.engine)
         else:
             raise RuntimeError("Suppression de tables interdite en PROD !")
